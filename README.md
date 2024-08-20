@@ -1,1 +1,1 @@
-# drim
+Influencer Management Platform
