@@ -10,8 +10,9 @@ const IV_LENGTH = CONSTANT.IV_LENGTH;
 exports.decryptPassword = _decryptPassword;
 exports.encryptPassword = _encryptPassword;
 exports.isOtpValid = _isOtpValid;
-exports.sendOTPEmail = _sendOTPEmail;
+exports.sendEmail = _sendEmail;
 exports.isValidId = _isValidId;
+exports.generatePassword = _generatePassword;
 
 function _encryptPassword(text) {
   let iv = crypto.randomBytes(IV_LENGTH);
@@ -48,13 +49,13 @@ function _isOtpValid(otpTime, time) {
   return hoursDifference < time;
 }
 
-async function _sendOTPEmail(email, otp, mailOptions) {
+async function _sendEmail(mailOptions) {
   let transporter = nodemailer.createTransport({
     host: "smtp.ethereal.email",
     port: 587,
     auth: {
-      user: "",
-      pass: "",
+      user: "pietro.feeney@ethereal.email",
+      pass: "WeXfPDGn4Z4bKHqVzP",
     },
   });
 
@@ -73,4 +74,29 @@ function _isValidId(id) {
   }
 
   return mongoose.Types.ObjectId.isValid(id);
+}
+
+function _generatePassword() {
+  const lowercase = "abcdefghijklmnopqrstuvwxyz";
+  const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const numbers = "0123456789";
+  const symbols = "!@#$";
+
+  const allChars = lowercase + uppercase + numbers + symbols;
+  let password = "";
+
+  password += lowercase[Math.floor(Math.random() * lowercase.length)];
+  password += uppercase[Math.floor(Math.random() * uppercase.length)];
+  password += numbers[Math.floor(Math.random() * numbers.length)];
+  password += symbols[Math.floor(Math.random() * symbols.length)];
+
+  for (let i = password.length; i < 10; i++) {
+    const randomIndex = Math.floor(Math.random() * allChars.length);
+    password += allChars[randomIndex];
+  }
+
+  return password
+    .split("")
+    .sort(() => Math.random() - 0.5)
+    .join("");
 }

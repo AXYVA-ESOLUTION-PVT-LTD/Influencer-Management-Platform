@@ -5,11 +5,16 @@ const COMMON = require("../config/common.js");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const ForgotPassword = require("../module/forgotPassword.module.js");
+const fs = require("fs");
+const path = require("path");
+const uploadsDir = path.join(__dirname, "..", "uploads");
 
 const json = {};
 
 exports.login = _login;
 exports.signUp = _signUp;
+
+exports.updateProfile = _updateProfile;
 
 exports.forgotPassword = _forgotPassword;
 exports.OTPVerification = _OTPVerification;
@@ -134,11 +139,16 @@ async function _login(req, res) {
       let token = jwt.sign(userObj, process.env.superSecret, {
         expiresIn: 86400,
       });
-
+      const {
+        password: _,
+        createdAt,
+        updatedAt,
+        ...userWithoutSensitiveInfo
+      } = existUser.toObject();
       json.status = CONSTANT.SUCCESS;
       json.result = {
         message: "User login successfully!",
-        data: { token: token },
+        data: { token: token, user: userWithoutSensitiveInfo },
       };
       return res.send(json);
     } else {
@@ -204,7 +214,7 @@ async function _forgotPassword(req, res) {
 
     if (previousOTPRecord) {
       await ForgotPassword.updateOne({ userId: existUser._id }, { otp });
-      await COMMON.sendOTPEmail(existUser.email, otp, mailOptions);
+      await COMMON.sendEmail(mailOptions);
       json.status = CONSTANT.SUCCESS;
       json.result = {
         message: "OTP re-sent successfully",
@@ -218,7 +228,7 @@ async function _forgotPassword(req, res) {
         otp,
       });
 
-      await COMMON.sendOTPEmail(existUser.email, otp, mailOptions);
+      await COMMON.sendEmail(mailOptions);
 
       json.status = CONSTANT.SUCCESS;
       json.result = {
@@ -653,6 +663,73 @@ async function _deleteUserById(req, res) {
     console.error("Controller: user | Method: _deleteUserById | Error: ", e);
     json.status = CONSTANT.FAIL;
     json.result = { message: "An error occurred while delete user!", error: e };
+    return res.send(json);
+  }
+}
+
+/*
+TYPE: Post
+TODO: Update user profile
+*/
+async function _updateProfile(req, res) {
+  try {
+    const errors = validationResult(req).array();
+    if (errors && errors.length > 0) {
+      let messArr = errors.map((a) => a.msg);
+      json.status = CONSTANT.FAIL;
+      json.result = {
+        message: "Required fields are missing!",
+        error: messArr.join(", "),
+      };
+      return res.send(json);
+    }
+
+    const { firstName, lastName } = req.body;
+    const { email } = req.decoded;
+    const profilePhoto = req.file;
+
+    const updateFields = {
+      firstName,
+      lastName,
+    };
+    if (profilePhoto) {
+      updateFields.profilePhoto = profilePhoto.filename;
+    }
+
+    const updatedUser = await USER_COLLECTION.findOneAndUpdate(
+      { email },
+      updateFields,
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).populate({
+      path: "roleId",
+      model: "Role",
+      select: ["name"],
+    });
+    if (!updatedUser) {
+      json.status = CONSTANT.FAIL;
+      json.result = {
+        message: "Fail to update profile",
+        error: "Fail to updated Pofile",
+      };
+      return res.send(json);
+    }
+    const { password, createdAt, updatedAt, ...sanitizeUser } =
+      updatedUser.toObject();
+    json.status = CONSTANT.SUCCESS;
+    json.result = {
+      message: "update profile success",
+      data: {
+        updatedUser: sanitizeUser,
+      },
+    };
+    return res.send(json);
+  } catch (e) {
+    console.error("Controller: user | Method: _updateUserById | Error: ", e);
+    json.status = CONSTANT.FAIL;
+    json.result = { message: "An error occurred while update user!", error: e };
     return res.send(json);
   }
 }

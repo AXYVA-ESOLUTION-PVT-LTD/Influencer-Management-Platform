@@ -1,6 +1,35 @@
-const { check, body, validationResult } = require("express-validator");
+const { check, validationResult } = require("express-validator");
 
 const updateUser = [
+  check("firstName")
+    .exists()
+    .withMessage("First name is required!")
+    .bail()
+    .trim()
+    .isString()
+    .notEmpty()
+    .withMessage("First name cannot be empty!"),
+  check("lastName")
+    .exists()
+    .withMessage("Last name is required!")
+    .bail()
+    .trim()
+    .isString()
+    .notEmpty()
+    .withMessage("Last name cannot be empty!"),
+  check("email")
+    .exists()
+    .withMessage("email is required!")
+    .bail()
+    .trim()
+    .notEmpty()
+    .withMessage("Email cannot be empty!")
+    .bail()
+    .isEmail()
+    .withMessage("Please enter valid Email"),
+];
+
+const updateProfile = [
   check("firstName")
     .exists()
     .withMessage("First name is required!")
@@ -138,4 +167,5 @@ module.exports = {
   validateOTP,
   validateResetPassword,
   validateChangePassword,
+  updateProfile,
 };

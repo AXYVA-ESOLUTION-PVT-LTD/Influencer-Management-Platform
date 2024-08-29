@@ -7,6 +7,7 @@ const userSchema = mongoose.Schema(
     password: { type: String, required: true },
     roleId: { type: String, required: true },
     isDeleted: { type: Boolean, default: false },
+    profilePhoto: { type: String, default: "" },
   },
   {
     collection: "User",

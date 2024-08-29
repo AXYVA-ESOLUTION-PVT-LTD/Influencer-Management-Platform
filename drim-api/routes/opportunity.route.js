@@ -7,7 +7,7 @@ const router = express.Router();
 
 // Create Opportunity
 router.post(
-  "/",
+  "/createOpportunity",
   OpportunityMiddleware.validateOpportunity,
   auth,
   OpportunityMiddleware.validateAdmin,
@@ -16,8 +16,8 @@ router.post(
 
 // discuss if pagination or not
 // Get All Opportunity
-router.get(
-  "/",
+router.post(
+  "/getOpportunity",
   auth,
   OpportunityMiddleware.validateAdmin,
   Opportunity.getOpportunity
@@ -32,7 +32,7 @@ router.delete(
 );
 
 // Update Opportunity by Id
-router.patch(
+router.put(
   "/:id",
   OpportunityMiddleware.validateOpportunity,
   auth,

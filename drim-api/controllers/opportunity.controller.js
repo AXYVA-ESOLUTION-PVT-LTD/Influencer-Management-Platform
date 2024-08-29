@@ -2,6 +2,7 @@ const { validationResult } = require("express-validator");
 const CONSTANT = require("../config/constant");
 const OPPORTUNITY_COLLECTION = require("../module/opportunity.module");
 const COMMON = require("../config/common");
+const { getSortOption } = require("../helper/getSortOption");
 
 const json = {};
 
@@ -16,10 +17,25 @@ TODO: Get all opportunities
 */
 async function _getOpportunity(req, res) {
   try {
+    const limit = req.body.limit ? req.body.limit : 10;
+    const pageCount = req.body.pageCount ? req.body.pageCount : 0;
+    const skip = limit * pageCount;
+
+    const { id, title, type, sortBy } = req.body;
+
     const opportunities = await OPPORTUNITY_COLLECTION.find({
       isDeleted: false,
-    });
+      id: id ? Number(id) : { $exists: true },
+      title: title ? { $regex: `^${title}`, $options: "i" } : { $exists: true },
+      type: type ? { $regex: `^${type}`, $options: "i" } : { $exists: true },
+    })
+      .sort(getSortOption(sortBy))
+      .skip(skip)
+      .limit(limit);
 
+    const totalOpportunities = await OPPORTUNITY_COLLECTION.countDocuments({
+      isDeleted: false,
+    });
     if (!opportunities) {
       json.status = CONSTANT.FAIL;
       json.result = {
@@ -32,6 +48,8 @@ async function _getOpportunity(req, res) {
       message: "Opportunity fetched successfully",
       data: {
         opportunities,
+        totalOpportunities: totalOpportunities,
+        currentPage: pageCount,
       },
     };
     return res.send(json);
@@ -86,6 +104,9 @@ async function _addOpportunity(req, res) {
     json.status = CONSTANT.SUCCESS;
     json.result = {
       message: "Opportunity created successfully",
+      data: {
+        opportunity,
+      },
     };
     return res.send(json);
   } catch (e) {
@@ -133,6 +154,9 @@ async function _deleteOpportunity(req, res) {
         json.status = CONSTANT.SUCCESS;
         json.result = {
           message: "Opportunity deleted successfully",
+          data: {
+            id: opportunity._id,
+          },
         };
         return res.send(json);
       })
@@ -157,7 +181,7 @@ async function _deleteOpportunity(req, res) {
   }
 }
 /*
-TYPE: Patch
+TYPE: Put
 TODO: Patch Opportunity
 */
 async function _updateOpportunity(req, res) {
@@ -202,7 +226,9 @@ async function _updateOpportunity(req, res) {
     json.status = CONSTANT.SUCCESS;
     json.result = {
       message: "Opportunity updated successfully",
-      opportunity: updatedOpportunity,
+      data: {
+        opportunity: updatedOpportunity,
+      },
     };
     return res.send(json);
   } catch (e) {

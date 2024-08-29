@@ -18,6 +18,10 @@ const DB_URL =
 const Role = require("./routes/role.route");
 const User = require("./routes/user.route");
 const Opportunity = require("./routes/opportunity.route");
+const Post = require("./routes/post.route");
+const Influencer = require("./routes/influencer.route");
+const Client = require("./routes/client.route");
+const path = require("path");
 
 let server;
 
@@ -33,6 +37,7 @@ if (IS_PRODUCTION == "true") {
 
 app.set("port", PORT);
 app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ extended: true }));
 const corsOptions = {
   origin: ["http://localhost:5173", "http://192.168.29.159:5173", "*"],
   optionsSuccessStatus: 200,
@@ -58,9 +63,14 @@ app.use(function (req, res, next) {
   next();
 });
 
+app.use("/api/v1/uploads", express.static(path.join(__dirname, "/uploads")));
+
 app.use("/api/v1/role", Role);
 app.use("/api/v1/user", User);
 app.use("/api/v1/opportunity", Opportunity);
+app.use("/api/v1/posts", Post);
+app.use("/api/v1/influencer", Influencer);
+app.use("/api/v1/client", Client);
 
 mongoose
   .connect(DB_URL)
