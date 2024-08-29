@@ -21,8 +21,8 @@ function* loginUser({ payload: { user, history } }) {
     });
     
     if (response?.result?.data?.token) {
-      localStorage.setItem("authUser", JSON.stringify(response.result.data.token));
-      
+      localStorage.setItem("authUser", response.result.data.token);
+      localStorage.setItem("user", JSON.stringify(response.result.data.user));
       yield put(loginSuccess(response.result.data));
       history("/dashboard");
     } else {
@@ -36,6 +36,7 @@ function* loginUser({ payload: { user, history } }) {
 function* logoutUser({ payload: { history } }) {
   try {
     localStorage.removeItem("authUser");
+    localStorage.removeItem("user");
     yield put(logoutUserSuccess());
     history("/login");
   } catch (error) {

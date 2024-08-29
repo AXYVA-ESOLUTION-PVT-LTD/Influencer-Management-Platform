@@ -13,14 +13,12 @@ import {
   FormFeedback,
 } from "reactstrap";
 
-// redux
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import withRouter from "../../components/Common/withRouter";
 import logo from "../../assets/images/Logo.png";
-import profile from "../../assets/images/profile-img.png"; // Import the profile image
+import profile from "../../assets/images/profile-img.png"; 
 
-// Formik Validation
 import * as Yup from "yup";
 import { useFormik } from "formik";
 
@@ -41,6 +39,7 @@ const ForgotPasswordEmailForm = (props) => {
       email: Yup.string() .email("Invalid email address").required("Please Enter Your Email"),
     }),
     onSubmit: (values) => {
+      localStorage.setItem('email', values.email);
       dispatch(userForgetPassword(values, props.router.navigate));
     },
   });

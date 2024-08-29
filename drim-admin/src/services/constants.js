@@ -7,7 +7,7 @@ export const FORGET_PASSWORD_API = "/user/forgotPassword";
 
 export const OTP_VERIFICATION_API = "/user/OTPVerfication";
 
-export const SET_NEW_PASSWORD_API = "/user/resetPassword";
+export const SET_NEW_PASSWORD_API = "/user/changePassword";
 
 // Reset Password API method
 export const RESET_PASSWORD_API = "/user/resetPassword";

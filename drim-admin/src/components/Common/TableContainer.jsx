@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import {
   useTable,
@@ -64,7 +64,23 @@ const TableContainer = ({
   customPageSize,
   className,
   customPageSizeOptions,
+  handleFilter,
+  isPagination,
+  isFiltering,
+  isSorting,
+  setSortBy,
+  sortBy,
 }) => {
+  const tableHooks = [useGlobalFilter, useExpanded, usePagination];
+
+  if (isFiltering) {
+    tableHooks.shift(useFilters);
+  }
+
+  if (isSorting) {
+    tableHooks.shift(useSortBy);
+  }
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -82,7 +98,7 @@ const TableContainer = ({
     state,
     preGlobalFilteredRows,
     setGlobalFilter,
-    state: { pageIndex, pageSize },
+    state: { pageIndex, pageSize, filters },
   } = useTable(
     {
       columns,
@@ -90,23 +106,18 @@ const TableContainer = ({
       defaultColumn: { Filter: DefaultColumnFilter },
       initialState: {
         pageIndex: 0,
-        pageSize: customPageSize,
-        sortBy: [
-          {
-            desc: true,
-          },
-        ],
+        pageSize: 50,
       },
     },
-    useGlobalFilter,
-    useFilters,
-    useSortBy,
-    useExpanded,
-    usePagination
+    ...tableHooks
   );
 
   const generateSortingIndicator = (column) => {
-    return column.isSorted ? (column.isSortedDesc ? " 🔽" : " 🔼") : "";
+    return isSorting && column.isSorted
+      ? column.isSortedDesc
+        ? " 🔽"
+        : " 🔼"
+      : "";
   };
 
   const onChangeInSelect = (event) => {
@@ -117,22 +128,35 @@ const TableContainer = ({
     const page = event.target.value ? Number(event.target.value) - 1 : 0;
     gotoPage(page);
   };
+
+  const handleSort = (value) => {
+    const sortValue = value.toLowerCase();
+    if (sortValue === "title" || sortValue === "type") {
+      setSortBy((prev) => ({
+        ...prev,
+        [sortValue]: !prev[sortValue],
+      }));
+    }
+  };
   return (
     <Fragment>
       <Row className="mb-2">
-        <Col md={customPageSizeOptions ? 2 : 1}>
-          <select
-            className="form-select"
-            value={pageSize}
-            onChange={onChangeInSelect}
-          >
-            {[10, 20, 30, 40, 50].map((pageSize) => (
-              <option key={pageSize} value={pageSize}>
-                Show {pageSize}
-              </option>
-            ))}
-          </select>
-        </Col>
+        {isPagination && (
+          <Col md={customPageSizeOptions ? 2 : 1}>
+            <select
+              className="form-select"
+              value={pageSize}
+              onChange={onChangeInSelect}
+            >
+              {[10, 20, 30, 40, 50].map((pageSize) => (
+                <option key={pageSize} value={pageSize}>
+                  Show {pageSize}
+                </option>
+              ))}
+            </select>
+          </Col>
+        )}
+
         {/* {isGlobalFilter && (
           <GlobalFilter
             preGlobalFilteredRows={preGlobalFilteredRows}
@@ -140,6 +164,7 @@ const TableContainer = ({
             setGlobalFilter={setGlobalFilter}
           />
         )} */}
+
         {isAddOptions && (
           <Col sm="11">
             <div className="text-sm-end">
@@ -192,15 +217,34 @@ const TableContainer = ({
           <thead className="table-light table-nowrap">
             {headerGroups.map((headerGroup) => (
               <tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column) => (
-                  <th key={column.id}>
-                    <div className="mb-2" {...column.getSortByToggleProps()}>
-                      {column.render("Header")}
-                      {generateSortingIndicator(column)}
-                    </div>
-                    {column.Header !== "Actions" && <Filter column={column} />}
-                  </th>
-                ))}
+                {headerGroup.headers.map((column) => {
+                  const headerTitle = column.render("Header");
+                  return (
+                    <th key={column.id} onClick={() => handleSort(headerTitle)}>
+                      <div
+                        className="mb-2"
+                        style={{
+                          fontWeight:
+                            sortBy &&
+                            Object.entries(sortBy).some(
+                              ([key, value]) =>
+                                key.toLowerCase() ===
+                                  headerTitle.toLowerCase() && value
+                            )
+                              ? 800
+                              : 500,
+                        }}
+                        {...(isSorting ? column.getSortByToggleProps() : {})}
+                      >
+                        {headerTitle}
+                        {generateSortingIndicator(column)}
+                      </div>
+                      {isFiltering && column.Header !== "Actions" && (
+                        <Filter column={column} />
+                      )}
+                    </th>
+                  );
+                })}
               </tr>
             ))}
           </thead>
@@ -226,57 +270,63 @@ const TableContainer = ({
         </Table>
       </div>
 
-      <Row className="justify-content-md-end justify-content-center align-items-center">
-        <Col className="col-md-auto">
-          <div className="d-flex gap-1">
-            <Button
-              color="primary"
-              onClick={() => gotoPage(0)}
-              disabled={!canPreviousPage}
-            >
-              {"<<"}
-            </Button>
-            <Button
-              color="primary"
-              onClick={previousPage}
-              disabled={!canPreviousPage}
-            >
-              {"<"}
-            </Button>
-          </div>
-        </Col>
-        <Col className="col-md-auto d-none d-md-block">
-          Page{" "}
-          <strong>
-            {pageIndex + 1} of {pageOptions.length}
-          </strong>
-        </Col>
-        <Col className="col-md-auto">
-          <Input
-            type="number"
-            min={1}
-            style={{ width: 70 }}
-            max={pageOptions.length}
-            defaultValue={pageIndex + 1}
-            onChange={onChangeInInput}
-          />
-        </Col>
+      {isPagination && (
+        <Row className="justify-content-md-end justify-content-center align-items-center">
+          <Col className="col-md-auto">
+            <div className="d-flex gap-1">
+              <Button
+                color="primary"
+                onClick={() => gotoPage(0)}
+                disabled={!canPreviousPage}
+              >
+                {"<<"}
+              </Button>
+              <Button
+                color="primary"
+                onClick={previousPage}
+                disabled={!canPreviousPage}
+              >
+                {"<"}
+              </Button>
+            </div>
+          </Col>
+          <Col className="col-md-auto d-none d-md-block">
+            Page{" "}
+            <strong>
+              {pageIndex + 1} of {pageOptions.length}
+            </strong>
+          </Col>
+          <Col className="col-md-auto">
+            <Input
+              type="number"
+              min={1}
+              style={{ width: 70 }}
+              max={pageOptions.length}
+              value={pageIndex + 1}
+              onChange={onChangeInInput}
+            />
+          </Col>
 
-        <Col className="col-md-auto">
-          <div className="d-flex gap-1">
-            <Button color="primary" onClick={nextPage} disabled={!canNextPage}>
-              {">"}
-            </Button>
-            <Button
-              color="primary"
-              onClick={() => gotoPage(pageCount - 1)}
-              disabled={!canNextPage}
-            >
-              {">>"}
-            </Button>
-          </div>
-        </Col>
-      </Row>
+          <Col className="col-md-auto">
+            <div className="d-flex gap-1">
+              <Button
+                color="primary"
+                onClick={nextPage}
+                disabled={!canNextPage}
+              >
+                {">"}
+              </Button>
+              <Button
+                color="primary"
+                onClick={() => gotoPage(pageCount - 1)}
+                disabled={!canNextPage}
+              >
+                {">>"}
+              </Button>
+            </div>
+          </Col>
+        </Row>
+      )}
     </Fragment>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Container,
   Button,
@@ -11,25 +11,45 @@ import {
 import { withTranslation } from "react-i18next";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 import TableContainer from "../../components/Common/TableContainer"; // Adjust import path if necessary
+import { useDispatch, useSelector } from "react-redux";
+import {
+  createOpportunity,
+  deleteOpportunity,
+  getOpportunity,
+  updateOpportunity,
+} from "../../store/opportunity/actions";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import Pagination from "../../components/Common/Pagination";
+import Filtering from "../../components/Common/Filtering";
 
 const Opportunity = (props) => {
-  // State for managing opportunities
-  const [opportunities, setOpportunities] = useState([
-    { id: 1, title: "Brand Partnership", type: "Partnership" },
-    { id: 2, title: "Social Media Campaign", type: "Campaign" },
-    { id: 3, title: "Content Collaboration", type: "Collaboration" },
-    { id: 4, title: "Product Launch", type: "Launch" },
-    { id: 5, title: "Influencer Event", type: "Event" },
-    { id: 6, title: "Giveaway Promotion", type: "Promotion" },
-    { id: 7, title: "Affiliate Program", type: "Program" },
-    { id: 8, title: "Brand Ambassador", type: "Ambassador" }
-  ]);
+  const dispatch = useDispatch();
+
+  const { opportunities, error, loading, totalOpportunities, currentPage } =
+    useSelector((state) => state.opportunity);
 
   // State for modals
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedOpportunity, setSelectedOpportunity] = useState(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectedOpportunity, setSelectedOpportunity] = useState({
+    title: "",
+    type: "",
+  });
+
+  const [filterFields, setFilterFields] = useState({
+    title: "",
+    type: "",
+  });
+  const [sortBy, setSortBy] = useState({
+    title: false,
+    type: false,
+  });
+
+  const [limit, setLimit] = useState(10);
+  const [pageCount, setPageCount] = useState(0);
 
   // Meta title
   document.title = "Opportunity | Drim - React Admin & Dashboard Template";
@@ -38,6 +58,11 @@ const Opportunity = (props) => {
   const toggleUpdateModal = () => setIsUpdateModalOpen(!isUpdateModalOpen);
   const toggleDeleteModal = () => setIsDeleteModalOpen(!isDeleteModalOpen);
   const toggleViewModal = () => setIsViewModalOpen(!isViewModalOpen);
+
+  // FETCH OPPORTUNITY WHEN COMPONENT MOUNT
+  useEffect(() => {
+    dispatch(getOpportunity({ limit, pageCount, ...filterFields, sortBy }));
+  }, [dispatch, limit, pageCount, sortBy, isSearching]);
 
   // Handle view
   const handleViewOpportunity = (opportunity) => {
@@ -59,22 +84,18 @@ const Opportunity = (props) => {
 
   // Confirm opportunity update
   const confirmUpdateOpportunity = () => {
-    if (selectedOpportunity.id) {
-      const updatedOpportunities = opportunities.map((opp) =>
-        opp.id === selectedOpportunity.id ? { ...opp, ...selectedOpportunity } : opp
-      );
-      setOpportunities(updatedOpportunities);
+    if (selectedOpportunity && selectedOpportunity._id) {
+      dispatch(updateOpportunity(selectedOpportunity));
     } else {
-      const newOpportunity = { id: opportunities.length + 1, ...selectedOpportunity };
-      setOpportunities([...opportunities, newOpportunity]);
+      dispatch(createOpportunity(selectedOpportunity));
     }
     toggleUpdateModal();
+    setSelectedOpportunity({ title: "", type: "" });
   };
 
   // Confirm opportunity deletion
   const confirmDeleteOpportunity = () => {
-    const updatedOpportunities = opportunities.filter((opp) => opp.id !== selectedOpportunity.id);
-    setOpportunities(updatedOpportunities);
+    dispatch(deleteOpportunity(selectedOpportunity._id));
     toggleDeleteModal();
   };
 
@@ -86,11 +107,10 @@ const Opportunity = (props) => {
 
   const columns = useMemo(
     () => [
-      {
-        Header: "No.",
-        accessor: "id",
-        Cell: ({ cell: { value }, row: { index } }) => index + 1,
-      },
+      // {
+      //   Header: "No.",
+      //   accessor: "id",
+      // },
       {
         Header: "Title",
         accessor: "title",
@@ -135,6 +155,9 @@ const Opportunity = (props) => {
     [handleViewOpportunity, handleUpdateOpportunity, handleDeleteOpportunity]
   );
 
+  const canSubmit =
+    selectedOpportunity?.title.trim().length > 0 &&
+    selectedOpportunity?.type.trim().length > 0;
   return (
     <React.Fragment>
       <div className="page-content">
@@ -147,28 +170,39 @@ const Opportunity = (props) => {
 
           {/* Button to Add New Opportunity */}
           <div className="d-flex justify-content-end mb-3">
-            <Button
-              color="primary"
-              onClick={() =>
-                handleUpdateOpportunity({
-                  id: null,
-                  title: "",
-                  type: "",
-                })
-              }
-            >
+            <Button color="primary" onClick={() => toggleUpdateModal()}>
               Add Opportunity
             </Button>
           </div>
+          <Filtering
+            setFilterFields={setFilterFields}
+            filterFields={filterFields}
+            setIsSearching={setIsSearching}
+          />
 
-          {/* Opportunities Table */}
+          {/* Opportunities Table  */}
           <TableContainer
             columns={columns}
             data={opportunities}
-            isGlobalFilter={false}
+            isGlobalFilter={true}
             isAddOptions={false}
-            customPageSize={10}
+            customPageSize={limit}
             className="custom-header-css"
+            setPageCount={setPageCount}
+            setLimit={setLimit}
+            setSortBy={setSortBy}
+            isPagination={false}
+            isFiltering={false}
+            isSorting={false}
+            sortBy={sortBy}
+          />
+          <Pagination
+            totalData={totalOpportunities}
+            setLimit={setLimit}
+            setPageCount={setPageCount}
+            limit={limit}
+            pageCount={pageCount}
+            currentPage={currentPage}
           />
         </Container>
       </div>
@@ -198,7 +232,11 @@ const Opportunity = (props) => {
           />
         </ModalBody>
         <ModalFooter>
-          <Button color="primary" onClick={confirmUpdateOpportunity}>
+          <Button
+            color="primary"
+            onClick={confirmUpdateOpportunity}
+            disabled={!canSubmit}
+          >
             Save
           </Button>
           <Button color="secondary" onClick={toggleUpdateModal}>
@@ -209,12 +247,13 @@ const Opportunity = (props) => {
 
       {/* Delete Confirmation Modal */}
       <Modal isOpen={isDeleteModalOpen} toggle={toggleDeleteModal}>
-        <ModalHeader toggle={toggleDeleteModal}>
-          Delete Opportunity
-        </ModalHeader>
+        <ModalHeader toggle={toggleDeleteModal}>Delete Opportunity</ModalHeader>
         <ModalBody>
           Are you sure you want to delete the opportunity{" "}
-          <strong>{selectedOpportunity ? selectedOpportunity.title : ""}</strong>?
+          <strong>
+            {selectedOpportunity ? selectedOpportunity.title : ""}
+          </strong>
+          ?
         </ModalBody>
         <ModalFooter>
           <Button color="danger" onClick={confirmDeleteOpportunity}>

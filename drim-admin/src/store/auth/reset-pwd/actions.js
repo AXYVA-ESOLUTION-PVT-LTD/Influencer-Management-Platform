@@ -1,4 +1,4 @@
-import { RESET_PASSWORD, RESET_PASSWORD_SUCCESS, RESET_PASSWORD_ERROR } from "./actionTypes";
+import { RESET_PASSWORD, RESET_PASSWORD_SUCCESS, RESET_PASSWORD_ERROR, RESET_PASSWORD_NULL } from "./actionTypes";
 
 // Action to trigger the reset password process
 export const userResetPassword = (user, history) => {
@@ -7,6 +7,8 @@ export const userResetPassword = (user, history) => {
     payload: { user, history },
   };
 };
+
+
 
 // Action for successful reset password
 export const userResetPasswordSuccess = (message) => {
@@ -23,3 +25,11 @@ export const userResetPasswordError = (message) => {
     payload: message,
   };
 };
+
+// Action to reset input
+export const userResetPasswordNull = () => {
+  return {
+    type: RESET_PASSWORD_NULL,
+  };
+}
+

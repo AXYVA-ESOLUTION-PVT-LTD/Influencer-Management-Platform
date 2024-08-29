@@ -32,15 +32,19 @@ export const getInfluencersFail = (error) => ({
 });
 
 // Add a new influencer
-export const addNewInfluencer = (influencer) => ({
-  type: ADD_INFLUENCER,
-  payload: influencer,
-});
+export const addNewInfluencer = (influencer) => {
+  return {
+    type: ADD_INFLUENCER,
+    payload: influencer,
+  };
+};
 
-export const addInfluencerSuccess = (influencer) => ({
-  type: ADD_INFLUENCER_SUCCESS,
-  payload: influencer,
-});
+export const addInfluencerSuccess = (influencer) => {
+  return {
+    type: ADD_INFLUENCER_SUCCESS,
+    payload: influencer,
+  };
+};
 
 export const addInfluencerFail = (error) => ({
   type: ADD_INFLUENCER_FAIL,

@@ -1,12 +1,14 @@
 import { takeEvery, fork, put, all, call } from "redux-saga/effects";
-import { FORGET_PASSWORD, VERIFY_OTP } from "./actionTypes";
+import { FORGET_PASSWORD, SET_NEW_PASSWORD, VERIFY_OTP } from "./actionTypes";
 import {
   userForgetPasswordSuccess,
   userForgetPasswordError,
   verifyOtpSuccess,
   verifyOtpError,
+  setNewPasswordSuccess,
+  setNewPasswordError,
 } from "./actions";
-import { ForgetPasswordApi, OTPVerificationApi } from "../../../services";
+import { ForgetPasswordApi, OTPVerificationApi, SetNewPasswordApi } from "../../../services";
 
 // API call for forget password
 function* forgetUser({ payload: { user, history } }) {
@@ -27,14 +29,14 @@ function* forgetUser({ payload: { user, history } }) {
 }
 
 // API call for OTP verification
-function* verifyOtp({ payload: { email, otp, history } }) {
+function* verifyOtp({ payload: { data, history } }) {
   try {
-    const response = yield call(OTPVerificationApi, { email, otp });
+    const response = yield call(OTPVerificationApi,data);
 
     if (response.status === "Success") {
       yield put(verifyOtpSuccess("OTP verified successfully."));
-      console.log(response);
-      
+      localStorage.removeItem('email')
+      localStorage.setItem('usertoken',response.result.token);
       history('/set-new-password');
     } else if (response.status === "Fail") {
       yield put(verifyOtpError("Invalid OTP. Please try again."));
@@ -43,6 +45,24 @@ function* verifyOtp({ payload: { email, otp, history } }) {
     }
   } catch (error) {
     yield put(verifyOtpError(error.message || "Please try again later."));
+  }
+}
+
+function* setNewPassword({ payload: { data, history } }) {
+  try {
+    const response = yield call(SetNewPasswordApi, data);
+
+    if (response.status === "Success") {
+      yield put(setNewPasswordSuccess("Password has been set successfully."));
+      localStorage.removeItem('usertoken');
+      history('/login');
+    } else if (response.status === "Fail") {
+      yield put(setNewPasswordError("Failed to set password. Please try again."));
+    } else {
+      yield put(setNewPasswordError("Please try again later."));
+    }
+  } catch (error) {
+    yield put(setNewPasswordError(error.message || "Please try again later."));
   }
 }
 
@@ -56,9 +76,12 @@ export function* watchOtpVerification() {
   yield takeEvery(VERIFY_OTP, verifyOtp);
 }
 
+export function* watchSetNewPassword() {
+  yield takeEvery(SET_NEW_PASSWORD, setNewPassword);
+}
 // Root Saga
 function* rootSaga() {
-  yield all([fork(watchUserPasswordForget), fork(watchOtpVerification)]);
+  yield all([fork(watchUserPasswordForget), fork(watchOtpVerification) ,fork(watchSetNewPassword)]);
 }
 
 export default rootSaga;

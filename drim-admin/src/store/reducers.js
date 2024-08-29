@@ -1,14 +1,16 @@
 import { combineReducers } from "redux";
 
-// Front
 import Layout from "./layout/reducer";
 
-// Authentication
 import Login from "./auth/login/reducer";
 import Account from "./auth/register/reducer";
 import ForgetPassword from "./auth/forgetpwd/reducer";
 import resetPassword from "./auth/reset-pwd/reducer";
 import Role from "./role/reducer";
+import opportunity from "./opportunity/reducer";
+import user from "./user/reducer";
+import influencer from "./influencers/reducer";
+import client from "./client/reducer";
 
 const rootReducer = combineReducers({
   Layout,
@@ -16,7 +18,11 @@ const rootReducer = combineReducers({
   Account,
   ForgetPassword,
   resetPassword,
-  Role
+  Role,
+  opportunity,
+  user,
+  influencer,
+  client,
 });
 
 export default rootReducer;

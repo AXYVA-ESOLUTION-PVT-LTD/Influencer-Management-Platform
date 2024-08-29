@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import ROLES from "../../constants/role";
 
 // //Import Scrollbar
 import SimpleBar from "simplebar-react";
@@ -13,7 +14,9 @@ import withRouter from "../Common/withRouter";
 import { withTranslation } from "react-i18next";
 import { useCallback } from "react";
 
-const SidebarContent = props => {
+const SidebarContent = (props) => {
+  const [roleName, setRoleName] = useState(null);
+
   const ref = useRef();
   const activateParentDropdown = useCallback((item) => {
     item.classList.add("active");
@@ -126,7 +129,7 @@ const SidebarContent = props => {
   }, []);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
     activeMenu();
   }, [activeMenu]);
 
@@ -139,85 +142,114 @@ const SidebarContent = props => {
     }
   }
 
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  useEffect(() => {
+    if (user) {
+      setRoleName(user.roleId.name);
+    }
+  }, [user]);
+
   return (
     <React.Fragment>
-    <SimpleBar className="h-100" ref={ref}>
-      <div id="sidebar-menu">
-        <ul className="metismenu list-unstyled" id="side-menu">
-          <li className="menu-title">Admin Menu</li>
-       
-          <li>
-            <Link to="/#" >
-              <i className="bx bx-home-circle"></i>
-              <span>Dashboards</span>
-            </Link>
-          
-          </li>
-          <li>
-            <Link to="/manage-role" >
-            <i class='bx bxs-user-badge' ></i>
-              <span>Manage Role</span>
-            </Link>
-          </li>
+      <SimpleBar className="h-100" ref={ref}>
+        <div id="sidebar-menu">
+          <ul className="metismenu list-unstyled" id="side-menu">
+            {/* Admin Menu */}
+            {roleName === ROLES.ADMIN && (
+              <>
+                <li className="menu-title">Admin Menu</li>
 
-          <li>
-            <Link to="/influencer" >
-            <i class='bx bxs-group'></i>
-              <span>Influencers</span>
-            </Link>
-          </li>
-         
-          <li>
-            <Link to="/publications" >
-            <i class='bx bxs-book-bookmark' ></i>
-              <span>Publications</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/opportunity" >
-            <i class='bx bx-star' ></i>
-              <span>Opportunities</span>
-            </Link>
-          </li>
+                <li>
+                  <Link to="/#">
+                    <i className="bx bx-home-circle"></i>
+                    <span>Dashboards</span>
+                  </Link>
+                </li>
+                {/* <li>
+                  <Link to="/manage-role">
+                    <i className="bx bxs-user-badge"></i>
+                    <span>Manage Role</span>
+                  </Link>
+                </li> */}
 
-          {/* User Menu Item */}
-          <li className="menu-title">User Menu</li>
-          <li>
-            <Link to="/home" >
-            <i class='bx bx-home-circle' ></i>
-              <span>Home</span>
-            </Link>
-          </li>
+                <li>
+                  <Link to="/influencer">
+                    <i className="bx bxs-group"></i>
+                    <span>Influencers</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/client">
+                    <i className="bx bxs-user"></i>
+                    <span>Client</span>
+                  </Link>
+                </li>
 
-          <li>
-            <Link to="/influencers" >
-            <i class='bx bxs-group'></i>
-              <span>Influencers</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/publication" >
-            <i class='bx bxs-book-open'></i>
-              <span>Publications</span>
-            </Link>
-          </li>
-          <li className="menu-title">Influencer Menu</li>
-          <li>
-            <Link to="/influencer-growth" >
-              <i className="bx bx-news"></i>
-              <span>Reports</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/opportunities" >
-            <i class='bx bx-rocket'></i>
-              <span>Opportunities</span>
-            </Link>
-          </li>
-        </ul>
-      </div>
-    </SimpleBar>
-  </React.Fragment>
+                <li>
+                  <Link to="/publications">
+                    <i className="bx bxs-book-bookmark"></i>
+                    <span>Publications</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/opportunity">
+                    <i className="bx bx-star"></i>
+                    <span>Opportunities</span>
+                  </Link>
+                </li>
+              </>
+            )}
+
+            {/* User Menu Item */}
+            {(roleName === ROLES.ADMIN || roleName === ROLES.CLIENT) && (
+              <>
+                <li className="menu-title">User Menu</li>
+                <li>
+                  <Link to="/home">
+                    <i className="bx bx-home-circle"></i>
+                    <span>Home</span>
+                  </Link>
+                </li>
+
+                <li>
+                  <Link to="/influencers">
+                    <i className="bx bxs-group"></i>
+                    <span>Influencers</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/publication">
+                    <i className="bx bxs-book-open"></i>
+                    <span>Publications</span>
+                  </Link>
+                </li>
+              </>
+            )}
+
+            {/* Influencer Menu Item */}
+
+            {(roleName === ROLES.ADMIN || roleName === ROLES.INFLUENCER) && (
+              <>
+                <li className="menu-title">Influencer Menu</li>
+                <li>
+                  <Link to="/influencer-growth">
+                    <i className="bx bx-news"></i>
+                    <span>Reports</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/opportunities">
+                    <i className="bx bx-rocket"></i>
+                    <span>Opportunities</span>
+                  </Link>
+                </li>
+              </>
+            )}
+          </ul>
+        </div>
+      </SimpleBar>
+    </React.Fragment>
   );
 };
 

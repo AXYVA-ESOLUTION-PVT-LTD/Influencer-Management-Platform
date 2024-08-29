@@ -29,10 +29,8 @@ import {
 function* fetchRoles() {
   try {
     const response = yield call(readRoles);
-    console.log(response.result.data);
     yield put(getRoleSuccess(response.result.data));
   } catch (error) {
-    console.log(error);
     yield put(getRoleFail(error));
   }
 }

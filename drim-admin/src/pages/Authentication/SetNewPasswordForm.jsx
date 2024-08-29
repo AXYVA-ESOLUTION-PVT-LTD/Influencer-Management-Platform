@@ -12,43 +12,28 @@ import {
   Label,
   Form,
 } from "reactstrap";
-
-//redux
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import withRouter from "../../components/Common/withRouter";
-
-// Formik Validation
 import * as Yup from "yup";
 import { useFormik } from "formik";
+import { setNewPassword } from "../../store/actions";
 
-// action
-import { userResetPassword } from "../../store/actions";
-
-// import images
 import profile from "../../assets/images/profile-img.png";
 import logo from "../../assets/images/Logo.png";
 
 const SetNewPasswordForm = (props) => {
-  //meta title
-  document.title = "Forget Password | Drim";
+
+  document.title = "Set New Password | Drim";
   const dispatch = useDispatch();
-  
+
   const validation = useFormik({
     enableReinitialize: true,
     initialValues: {
-      email: "",
-      otp: "",
       newPwd: "",
       confirmPwd: "",
     },
     validationSchema: Yup.object({
-      email: Yup.string()
-        .required("Please Enter Your Email")
-        .email("Invalid email format"),
-      otp: Yup.string()
-        .required("Please Enter the OTP")
-        .length(6, "OTP must be exactly 6 digits"),
       newPwd: Yup.string()
         .required("Please Enter Your New Password")
         .min(6, "Password must be at least 6 characters"),
@@ -57,13 +42,19 @@ const SetNewPasswordForm = (props) => {
         .required("Please Confirm Your New Password"),
     }),
     onSubmit: (values) => {
-      dispatch(userResetPassword(values, props.router.navigate));
+      const token = localStorage.getItem('usertoken');
+      const data = {
+        token: token,
+        password: values.newPwd,
+        confirmPassword: values.confirmPwd,
+      };
+      dispatch(setNewPassword(data, props.router.navigate));
     },
   });
 
   const { resetError, resetSuccessMsg } = useSelector((state) => ({
-    resetError: state.resetPassword.resetError,
-    resetSuccessMsg: state.resetPassword.resetSuccessMsg,
+    resetError: state.ForgetPassword.setNewPasswordError,
+    resetSuccessMsg: state.ForgetPassword.setNewPasswordSuccessMsg,
   }));
 
   return (
@@ -122,52 +113,6 @@ const SetNewPasswordForm = (props) => {
                         return false;
                       }}
                     >
-                      {/* <div className="mb-3">
-                        <Label className="form-label">Email</Label>
-                        <Input
-                          name="email"
-                          className="form-control"
-                          placeholder="Enter email"
-                          type="email"
-                          onChange={validation.handleChange}
-                          onBlur={validation.handleBlur}
-                          value={validation.values.email || ""}
-                          invalid={
-                            validation.touched.email && validation.errors.email
-                              ? true
-                              : false
-                          }
-                        />
-                        {validation.touched.email && validation.errors.email ? (
-                          <FormFeedback type="invalid">
-                            {validation.errors.email}
-                          </FormFeedback>
-                        ) : null}
-                      </div>
-
-                      <div className="mb-3">
-                        <Label className="form-label">OTP</Label>
-                        <Input
-                          name="otp"
-                          className="form-control"
-                          placeholder="Enter OTP"
-                          type="text"
-                          onChange={validation.handleChange}
-                          onBlur={validation.handleBlur}
-                          value={validation.values.otp || ""}
-                          invalid={
-                            validation.touched.otp && validation.errors.otp
-                              ? true
-                              : false
-                          }
-                        />
-                        {validation.touched.otp && validation.errors.otp ? (
-                          <FormFeedback type="invalid">
-                            {validation.errors.otp}
-                          </FormFeedback>
-                        ) : null}
-                      </div> */}
-
                       <div className="mb-3">
                         <Label className="form-label">New Password</Label>
                         <Input

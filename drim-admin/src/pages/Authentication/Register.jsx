@@ -51,7 +51,6 @@ const Register = (props) => {
     loading: state.Account.loading,
   }));
 
-  console.log(registrationError);
   
   useEffect(() => {
     dispatch(registerUserFailed(""));

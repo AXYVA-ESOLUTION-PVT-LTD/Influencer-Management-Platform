@@ -12,7 +12,15 @@ export const OTPVerificationApi = data => post(OTP_VERIFICATION_API, data);
 
 export const SetNewPasswordApi = data => post(SET_NEW_PASSWORD_API, data);
 
-export const ResetPasswordApi = data => post(RESET_PASSWORD_API, data);
+export const ResetPasswordApi = (token, data) => {
+    return post(
+        RESET_PASSWORD_API,
+      { ...data },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+  };
 // Role
 export const createRole = (data) => post(CREATE_ROLE_API, data);
 

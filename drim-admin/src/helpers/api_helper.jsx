@@ -5,7 +5,7 @@ import axios from "axios";
 // const token = accessToken;
 
 //apply base url for axios
-const API_URL = import.meta.env.VITE_APP_BASE_URL;
+export const API_URL = import.meta.env.VITE_APP_BASE_URL;
 
 const axiosApi = axios.create({
   baseURL: API_URL,
@@ -25,8 +25,15 @@ export async function get(url, config = {}) {
 }
 
 export async function post(url, data, config = {}) {
+
   return axiosApi
     .post(url, { ...data }, { ...config })
+    .then((response) => response.data);
+}
+
+export async function postForm(url, data, config = {}) {
+  return axiosApi
+    .post(url, data, { ...config })
     .then((response) => response.data);
 }
 

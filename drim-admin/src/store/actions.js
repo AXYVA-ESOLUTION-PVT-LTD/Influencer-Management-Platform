@@ -6,3 +6,7 @@ export * from "./auth/login/actions";
 export * from "./auth/forgetpwd/actions";
 export * from "./auth/reset-pwd/actions";
 export * from "./role/actions";
+export * from "./opportunity/actions";
+export * from "./user/actions";
+export * from "./influencers/actions";
+export * from "./client/actions";

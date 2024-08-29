@@ -24,7 +24,6 @@ const ManageRole = (props) => {
 
   // Select roles and errors from Redux store
   const roles = useSelector((state) => state.Role.roles);
-  console.log(roles);
   
   // const roles = [];
   // const error = useSelector((state) => state.role.error);

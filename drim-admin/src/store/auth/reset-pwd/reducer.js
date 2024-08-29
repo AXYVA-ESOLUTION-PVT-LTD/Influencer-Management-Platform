@@ -1,4 +1,4 @@
-import { RESET_PASSWORD_SUCCESS, RESET_PASSWORD_ERROR } from "./actionTypes";
+import { RESET_PASSWORD_SUCCESS, RESET_PASSWORD_ERROR, RESET_PASSWORD_NULL } from "./actionTypes";
 
 const initialState = {
   resetSuccessMsg: null,
@@ -18,6 +18,12 @@ const resetPassword = (state = initialState, action) => {
         ...state,
         resetSuccessMsg: null,
         resetError: action.payload,
+      };
+    case RESET_PASSWORD_NULL:
+      return {
+        ...state,
+        resetSuccessMsg: null,
+        resetError: null,
       };
     default:
       return state;

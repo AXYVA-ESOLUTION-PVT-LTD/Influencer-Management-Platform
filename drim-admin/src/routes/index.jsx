@@ -23,7 +23,8 @@ import InfluencerDetails from "../pages/Influencers/influencerdetails"
 import Influencergrowth from "../pages/Influencers/influencergrowth"
 import VerifyOtpForm from "../pages/Authentication/VerifyOtpForm"
 import SetNewPasswordForm from "../pages/Authentication/SetNewPasswordForm"
-import ResetPasswordForm from "../pages/Authentication/ResetPasswordForm"
+import ResetPasswordForm from "../pages/Authentication/ChangePasswordForm"
+import Client from "../pages/Client";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <Dashboard/> },
@@ -37,6 +38,7 @@ const authProtectedRoutes = [
   { path: "/opportunities", component: <Opportunities/> },
   { path: "/opportunity", component: <Opportunity/> },
   { path: "/influencer-growth", component: <Influencergrowth/> },
+  { path: "/client", component: <Client /> },
 
   // opportunity
   { path: "/profile", component: <UserProfile/> },

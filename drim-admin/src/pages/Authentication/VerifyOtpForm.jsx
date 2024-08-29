@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Row,
   Col,
@@ -13,26 +13,32 @@ import {
 } from "reactstrap";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { verifyOtp } from "../../store/actions"; // Assuming the action is named verifyOtp
+import { verifyOtp } from "../../store/actions"; 
 
-// Import images
 import profile from "../../assets/images/profile-img.png";
 import logo from "../../assets/images/Logo.png";
+import withRouter from "../../components/Common/withRouter";
 
 const VerifyOtpForm = (props) => {
-  // Meta title
+
   document.title = "Verify OTP | Drim";
 
   const dispatch = useDispatch();
-  const navigate = props.router.navigate;
   const [otp, setOtp] = useState("");
-  const [email, setEmail] = useState(""); // You'll need to get the email, maybe from props or state
-
-  const { verifyOtpError, verifyOtpSuccessMsg } = useSelector(state => state.verifyOtp);
-
+  const email = localStorage.getItem('email') || ""; 
+  const { verifyOtpError, verifyOtpSuccessMsg } = useSelector(state => ({
+    verifyOtpError: state.ForgetPassword.verifyOtpError,
+    verifyOtpSuccessMsg: state.ForgetPassword.verifyOtpSuccessMsg,
+  }));
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(verifyOtp({ email, otp, history: navigate }));
+    
+    const data = {
+      email: email,
+      otp: otp,
+    };
+
+    dispatch(verifyOtp(data, props.router.navigate));
   };
 
   return (
@@ -128,4 +134,4 @@ VerifyOtpForm.propTypes = {
   history: PropTypes.object,
 };
 
-export default VerifyOtpForm;
+export default withRouter(VerifyOtpForm);

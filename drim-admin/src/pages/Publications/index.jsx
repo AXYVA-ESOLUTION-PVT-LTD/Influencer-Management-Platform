@@ -1,34 +1,93 @@
-import React, { useMemo, useState } from "react";
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Input } from "reactstrap";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  Button,
+  Input,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+} from "reactstrap";
 
 // Import components
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 import TableContainer from "../../components/Common/TableContainer";
+import publicationData from "../../data/publication";
+import PublicationSearching from "../../components/publications/PublicationSearching";
+import ColumnSelector from "../../components/Common/ColumnSelector";
 
 function Publications() {
   // State for managing data
-  const [data, setData] = useState([
-    { id: 1, firstName: "Jennifer", lastName: "Chang", email: "jennifer.chang@example.com" },
-    { id: 2, firstName: "Gavin", lastName: "Joyce", email: "gavin.joyce@example.com" },
-    { id: 3, firstName: "Angelica", lastName: "Ramos", email: "angelica.ramos@example.com" },
-    { id: 4, firstName: "Doris", lastName: "Wilder", email: "doris.wilder@example.com" },
-    { id: 5, firstName: "Caesar", lastName: "Vance", email: "caesar.vance@example.com" },
-    // Add more data as needed
-  ]);
+  const [data, setData] = useState(publicationData);
 
   // State for modals
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
+  const [isShowFilter, setIsShowFilter] = useState(false);
+
+  const [isHeaderDropDown, setIsHeaderDropDown] = useState(false);
+
+  const [filterHeader, setFilterHeader] = useState({
+    project: true,
+    postDate: true,
+    influencer: true,
+    socialNetwork: true,
+    internalModeration: false,
+    status: true,
+    type: true,
+    price: true,
+    ER: true,
+    follower: true,
+    approximateReach: false,
+    likes: false,
+    comments: false,
+    videoViews: false,
+    views: false,
+    country: false,
+
+    publicationLink: "",
+    screenShots: "",
+  });
+
+  const [isSearching, setIsSearching] = useState(false);
+
+  const [filterFields, setFilterFields] = useState({
+    project: "",
+    postDate: "",
+    influencer: "",
+    socialNetwork: "",
+    internalModeration: null,
+    status: "",
+    type: "",
+    price: 0,
+    ER: "",
+    follower: "",
+    approximateReach: "",
+    likes: "",
+    comments: "",
+    videoViews: "",
+    views: "",
+    country: "",
+
+    publicationLink: "",
+    screenShots: "",
+  });
 
   // Meta title
-  document.title = "Publications | Drim - Vite React Admin & Dashboard Template";
+  document.title =
+    "Publications | Drim - Vite React Admin & Dashboard Template";
 
   // Toggle modals
   const toggleUpdateModal = () => setIsUpdateModalOpen(!isUpdateModalOpen);
   const toggleDeleteModal = () => setIsDeleteModalOpen(!isDeleteModalOpen);
   const toggleViewModal = () => setIsViewModalOpen(!isViewModalOpen);
+
+  // useEffect(() => {
+  //   console.log({ filterFields });
+  // }, [isSearching]);
+
+  //
 
   // Handle update
   const handleUpdateRecord = (record) => {
@@ -71,13 +130,71 @@ function Publications() {
 
   const columns = useMemo(
     () => [
-      { Header: "ID", accessor: "id" },
-      { Header: "First Name", accessor: "firstName" },
-      { Header: "Last Name", accessor: "lastName" },
-      { Header: "Email", accessor: "email" },
+      {
+        Header: "Project",
+        accessor: "project",
+        isVisible: filterHeader.project,
+      },
+      {
+        Header: "Post Date",
+        accessor: "postDate",
+        isVisible: filterHeader.postDate,
+      },
+      {
+        Header: "Internal Moderation",
+        accessor: "internalModeration",
+        isVisible: filterHeader.internalModeration,
+      },
+      {
+        Header: "Influencer",
+        accessor: "influencer",
+        isVisible: filterHeader.influencer,
+      },
+      {
+        Header: "Social Network",
+        accessor: "socialNetwork",
+        isVisible: filterHeader.socialNetwork,
+      },
+      { Header: "Status", accessor: "status", isVisible: filterHeader.status },
+      { Header: "Type", accessor: "type", isVisible: filterHeader.type },
+      {
+        Header: "Publication Link",
+        accessor: "publicationLink",
+        isVisible: true,
+      },
+      { Header: "Screen Shots", accessor: "screenShots", isVisible: true },
+      { Header: "Price", accessor: "price", isVisible: filterHeader.price },
+      {
+        Header: "Engagement Rate (ER)",
+        accessor: "ER",
+        isVisible: filterHeader.ER,
+      },
+      {
+        Header: "Follower Count",
+        accessor: "follower",
+        isVisible: filterHeader.follower,
+      },
+      {
+        Header: "Approximate Reach",
+        accessor: "approximateReach",
+        isVisible: filterHeader.approximateReach,
+      },
+      { Header: "Likes", accessor: "likes", isVisible: filterHeader.likes },
+      {
+        Header: "Comments",
+        accessor: "comments",
+        isVisible: filterHeader.comments,
+      },
+      { Header: "Views", accessor: "views", isVisible: filterHeader.views },
+      {
+        Header: "Video Views",
+        accessor: "videoViews",
+        isVisible: filterHeader.videoViews,
+      },
       {
         Header: "Actions",
         accessor: "actions",
+        isVisible: true,
         Cell: ({ row }) => (
           <>
             <Button
@@ -111,15 +228,42 @@ function Publications() {
         ),
       },
     ],
-    [data]
+    [
+      filterHeader,
+      setSelectedRecord,
+      toggleViewModal,
+      handleUpdateRecord,
+      handleDeleteRecord,
+    ]
+  );
+
+  const visibleColumns = useMemo(
+    () => columns.filter((column) => column.isVisible),
+    [columns, filterHeader]
   );
 
   return (
     <div className="page-content">
       <div className="container-fluid">
-        <Breadcrumbs title="Publications" breadcrumbItem="Publications" />
-        <div className="d-flex justify-content-end mb-3">
+        {/* <Breadcrumbs title="Publications" breadcrumbItem="Publications" /> */}
+        <div className="d-flex justify-content-end mb-3 gap-2 position-relative">
           <Button
+            color="primary"
+            onClick={() => setIsShowFilter(!isShowFilter)}
+          >
+            {isShowFilter ? "Hide " : "Show "}Filters
+          </Button>
+          <Button onClick={() => setIsHeaderDropDown(!isHeaderDropDown)}>
+            <i className="bx bx-filter" style={{ fontSize: 18 }}></i>
+          </Button>
+          {isHeaderDropDown && (
+            <ColumnSelector
+              columns={columns}
+              filterHeader={filterHeader}
+              setFilterHeader={setFilterHeader}
+            />
+          )}
+          {/* <Button
             color="primary"
             onClick={() =>
               handleUpdateRecord({
@@ -131,15 +275,25 @@ function Publications() {
             }
           >
             Add Publication
-          </Button>
+          </Button> */}
         </div>
+
+        {isShowFilter && (
+          <PublicationSearching
+            filterFields={filterFields}
+            setFilterFields={setFilterFields}
+            setIsSearching={setIsSearching}
+          />
+        )}
+
         <TableContainer
-          columns={columns}
+          columns={visibleColumns}
           data={data}
           isGlobalFilter={true}
           isAddOptions={false}
           customPageSize={10}
           className="custom-header-css"
+          isPagination={false}
         />
 
         {/* Update Modal */}
@@ -197,18 +351,74 @@ function Publications() {
           <ModalHeader toggle={toggleViewModal}>View Record</ModalHeader>
           <ModalBody>
             <p>
-              <strong>ID:</strong> {selectedRecord?.id}
+              <strong>Project:</strong> {selectedRecord?.project}
             </p>
             <p>
-              <strong>First Name:</strong> {selectedRecord?.firstName}
+              <strong>Post Date:</strong> {selectedRecord?.postDate}
             </p>
             <p>
-              <strong>Last Name:</strong> {selectedRecord?.lastName}
+              <strong>Internal Moderation:</strong>{" "}
+              {selectedRecord?.internalModeration || "N/A"}
             </p>
             <p>
-              <strong>Email:</strong> {selectedRecord?.email}
+              <strong>Influencer:</strong> {selectedRecord?.influencer}
+            </p>
+            <p>
+              <strong>Social Network:</strong> {selectedRecord?.socialNetwork}
+            </p>
+            <p>
+              <strong>Status:</strong> {selectedRecord?.status}
+            </p>
+            <p>
+              <strong>Type:</strong> {selectedRecord?.type}
+            </p>
+            <p>
+              <strong>Publication Link:</strong>
+              <a
+                href={selectedRecord?.publicationLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {selectedRecord?.publicationLink}
+              </a>
+            </p>
+            <p>
+              <strong>Screen Shots:</strong>
+              <a
+                href={selectedRecord?.screenShots}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {selectedRecord?.screenShots}
+              </a>
+            </p>
+            <p>
+              <strong>Price:</strong> ${selectedRecord?.price}
+            </p>
+            <p>
+              <strong>Engagement Rate (ER):</strong> {selectedRecord?.ER}
+            </p>
+            <p>
+              <strong>Follower Count:</strong> {selectedRecord?.follower}
+            </p>
+            <p>
+              <strong>Approximate Reach:</strong>{" "}
+              {selectedRecord?.approximateReach}
+            </p>
+            <p>
+              <strong>Likes:</strong> {selectedRecord?.likes}
+            </p>
+            <p>
+              <strong>Comments:</strong> {selectedRecord?.comments}
+            </p>
+            <p>
+              <strong>Views:</strong> {selectedRecord?.views}
+            </p>
+            <p>
+              <strong>Video Views:</strong> {selectedRecord?.videoViews}
             </p>
           </ModalBody>
+
           <ModalFooter>
             <Button color="secondary" onClick={toggleViewModal}>
               Close

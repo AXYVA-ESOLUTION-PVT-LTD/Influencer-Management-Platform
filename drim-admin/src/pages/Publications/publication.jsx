@@ -90,7 +90,6 @@ function Publications() {
   const toggleModal = () => setModalOpen(!modalOpen);
 
   const handleViewMore = (publication) => {
-    console.log(publication);
     setSelectedPublication(publication);
     toggleModal();
   };
