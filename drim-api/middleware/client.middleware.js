@@ -2,7 +2,7 @@ const { check } = require("express-validator");
 const USER_COLLECTION = require("../module/user.module");
 const CONSTANT = require("../config/constant");
 
-const validateClient = [
+const validateCreateClient = [
   check("firstName")
     .exists()
     .withMessage("First name is required!")
@@ -31,6 +31,36 @@ const validateClient = [
     .withMessage("Please enter valid Email"),
 ];
 
+const validateGetClient = [
+  check("roleName")
+    .exists()
+    .withMessage("Role name is required!")
+    .bail()
+    .trim()
+    .isString()
+    .notEmpty()
+    .withMessage("Role name cannot be empty!"),
+];
+
+const validateUpdateClient = [
+  check("roleName")
+    .exists()
+    .withMessage("Role name is required!")
+    .bail()
+    .trim()
+    .isString()
+    .notEmpty()
+    .withMessage("Role name cannot be empty!"),
+  check("status")
+    .exists()
+    .withMessage("Status is required!")
+    .bail()
+    .trim()
+    .isString()
+    .notEmpty()
+    .withMessage("Status cannot be empty!"),
+];
+
 async function validateAdmin(req, res, next) {
   const { email } = req.decoded;
   const user = await USER_COLLECTION.findOne(
@@ -56,4 +86,9 @@ async function validateAdmin(req, res, next) {
   }
 }
 
-module.exports = { validateClient, validateAdmin };
+module.exports = {
+  validateCreateClient,
+  validateAdmin,
+  validateGetClient,
+  validateUpdateClient,
+};

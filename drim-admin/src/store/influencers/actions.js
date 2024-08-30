@@ -1,24 +1,19 @@
 import {
   ADD_INFLUENCER,
-  ADD_INFLUENCER_SUCCESS,
   ADD_INFLUENCER_FAIL,
-  DELETE_INFLUENCER,
-  DELETE_INFLUENCER_SUCCESS,
-  DELETE_INFLUENCER_FAIL,
+  ADD_INFLUENCER_SUCCESS,
   GET_INFLUENCERS,
-  GET_INFLUENCERS_SUCCESS,
   GET_INFLUENCERS_FAIL,
+  GET_INFLUENCERS_SUCCESS,
   UPDATE_INFLUENCER,
-  UPDATE_INFLUENCER_SUCCESS,
   UPDATE_INFLUENCER_FAIL,
-  GET_SPECIFIC_INFLUENCER,
-  GET_SPECIFIC_INFLUENCER_SUCCESS,
-  GET_SPECIFIC_INFLUENCER_FAIL,
+  UPDATE_INFLUENCER_SUCCESS,
 } from "./actionTypes";
 
 // Fetch all influencers
-export const getInfluencers = () => ({
+export const getInfluencers = (payload) => ({
   type: GET_INFLUENCERS,
+  payload,
 });
 
 export const getInfluencersSuccess = (influencers) => ({
@@ -52,49 +47,17 @@ export const addInfluencerFail = (error) => ({
 });
 
 // Update an influencer
-export const updateInfluencer = (influencer) => ({
+export const updateInfluencer = (payload) => ({
   type: UPDATE_INFLUENCER,
-  payload: influencer,
+  payload: payload,
 });
 
-export const updateInfluencerSuccess = (influencer) => ({
+export const updateInfluencerSuccess = (payload) => ({
   type: UPDATE_INFLUENCER_SUCCESS,
-  payload: influencer,
+  payload: payload,
 });
 
 export const updateInfluencerFail = (error) => ({
   type: UPDATE_INFLUENCER_FAIL,
-  payload: error,
-});
-
-// Delete an influencer
-export const deleteInfluencer = (influencerId) => ({
-  type: DELETE_INFLUENCER,
-  payload: influencerId,
-});
-
-export const deleteInfluencerSuccess = (influencerId) => ({
-  type: DELETE_INFLUENCER_SUCCESS,
-  payload: influencerId,
-});
-
-export const deleteInfluencerFail = (error) => ({
-  type: DELETE_INFLUENCER_FAIL,
-  payload: error,
-});
-
-// Get details of a specific influencer
-export const getInfluencerDetail = (influencerId) => ({
-  type: GET_SPECIFIC_INFLUENCER,
-  influencerId,
-});
-
-export const getInfluencerDetailSuccess = (influencerDetails) => ({
-  type: GET_SPECIFIC_INFLUENCER_SUCCESS,
-  payload: influencerDetails,
-});
-
-export const getInfluencerDetailFail = (error) => ({
-  type: GET_SPECIFIC_INFLUENCER_FAIL,
   payload: error,
 });

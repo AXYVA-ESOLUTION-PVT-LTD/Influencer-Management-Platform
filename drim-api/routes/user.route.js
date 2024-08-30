@@ -8,12 +8,24 @@ const {
   validateOTP,
   validateChangePassword,
   validateResetPassword,
+  updateProfile,
+  validateUpdateProfile,
 } = require("../middleware/user.middleware");
 const auth = require("../config/authentication");
+const upload = require("../middleware/multer.middleware");
 
 // Login and Sign Up
 router.post("/login", User.login);
 router.post("/signUp", addUser, User.signUp);
+
+// update profile
+router.post(
+  "/updateProfile",
+  validateUpdateProfile,
+  auth,
+  upload.single("profilePhoto"),
+  User.updateProfile
+);
 
 // Forgot Password
 router.post("/forgotPassword", validateEmail, User.forgotPassword);
