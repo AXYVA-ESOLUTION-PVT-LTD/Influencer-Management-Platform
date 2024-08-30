@@ -159,6 +159,24 @@ const validateResetPassword = [
     .notEmpty()
     .withMessage("Confirm Password cannot be empty!"),
 ];
+const validateUpdateProfile = [
+  check("firstName")
+    .exists()
+    .withMessage("First name is required!")
+    .bail()
+    .trim()
+    .isString()
+    .notEmpty()
+    .withMessage("First name cannot be empty!"),
+  check("lastName")
+    .exists()
+    .withMessage("Last name is required!")
+    .bail()
+    .trim()
+    .isString()
+    .notEmpty()
+    .withMessage("Last name cannot be empty!"),
+];
 
 module.exports = {
   addUser,
@@ -168,4 +186,5 @@ module.exports = {
   validateResetPassword,
   validateChangePassword,
   updateProfile,
+  validateUpdateProfile,
 };

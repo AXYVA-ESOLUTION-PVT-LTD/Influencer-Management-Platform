@@ -1,7 +1,7 @@
 import { useFormik } from "formik";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { withTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Button,
   Container,
@@ -15,54 +15,98 @@ import {
 import * as Yup from "yup";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 import TableContainer from "../../components/Common/TableContainer"; // Adjust import path if necessary
-import { addNewInfluencer } from "../../store/influencers/actions";
+import {
+  addNewInfluencer,
+  getInfluencers,
+  updateInfluencer,
+} from "../../store/influencers/actions";
+import ROLES from "../../constants/role";
+import Pagination from "../../components/Common/Pagination";
 
 const Influencer = (props) => {
-  const dispatch = useDispatch();
-
-  // State for managing influencers
-  const [influencers, setInfluencers] = useState([
-    {
-      firstName: "John",
-      lastName: "Doe",
-      email: "john.doe@example.com",
-    },
-    {
-      firstName: "Jane",
-      lastName: "Smith",
-      email: "jane.smith@example.com",
-    },
-    {
-      firstName: "Alice",
-      lastName: "Johnson",
-      email: "alice.johnson@example.com",
-    },
-  ]);
-
   // State for modals
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedInfluencer, setSelectedInfluencer] = useState(null);
+  const [limit, setLimit] = useState(10);
+  const [pageCount, setPageCount] = useState(0);
 
   // Meta title
   document.title = "Influencer | Drim - React Admin & Dashboard Template";
 
-  // Toggle modals
-  const toggleUpdateModal = () => setIsUpdateModalOpen(!isUpdateModalOpen);
-  const toggleDeleteModal = () => setIsDeleteModalOpen(!isDeleteModalOpen);
-  const toggleDetailsModal = () => setIsDetailsModalOpen(!isDetailsModalOpen);
+  const dispatch = useDispatch();
 
+  const { influencers, loading, error, totalInfluencer, currentPage } =
+    useSelector((state) => state.influencer);
+  console.log({ influencers });
+  const createInfluncerValidation = useFormik({
+    enableReinitialize: true,
+    initialValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+    },
+    validationSchema: Yup.object({
+      firstName: Yup.string().required("First Name is required"),
+      lastName: Yup.string().required("Last Name is required"),
+      email: Yup.string()
+        .email("Invalid email address")
+        .required("Email is required"),
+    }),
+    onSubmit: (values, { resetForm }) => {
+      const payload = {
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        roleName: ROLES.INFLUENCER,
+      };
+      dispatch(addNewInfluencer(payload));
+      resetForm();
+      toggleCreateModal();
+    },
+  });
+  const updateInfluncerValidation = useFormik({
+    enableReinitialize: true,
+    initialValues: {
+      status: "Active",
+    },
+    validationSchema: Yup.object({
+      status: Yup.string().required("Status is required"),
+    }),
+    onSubmit: (values, { resetForm }) => {
+      // console.log({ selectedInfluencer });
+      const payload = {
+        id: selectedInfluencer._id,
+        status: values.status === "Inactive" ? false : true,
+        roleName: ROLES.INFLUENCER,
+      };
+      dispatch(updateInfluencer(payload));
+      resetForm();
+      toggleUpdateModal();
+    },
+  });
+
+  // Get Influencer when Mount
+  useEffect(() => {
+    dispatch(getInfluencers({ roleName: ROLES.INFLUENCER }));
+  }, []);
+
+  // Toggle modals
+  const toggleUpdateModal = () => {
+    setIsUpdateModalOpen(!isUpdateModalOpen);
+  };
+  const toggleCreateModal = () => {
+    setIsCreateModalOpen(!isCreateModalOpen);
+  };
+
+  const toggleDetailsModal = () => {
+    setIsDetailsModalOpen(!isDetailsModalOpen);
+  };
   // Handle update
   const handleUpdateInfluencer = (influencer) => {
     setSelectedInfluencer(influencer);
     toggleUpdateModal();
-  };
-
-  // Handle delete
-  const handleDeleteInfluencer = (influencer) => {
-    setSelectedInfluencer(influencer);
-    toggleDeleteModal();
   };
 
   // Handle view details
@@ -71,49 +115,8 @@ const Influencer = (props) => {
     toggleDetailsModal();
   };
 
-  // Confirm influencer update
-  const confirmUpdateInfluencer = () => {
-    if (selectedInfluencer.id) {
-      const updatedInfluencers = influencers.map((inf) =>
-        inf.id === selectedInfluencer.id
-          ? { ...inf, ...selectedInfluencer }
-          : inf
-      );
-      setInfluencers(updatedInfluencers);
-    } else {
-      // const newInfluencer = {
-      //   id: influencers.length + 1,
-      //   ...selectedInfluencer,
-      // };
-      // setInfluencers([...influencers, newInfluencer]);
-      // dispatch(addNewInfluencer(selectedInfluencer));
-      dispatch(addNewInfluencer(selectedInfluencer));
-    }
-    toggleUpdateModal();
-  };
-
-  // Confirm influencer deletion
-  const confirmDeleteInfluencer = () => {
-    const updatedInfluencers = influencers.filter(
-      (inf) => inf.id !== selectedInfluencer.id
-    );
-    setInfluencers(updatedInfluencers);
-    toggleDeleteModal();
-  };
-
-  // Handle input change for update
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setSelectedInfluencer({ ...selectedInfluencer, [name]: value });
-  };
-
   const columns = useMemo(
     () => [
-      {
-        Header: "No.",
-        accessor: "id",
-        Cell: ({ cell: { value }, row: { index } }) => index + 1,
-      },
       {
         Header: "First Name",
         accessor: "firstName",
@@ -125,6 +128,15 @@ const Influencer = (props) => {
       {
         Header: "Email",
         accessor: "email",
+      },
+      {
+        Header: "Status",
+        accessor: "status",
+        Cell: ({ value }) => (
+          <span style={{ color: value ? "green" : "red" }}>
+            {value ? "Active" : "Inactive"}
+          </span>
+        ),
       },
       {
         Header: "Actions",
@@ -147,74 +159,20 @@ const Influencer = (props) => {
             >
               <i className="bx bx-edit" style={{ color: "orange" }}></i>
             </Button>
-            <Button
-              color="link"
-              size="lg"
-              className="p-0"
-              onClick={() => handleDeleteInfluencer(original)}
-            >
-              <i className="bx bx-trash" style={{ color: "red" }}></i>
-            </Button>
           </>
         ),
       },
     ],
-    [handleUpdateInfluencer, handleDeleteInfluencer, handleViewDetails]
+    [handleUpdateInfluencer, handleViewDetails]
   );
-
-  const validation = useFormik({
-    enableReinitialize: true,
-    initialValues: {
-      firstName: selectedInfluencer ? selectedInfluencer.firstName : "",
-      lastName: selectedInfluencer ? selectedInfluencer.lastName : "",
-      email: selectedInfluencer ? selectedInfluencer.email : "",
-    },
-    validationSchema: Yup.object({
-      firstName: Yup.string().required("First Name is required"),
-      lastName: Yup.string().required("Last Name is required"),
-      email: Yup.string()
-        .email("Invalid email address")
-        .required("Email is required"),
-    }),
-    onSubmit: (values, { resetForm }) => {
-      const payload = {
-        firstName: values.firstName,
-        lastName: values.lastName,
-        email: values.email,
-      };
-      if (selectedInfluencer && selectedInfluencer.id) {
-        // Update  Influencer
-      } else {
-        // Add new Influencer
-        dispatch(addNewInfluencer(payload));
-      }
-      resetForm();
-      toggleUpdateModal();
-    },
-  });
 
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          {/* Render Breadcrumb */}
-          <Breadcrumbs
-            title={props.t("Influencer")}
-            breadcrumbItem={props.t("Influencer")}
-          />
-
           {/* Button to Add New Influencer */}
           <div className="d-flex justify-content-end mb-3">
-            <Button
-              color="primary"
-              onClick={() =>
-                handleUpdateInfluencer({
-                  firstName: "",
-                  lastName: "",
-                  email: "",
-                })
-              }
-            >
+            <Button color="primary" onClick={toggleCreateModal}>
               Add Influencer
             </Button>
           </div>
@@ -227,7 +185,16 @@ const Influencer = (props) => {
             isAddOptions={false}
             customPageSize={10}
             className="custom-header-css"
+            isPagination={false}
           />
+          {/* <Pagination
+            totalData={totalInfluencer}
+            setLimit={setLimit}
+            setPageCount={setPageCount}
+            limit={limit}
+            pageCount={pageCount}
+            currentPage={pageCount}
+          /> */}
         </Container>
       </div>
 
@@ -258,14 +225,10 @@ const Influencer = (props) => {
         </ModalFooter>
       </Modal>
 
-      {/* Update Modal */}
-      <Modal isOpen={isUpdateModalOpen} toggle={toggleUpdateModal}>
-        <ModalHeader toggle={toggleUpdateModal}>
-          {selectedInfluencer && selectedInfluencer.id
-            ? "Update Client"
-            : "Add Client"}
-        </ModalHeader>
-        <form onSubmit={validation.handleSubmit}>
+      {/* Create Modal */}
+      <Modal isOpen={isCreateModalOpen} toggle={toggleCreateModal}>
+        <ModalHeader toggle={toggleCreateModal}>Add Influencer</ModalHeader>
+        <form onSubmit={createInfluncerValidation.handleSubmit}>
           <ModalBody>
             <div className="mb-2">
               <Label htmlFor="firstName" className="block mb-1">
@@ -275,18 +238,20 @@ const Influencer = (props) => {
                 id="firstName"
                 name="firstName"
                 type="text"
-                onChange={validation.handleChange}
-                onBlur={validation.handleBlur}
-                value={validation.values.firstName}
+                onChange={createInfluncerValidation.handleChange}
+                onBlur={createInfluncerValidation.handleBlur}
+                value={createInfluncerValidation.values.firstName}
                 invalid={
-                  validation.touched.firstName && validation.errors.firstName
+                  createInfluncerValidation.touched.firstName &&
+                  createInfluncerValidation.errors.firstName
                     ? true
                     : false
                 }
               />
-              {validation.touched.firstName && validation.errors.firstName ? (
+              {createInfluncerValidation.touched.firstName &&
+              createInfluncerValidation.errors.firstName ? (
                 <div className="invalid-feedback">
-                  {validation.errors.firstName}
+                  {createInfluncerValidation.errors.firstName}
                 </div>
               ) : null}
             </div>
@@ -298,18 +263,20 @@ const Influencer = (props) => {
                 id="lastName"
                 name="lastName"
                 type="text"
-                onChange={validation.handleChange}
-                onBlur={validation.handleBlur}
-                value={validation.values.lastName}
+                onChange={createInfluncerValidation.handleChange}
+                onBlur={createInfluncerValidation.handleBlur}
+                value={createInfluncerValidation.values.lastName}
                 invalid={
-                  validation.touched.lastName && validation.errors.lastName
+                  createInfluncerValidation.touched.lastName &&
+                  createInfluncerValidation.errors.lastName
                     ? true
                     : false
                 }
               />
-              {validation.touched.lastName && validation.errors.lastName ? (
+              {createInfluncerValidation.touched.lastName &&
+              createInfluncerValidation.errors.lastName ? (
                 <div className="invalid-feedback">
-                  {validation.errors.lastName}
+                  {createInfluncerValidation.errors.lastName}
                 </div>
               ) : null}
             </div>
@@ -321,18 +288,64 @@ const Influencer = (props) => {
                 id="email"
                 name="email"
                 type="email"
-                onChange={validation.handleChange}
-                onBlur={validation.handleBlur}
-                value={validation.values.email}
+                onChange={createInfluncerValidation.handleChange}
+                onBlur={createInfluncerValidation.handleBlur}
+                value={createInfluncerValidation.values.email}
                 invalid={
-                  validation.touched.email && validation.errors.email
+                  createInfluncerValidation.touched.email &&
+                  createInfluncerValidation.errors.email
                     ? true
                     : false
                 }
               />
-              {validation.touched.email && validation.errors.email ? (
+              {createInfluncerValidation.touched.email &&
+              createInfluncerValidation.errors.email ? (
                 <div className="invalid-feedback">
-                  {validation.errors.email}
+                  {createInfluncerValidation.errors.email}
+                </div>
+              ) : null}
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" type="submit">
+              Save
+            </Button>
+            <Button color="secondary" onClick={toggleCreateModal}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </form>
+      </Modal>
+
+      {/* Update Modal */}
+      <Modal isOpen={isUpdateModalOpen} toggle={toggleUpdateModal}>
+        <ModalHeader toggle={toggleUpdateModal}>Update Client</ModalHeader>
+        <form onSubmit={updateInfluncerValidation.handleSubmit}>
+          <ModalBody>
+            <div className="mb-2">
+              <Label htmlFor="status" className="block mb-1">
+                Status
+              </Label>
+              <Input
+                name="status"
+                type="select"
+                onChange={updateInfluncerValidation.handleChange}
+                onBlur={updateInfluncerValidation.handleBlur}
+                value={updateInfluncerValidation.values.status}
+                invalid={
+                  updateInfluncerValidation.touched.status &&
+                  updateInfluncerValidation.errors.status
+                    ? true
+                    : false
+                }
+              >
+                <option>Active</option>
+                <option>Inactive</option>
+              </Input>
+              {updateInfluncerValidation.touched.status &&
+              updateInfluncerValidation.errors.status ? (
+                <div className="invalid-feedback">
+                  {updateInfluncerValidation.errors.status}
                 </div>
               ) : null}
             </div>
@@ -346,28 +359,6 @@ const Influencer = (props) => {
             </Button>
           </ModalFooter>
         </form>
-      </Modal>
-
-      {/* Delete Confirmation Modal */}
-      <Modal isOpen={isDeleteModalOpen} toggle={toggleDeleteModal}>
-        <ModalHeader toggle={toggleDeleteModal}>Delete Influencer</ModalHeader>
-        <ModalBody>
-          Are you sure you want to delete the influencer{" "}
-          <strong>
-            {selectedInfluencer
-              ? `${selectedInfluencer.firstName} ${selectedInfluencer.lastName}`
-              : ""}
-          </strong>
-          ?
-        </ModalBody>
-        <ModalFooter>
-          <Button color="danger" onClick={confirmDeleteInfluencer}>
-            Delete
-          </Button>
-          <Button color="secondary" onClick={toggleDeleteModal}>
-            Cancel
-          </Button>
-        </ModalFooter>
       </Modal>
     </React.Fragment>
   );

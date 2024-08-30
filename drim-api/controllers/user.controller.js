@@ -139,6 +139,10 @@ async function _login(req, res) {
       let token = jwt.sign(userObj, process.env.superSecret, {
         expiresIn: 86400,
       });
+
+      existUser.status = true;
+      existUser.save();
+
       const {
         password: _,
         createdAt,

@@ -1,7 +1,7 @@
-import * as Yup from "yup";
-import React, { useMemo, useState } from "react";
+import { useFormik } from "formik";
+import React, { useEffect, useMemo, useState } from "react";
 import { withTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Button,
   Container,
@@ -12,58 +12,97 @@ import {
   ModalFooter,
   ModalHeader,
 } from "reactstrap";
-import Breadcrumbs from "../../components/Common/Breadcrumb";
+import * as Yup from "yup";
 import TableContainer from "../../components/Common/TableContainer"; // Adjust import path if necessary
-import { addNewInfluencer } from "../../store/influencers/actions";
-import { addNewClient } from "../../store/client/actions";
-import { useFormik } from "formik";
+import ROLES from "../../constants/role";
+import {
+  addNewClient,
+  getClient,
+  updateClient,
+} from "../../store/client/actions";
 
 const Client = (props) => {
-  const dispatch = useDispatch();
-
-  // State for managing influencers
-  const [clients, setClients] = useState([
-    {
-      firstName: "John",
-      lastName: "Doe",
-      email: "john.doe@example.com",
-    },
-    {
-      firstName: "Jane",
-      lastName: "Smith",
-      email: "jane.smith@example.com",
-    },
-    {
-      firstName: "Alice",
-      lastName: "Johnson",
-      email: "alice.johnson@example.com",
-    },
-  ]);
-
   // State for modals
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
+  const [limit, setLimit] = useState(10);
+  const [pageCount, setPageCount] = useState(0);
 
   // Meta title
   document.title = "Influencer | Drim - React Admin & Dashboard Template";
 
-  // Toggle modals
-  const toggleUpdateModal = () => setIsUpdateModalOpen(!isUpdateModalOpen);
-  const toggleDeleteModal = () => setIsDeleteModalOpen(!isDeleteModalOpen);
-  const toggleDetailsModal = () => setIsDetailsModalOpen(!isDetailsModalOpen);
+  const dispatch = useDispatch();
 
+  const { clients, loading, error } = useSelector((state) => state.client);
+
+  const createClientValidation = useFormik({
+    enableReinitialize: true,
+    initialValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+    },
+    validationSchema: Yup.object({
+      firstName: Yup.string().required("First Name is required"),
+      lastName: Yup.string().required("Last Name is required"),
+      email: Yup.string()
+        .email("Invalid email address")
+        .required("Email is required"),
+    }),
+    onSubmit: (values, { resetForm }) => {
+      const payload = {
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        roleName: ROLES.CLIENT,
+      };
+      dispatch(addNewClient(payload));
+      resetForm();
+      toggleCreateModal();
+    },
+  });
+  const updateClientValidation = useFormik({
+    enableReinitialize: true,
+    initialValues: {
+      status: "Active",
+    },
+    validationSchema: Yup.object({
+      status: Yup.string().required("Status is required"),
+    }),
+    onSubmit: (values, { resetForm }) => {
+      const payload = {
+        id: selectedClient._id,
+        status: values.status === "Inactive" ? false : true,
+        roleName: ROLES.CLIENT,
+      };
+      dispatch(updateClient(payload));
+      resetForm();
+      toggleUpdateModal();
+    },
+  });
+
+  // Get Influencer when Mount
+  useEffect(() => {
+    dispatch(getClient({ roleName: ROLES.CLIENT }));
+  }, []);
+
+  // Toggle modals
+  const toggleUpdateModal = () => {
+    setIsUpdateModalOpen(!isUpdateModalOpen);
+  };
+  const toggleCreateModal = () => {
+    setIsCreateModalOpen(!isCreateModalOpen);
+  };
+
+  const toggleDetailsModal = () => {
+    setIsDetailsModalOpen(!isDetailsModalOpen);
+  };
   // Handle update
   const handleUpdateClient = (client) => {
     setSelectedClient(client);
     toggleUpdateModal();
-  };
-
-  // Handle delete
-  const handleDeleteClient = (client) => {
-    setSelectedClient(client);
-    toggleDeleteModal();
   };
 
   // Handle view details
@@ -72,38 +111,8 @@ const Client = (props) => {
     toggleDetailsModal();
   };
 
-  // Confirm influencer update
-  const confirmUpdateClient = () => {
-    if (selectedClient.id) {
-      // update client
-    } else {
-      dispatch(addNewClient(selectedClient));
-    }
-    toggleUpdateModal();
-  };
-
-  // Confirm influencer deletion
-  const confirmDeleteClient = () => {
-    const updatedInfluencers = clients.filter(
-      (inf) => inf.id !== selectedClient.id
-    );
-    setInfluencers(updatedInfluencers);
-    toggleDeleteModal();
-  };
-
-  // Handle input change for update
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setSelectedClient({ ...selectedClient, [name]: value });
-  };
-
   const columns = useMemo(
     () => [
-      {
-        Header: "No.",
-        accessor: "id",
-        Cell: ({ cell: { value }, row: { index } }) => index + 1,
-      },
       {
         Header: "First Name",
         accessor: "firstName",
@@ -115,6 +124,15 @@ const Client = (props) => {
       {
         Header: "Email",
         accessor: "email",
+      },
+      {
+        Header: "Status",
+        accessor: "status",
+        Cell: ({ value }) => (
+          <span style={{ color: value ? "green" : "red" }}>
+            {value ? "Active" : "Inactive"}
+          </span>
+        ),
       },
       {
         Header: "Actions",
@@ -137,68 +155,20 @@ const Client = (props) => {
             >
               <i className="bx bx-edit" style={{ color: "orange" }}></i>
             </Button>
-            <Button
-              color="link"
-              size="lg"
-              className="p-0"
-              onClick={() => handleDeleteClient(original)}
-            >
-              <i className="bx bx-trash" style={{ color: "red" }}></i>
-            </Button>
           </>
         ),
       },
     ],
-    [handleUpdateClient, handleDeleteClient, handleViewDetails]
+    [handleUpdateClient, handleViewDetails]
   );
-
-  const validation = useFormik({
-    enableReinitialize: true,
-    initialValues: {
-      firstName: selectedClient ? selectedClient.firstName : "",
-      lastName: selectedClient ? selectedClient.lastName : "",
-      email: selectedClient ? selectedClient.email : "",
-    },
-    validationSchema: Yup.object({
-      firstName: Yup.string().required("First Name is required"),
-      lastName: Yup.string().required("Last Name is required"),
-      email: Yup.string()
-        .email("Invalid email address")
-        .required("Email is required"),
-    }),
-    onSubmit: (values, { resetForm }) => {
-      const payload = {
-        firstName: values.firstName,
-        lastName: values.lastName,
-        email: values.email,
-      };
-      if (selectedClient && selectedClient.id) {
-        // Update  client
-      } else {
-        // Add new client
-        dispatch(addNewClient(payload));
-      }
-      resetForm();
-      toggleUpdateModal();
-    },
-  });
 
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          {/* Button to Add New Client */}
+          {/* Button to Add New Influencer */}
           <div className="d-flex justify-content-end mb-3">
-            <Button
-              color="primary"
-              onClick={() =>
-                handleUpdateClient({
-                  firstName: "",
-                  lastName: "",
-                  email: "",
-                })
-              }
-            >
+            <Button color="primary" onClick={toggleCreateModal}>
               Add Client
             </Button>
           </div>
@@ -207,17 +177,26 @@ const Client = (props) => {
           <TableContainer
             columns={columns}
             data={clients}
-            isGlobalFilter={false} // Assuming you don't need global filtering here
+            isGlobalFilter={false}
             isAddOptions={false}
             customPageSize={10}
             className="custom-header-css"
+            isPagination={false}
           />
+          {/* <Pagination
+            totalData={totalInfluencer}
+            setLimit={setLimit}
+            setPageCount={setPageCount}
+            limit={limit}
+            pageCount={pageCount}
+            currentPage={pageCount}
+          /> */}
         </Container>
       </div>
 
       {/* Details Modal */}
       <Modal isOpen={isDetailsModalOpen} toggle={toggleDetailsModal}>
-        <ModalHeader toggle={toggleDetailsModal}>Clients Details</ModalHeader>
+        <ModalHeader toggle={toggleDetailsModal}>Client Details</ModalHeader>
         <ModalBody>
           {selectedClient && (
             <>
@@ -240,12 +219,10 @@ const Client = (props) => {
         </ModalFooter>
       </Modal>
 
-      {/* Update Modal */}
-      <Modal isOpen={isUpdateModalOpen} toggle={toggleUpdateModal}>
-        <ModalHeader toggle={toggleUpdateModal}>
-          {selectedClient && selectedClient.id ? "Update Client" : "Add Client"}
-        </ModalHeader>
-        <form onSubmit={validation.handleSubmit}>
+      {/* Create Modal */}
+      <Modal isOpen={isCreateModalOpen} toggle={toggleCreateModal}>
+        <ModalHeader toggle={toggleCreateModal}>Add Client</ModalHeader>
+        <form onSubmit={createClientValidation.handleSubmit}>
           <ModalBody>
             <div className="mb-2">
               <Label htmlFor="firstName" className="block mb-1">
@@ -255,18 +232,20 @@ const Client = (props) => {
                 id="firstName"
                 name="firstName"
                 type="text"
-                onChange={validation.handleChange}
-                onBlur={validation.handleBlur}
-                value={validation.values.firstName}
+                onChange={createClientValidation.handleChange}
+                onBlur={createClientValidation.handleBlur}
+                value={createClientValidation.values.firstName}
                 invalid={
-                  validation.touched.firstName && validation.errors.firstName
+                  createClientValidation.touched.firstName &&
+                  createClientValidation.errors.firstName
                     ? true
                     : false
                 }
               />
-              {validation.touched.firstName && validation.errors.firstName ? (
+              {createClientValidation.touched.firstName &&
+              createClientValidation.errors.firstName ? (
                 <div className="invalid-feedback">
-                  {validation.errors.firstName}
+                  {createClientValidation.errors.firstName}
                 </div>
               ) : null}
             </div>
@@ -278,18 +257,20 @@ const Client = (props) => {
                 id="lastName"
                 name="lastName"
                 type="text"
-                onChange={validation.handleChange}
-                onBlur={validation.handleBlur}
-                value={validation.values.lastName}
+                onChange={createClientValidation.handleChange}
+                onBlur={createClientValidation.handleBlur}
+                value={createClientValidation.values.lastName}
                 invalid={
-                  validation.touched.lastName && validation.errors.lastName
+                  createClientValidation.touched.lastName &&
+                  createClientValidation.errors.lastName
                     ? true
                     : false
                 }
               />
-              {validation.touched.lastName && validation.errors.lastName ? (
+              {createClientValidation.touched.lastName &&
+              createClientValidation.errors.lastName ? (
                 <div className="invalid-feedback">
-                  {validation.errors.lastName}
+                  {createClientValidation.errors.lastName}
                 </div>
               ) : null}
             </div>
@@ -301,18 +282,64 @@ const Client = (props) => {
                 id="email"
                 name="email"
                 type="email"
-                onChange={validation.handleChange}
-                onBlur={validation.handleBlur}
-                value={validation.values.email}
+                onChange={createClientValidation.handleChange}
+                onBlur={createClientValidation.handleBlur}
+                value={createClientValidation.values.email}
                 invalid={
-                  validation.touched.email && validation.errors.email
+                  createClientValidation.touched.email &&
+                  createClientValidation.errors.email
                     ? true
                     : false
                 }
               />
-              {validation.touched.email && validation.errors.email ? (
+              {createClientValidation.touched.email &&
+              createClientValidation.errors.email ? (
                 <div className="invalid-feedback">
-                  {validation.errors.email}
+                  {createClientValidation.errors.email}
+                </div>
+              ) : null}
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" type="submit">
+              Save
+            </Button>
+            <Button color="secondary" onClick={toggleCreateModal}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </form>
+      </Modal>
+
+      {/* Update Modal */}
+      <Modal isOpen={isUpdateModalOpen} toggle={toggleUpdateModal}>
+        <ModalHeader toggle={toggleUpdateModal}>Update Client</ModalHeader>
+        <form onSubmit={updateClientValidation.handleSubmit}>
+          <ModalBody>
+            <div className="mb-2">
+              <Label htmlFor="status" className="block mb-1">
+                Status
+              </Label>
+              <Input
+                name="status"
+                type="select"
+                onChange={updateClientValidation.handleChange}
+                onBlur={updateClientValidation.handleBlur}
+                value={updateClientValidation.values.status}
+                invalid={
+                  updateClientValidation.touched.status &&
+                  updateClientValidation.errors.status
+                    ? true
+                    : false
+                }
+              >
+                <option>Active</option>
+                <option>Inactive</option>
+              </Input>
+              {updateClientValidation.touched.status &&
+              updateClientValidation.errors.status ? (
+                <div className="invalid-feedback">
+                  {updateClientValidation.errors.status}
                 </div>
               ) : null}
             </div>
@@ -326,28 +353,6 @@ const Client = (props) => {
             </Button>
           </ModalFooter>
         </form>
-      </Modal>
-
-      {/* Delete Confirmation Modal */}
-      <Modal isOpen={isDeleteModalOpen} toggle={toggleDeleteModal}>
-        <ModalHeader toggle={toggleDeleteModal}>Delete Client</ModalHeader>
-        <ModalBody>
-          Are you sure you want to delete the Client{" "}
-          <strong>
-            {selectedClient
-              ? `${selectedClient.firstName} ${selectedClient.lastName}`
-              : ""}
-          </strong>
-          ?
-        </ModalBody>
-        <ModalFooter>
-          <Button color="danger" onClick={confirmDeleteClient}>
-            Delete
-          </Button>
-          <Button color="secondary" onClick={toggleDeleteModal}>
-            Cancel
-          </Button>
-        </ModalFooter>
       </Modal>
     </React.Fragment>
   );

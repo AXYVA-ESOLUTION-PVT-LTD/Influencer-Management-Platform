@@ -8,13 +8,31 @@ const Client = require("../controllers/client.controller");
 
 const router = express.Router();
 
-// Create Opportunity
+// get Client
+router.post(
+  "/getClients",
+  ClientMiddleware.validateGetClient,
+  auth,
+  ClientMiddleware.validateAdmin,
+  Client.getClient
+);
+
+// Create Client
 router.post(
   "/createClient",
-  ClientMiddleware.validateClient,
+  ClientMiddleware.validateCreateClient,
   auth,
   ClientMiddleware.validateAdmin,
   Client.addClient
+);
+
+// Update Client
+router.put(
+  "/:id",
+  ClientMiddleware.validateUpdateClient,
+  auth,
+  ClientMiddleware.validateAdmin,
+  Client.updateClientById
 );
 
 module.exports = router;

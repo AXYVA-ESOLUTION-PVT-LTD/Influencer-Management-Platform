@@ -2,7 +2,7 @@ const { check } = require("express-validator");
 const USER_COLLECTION = require("../module/user.module");
 const CONSTANT = require("../config/constant");
 
-const validateInfluencer = [
+const validateCreateInfluencer = [
   check("firstName")
     .exists()
     .withMessage("First name is required!")
@@ -29,6 +29,42 @@ const validateInfluencer = [
     .bail()
     .isEmail()
     .withMessage("Please enter valid Email"),
+  check("roleName")
+    .exists()
+    .withMessage("Role name is required!")
+    .bail()
+    .trim()
+    .isString()
+    .notEmpty()
+    .withMessage("Role name cannot be empty!"),
+];
+const validateGetInfluencers = [
+  check("roleName")
+    .exists()
+    .withMessage("Role name is required!")
+    .bail()
+    .trim()
+    .isString()
+    .notEmpty()
+    .withMessage("Role name cannot be empty!"),
+];
+const validateUpdateInfluencers = [
+  check("roleName")
+    .exists()
+    .withMessage("Role name is required!")
+    .bail()
+    .trim()
+    .isString()
+    .notEmpty()
+    .withMessage("Role name cannot be empty!"),
+  check("status")
+    .exists()
+    .withMessage("Status is required!")
+    .bail()
+    .trim()
+    .isString()
+    .notEmpty()
+    .withMessage("Status cannot be empty!"),
 ];
 
 async function validateAdmin(req, res, next) {
@@ -56,4 +92,9 @@ async function validateAdmin(req, res, next) {
   }
 }
 
-module.exports = { validateInfluencer, validateAdmin };
+module.exports = {
+  validateCreateInfluencer,
+  validateAdmin,
+  validateGetInfluencers,
+  validateUpdateInfluencers,
+};
