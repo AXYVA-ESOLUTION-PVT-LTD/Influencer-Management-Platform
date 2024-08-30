@@ -35,7 +35,7 @@ import avatar from "../../assets/images/users/avatar-1.jpg";
 import { useDispatch } from "react-redux";
 import { updateProfile } from "../../store/user/actions";
 import { API_URL } from "../../helpers/api_helper";
-import ChangePasswordForm from "./ChangePasswordForm";
+import ResetPassword from "./ResetPassword";
 
 const validationSchema = Yup.object({
   oldPassword: Yup.string().required("Old password is required"),
@@ -256,8 +256,7 @@ const UserProfile = () => {
                   </Card>
                 </TabPane>
                 <TabPane tabId="2">
-                 
-                      <ChangePasswordForm />
+                      <ResetPassword />
                 </TabPane>
               </TabContent>
             </Col>

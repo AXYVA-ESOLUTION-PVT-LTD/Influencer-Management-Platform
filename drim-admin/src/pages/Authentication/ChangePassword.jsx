@@ -7,46 +7,54 @@ import {
   Card,
   CardBody,
   Container,
+  FormFeedback,
   Input,
   Label,
   Form,
-  FormFeedback,
 } from "reactstrap";
-
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import withRouter from "../../components/Common/withRouter";
-import logo from "../../assets/images/Logo.png";
-import profile from "../../assets/images/profile-img.png"; 
-
 import * as Yup from "yup";
 import { useFormik } from "formik";
+import { setNewPassword } from "../../store/actions";
 
-// action
-import { userForgetPassword } from "../../store/actions";
+import profile from "../../assets/images/profile-img.png";
+import logo from "../../assets/images/Logo.png";
 
-const ForgotPasswordEmailForm = (props) => {
-  document.title = "Forget Password | Drim";
+const ChangePassword = (props) => {
 
+  document.title = "Set New Password | Drim";
   const dispatch = useDispatch();
 
   const validation = useFormik({
     enableReinitialize: true,
     initialValues: {
-      email: "",
+      newPwd: "",
+      confirmPwd: "",
     },
     validationSchema: Yup.object({
-      email: Yup.string() .email("Invalid email address").required("Please Enter Your Email"),
+      newPwd: Yup.string()
+        .required("Please Enter Your New Password")
+        .min(6, "Password must be at least 6 characters"),
+      confirmPwd: Yup.string()
+        .oneOf([Yup.ref("newPwd"), null], "Passwords must match")
+        .required("Please Confirm Your New Password"),
     }),
     onSubmit: (values) => {
-      localStorage.setItem('email', values.email);
-      dispatch(userForgetPassword(values, props.router.navigate));
+      const token = localStorage.getItem('usertoken');
+      const data = {
+        token: token,
+        password: values.newPwd,
+        confirmPassword: values.confirmPwd,
+      };
+      dispatch(setNewPassword(data, props.router.navigate));
     },
   });
 
-  const { forgetError, forgetSuccessMsg } = useSelector((state) => ({
-    forgetError: state.ForgetPassword.forgetError,
-    forgetSuccessMsg: state.ForgetPassword.forgetSuccessMsg,
+  const { resetError, resetSuccessMsg } = useSelector((state) => ({
+    resetError: state.ForgetPassword.setNewPasswordError,
+    resetSuccessMsg: state.ForgetPassword.setNewPasswordSuccessMsg,
   }));
 
   return (
@@ -61,9 +69,10 @@ const ForgotPasswordEmailForm = (props) => {
                     <Col xs={7}>
                       <div className="text-primary p-4">
                         <h5 className="text-primary">Reset Your Password</h5>
-                        <p>Please enter your email to receive an OTP.</p>
+                        <p>Please enter your new password below.</p>
                       </div>
                     </Col>
+
                     <Col className="col-5 align-self-end">
                       <img src={profile} alt="" className="img-fluid" />
                     </Col>
@@ -85,14 +94,14 @@ const ForgotPasswordEmailForm = (props) => {
                     </Link>
                   </div>
                   <div className="p-2">
-                    {forgetError && forgetError ? (
+                    {resetError ? (
                       <Alert color="danger" style={{ marginTop: "13px" }}>
-                        {forgetError}
+                        {resetError}
                       </Alert>
                     ) : null}
-                    {forgetSuccessMsg ? (
+                    {resetSuccessMsg ? (
                       <Alert color="success" style={{ marginTop: "13px" }}>
-                        {forgetSuccessMsg}
+                        {resetSuccessMsg}
                       </Alert>
                     ) : null}
 
@@ -105,34 +114,62 @@ const ForgotPasswordEmailForm = (props) => {
                       }}
                     >
                       <div className="mb-3">
-                        <Label className="form-label">Email</Label>
+                        <Label className="form-label">New Password</Label>
                         <Input
-                          name="email"
+                          name="newPwd"
                           className="form-control"
-                          placeholder="Enter email"
-                          type="email"
+                          placeholder="Enter new password"
+                          type="password"
                           onChange={validation.handleChange}
                           onBlur={validation.handleBlur}
-                          value={validation.values.email || ""}
+                          value={validation.values.newPwd || ""}
                           invalid={
-                            validation.touched.email && validation.errors.email
+                            validation.touched.newPwd &&
+                            validation.errors.newPwd
                               ? true
                               : false
                           }
                         />
-                        {validation.touched.email && validation.errors.email ? (
+                        {validation.touched.newPwd &&
+                        validation.errors.newPwd ? (
                           <FormFeedback type="invalid">
-                            {validation.errors.email}
+                            {validation.errors.newPwd}
                           </FormFeedback>
                         ) : null}
                       </div>
+
+                      <div className="mb-3">
+                        <Label className="form-label">Confirm Password</Label>
+                        <Input
+                          name="confirmPwd"
+                          className="form-control"
+                          placeholder="Confirm new password"
+                          type="password"
+                          onChange={validation.handleChange}
+                          onBlur={validation.handleBlur}
+                          value={validation.values.confirmPwd || ""}
+                          invalid={
+                            validation.touched.confirmPwd &&
+                            validation.errors.confirmPwd
+                              ? true
+                              : false
+                          }
+                        />
+                        {validation.touched.confirmPwd &&
+                        validation.errors.confirmPwd ? (
+                          <FormFeedback type="invalid">
+                            {validation.errors.confirmPwd}
+                          </FormFeedback>
+                        ) : null}
+                      </div>
+
                       <Row className="mb-3">
                         <Col className="text-end">
                           <button
-                            className="btn btn-primary w-md "
+                            className="btn btn-primary w-md"
                             type="submit"
                           >
-                            Send OTP
+                            Reset
                           </button>
                         </Col>
                       </Row>
@@ -147,10 +184,6 @@ const ForgotPasswordEmailForm = (props) => {
                     Login
                   </Link>{" "}
                 </p>
-                <p>
-                  © {new Date().getFullYear()} Drim. Crafted with{" "}
-                  <i className="mdi mdi-heart text-danger" /> by Demo
-                </p>
               </div>
             </Col>
           </Row>
@@ -158,10 +191,10 @@ const ForgotPasswordEmailForm = (props) => {
       </div>
     </React.Fragment>
   );
-};  
+};
 
-ForgotPasswordEmailForm.propTypes = {
+ChangePassword.propTypes = {
   history: PropTypes.object,
 };
 
-export default withRouter(ForgotPasswordEmailForm);
+export default withRouter(ChangePassword);

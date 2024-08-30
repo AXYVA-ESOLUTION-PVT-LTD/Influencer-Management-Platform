@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import {
   Dropdown,
@@ -20,9 +20,16 @@ import user1 from "../../../assets/images/users/avatar-1.jpg";
 const ProfileMenu = (props) => {
   // Declare a new state variable, which we'll call "menu"
   const [menu, setMenu] = useState(false);
+  const [username, setusername] = useState("");
 
-  // Static username
-  const [username, setusername] = useState("Admin");
+
+
+  useEffect(() => {
+    const name = JSON.parse(localStorage.getItem("user"));
+    if (name) {
+      setusername(name?.firstName);
+    }
+  }, []);
 
   return (
     <React.Fragment>

@@ -19,6 +19,8 @@ import NonAuthLayout from "./components/NonAuthLayout";
 
 // Import scss
 import "./assets/scss/theme.scss";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import Pages404 from "./pages/404";
 
 // Import Firebase Configuration file
 // import { initFirebaseBackend } from "./helpers/firebase_helper"
@@ -79,13 +81,16 @@ const App = (props) => {
             path={route.path}
             element={
               <Authmiddleware>
-                <Layout>{route.component}</Layout>
+                <ProtectedRoute  allowedRoles={route.allowedRoles}>
+                  <Layout>{route.component}</Layout>
+                </ProtectedRoute>
               </Authmiddleware>
             }
             key={idx}
             exact={true}
           />
         ))}
+        <Route path="/*" element={<Pages404 />} />
       </Routes>
     </React.Fragment>
   );

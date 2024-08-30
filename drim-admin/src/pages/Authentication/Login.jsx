@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import withRouter from "../../components/Common/withRouter";
 
 //redux
@@ -35,6 +35,14 @@ const Login = (props) => {
   //meta title
   document.title = "Login | Drim";
   const dispatch = useDispatch();
+  // const navigate = useNavigate();
+  // useEffect(()=>{
+  //   const token =  localStorage.getItem("authUser");
+  //   console.log({token})
+  //     if(token) {
+  //         navigate(-1);
+  //     }
+  // },[])
 
   const validation = useFormik({
     enableReinitialize: true,
@@ -193,10 +201,6 @@ const Login = (props) => {
                     {" "}
                     Signup now{" "}
                   </Link>{" "}
-                </p>
-                <p>
-                  © {new Date().getFullYear()} Drim. Crafted with{" "}
-                  <i className="mdi mdi-heart text-danger" /> by Demo
                 </p>
               </div>
             </Col>

@@ -25,7 +25,7 @@ const validationSchema = Yup.object({
     .required("Confirm password is required"),
 });
 
-function ChangePasswordForm() {
+function ResetPassword() {
   const dispatch = useDispatch();
 
   const formik = useFormik({
@@ -117,4 +117,4 @@ function ChangePasswordForm() {
   );
 }
 
-export default ChangePasswordForm;
+export default ResetPassword;

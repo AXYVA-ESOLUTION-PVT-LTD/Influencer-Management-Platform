@@ -24,7 +24,21 @@ function* loginUser({ payload: { user, history } }) {
       localStorage.setItem("authUser", response.result.data.token);
       localStorage.setItem("user", JSON.stringify(response.result.data.user));
       yield put(loginSuccess(response.result.data));
-      history("/dashboard");
+      const user = JSON.parse(localStorage.getItem("user"));
+      const role = user.roleId.name;
+      switch (role) {
+        case 'Admin':
+          history("/overview");
+          break;
+        case 'Client':
+          history("/client/overview");
+          break;
+        case 'Influencer':
+          history("/influencer/overview");
+          break;
+        default:
+          history('/404')
+      }
     } else {
       throw new Error("Invalid login credentials");
     }

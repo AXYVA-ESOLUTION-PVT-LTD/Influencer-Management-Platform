@@ -17,11 +17,11 @@ function* onUpdateProfile(action) {
       yield put(updateProfileSuccess(response?.result?.data));
       toast.success("Profile update successfully");
     } else {
+      toast.error(response.result.message);
       throw new Error("fail to update user");
     }
   } catch (error) {
     yield put(updateProfileError(error));
-    toast.error("Profile update successfully");
   }
 }
 

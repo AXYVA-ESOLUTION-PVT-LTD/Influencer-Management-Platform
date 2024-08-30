@@ -161,9 +161,9 @@ const SidebarContent = (props) => {
                 <li className="menu-title">Admin Menu</li>
 
                 <li>
-                  <Link to="/#">
+                  <Link to="/overview">
                     <i className="bx bx-home-circle"></i>
-                    <span>Dashboards</span>
+                    <span>Overview</span>
                   </Link>
                 </li>
                 {/* <li>
@@ -172,7 +172,6 @@ const SidebarContent = (props) => {
                     <span>Manage Role</span>
                   </Link>
                 </li> */}
-
                 <li>
                   <Link to="/influencer">
                     <i className="bx bxs-group"></i>
@@ -204,11 +203,11 @@ const SidebarContent = (props) => {
             {/* User Menu Item */}
             {(roleName === ROLES.ADMIN || roleName === ROLES.CLIENT) && (
               <>
-                <li className="menu-title">User Menu</li>
+                <li className="menu-title">Client Menu</li>
                 <li>
-                  <Link to="/home">
+                  <Link to="/client/overview">
                     <i className="bx bx-home-circle"></i>
-                    <span>Home</span>
+                    <span>Overview</span>
                   </Link>
                 </li>
 
@@ -233,11 +232,17 @@ const SidebarContent = (props) => {
               <>
                 <li className="menu-title">Influencer Menu</li>
                 <li>
+                  <Link to="/influencer/overview">
+                    <i className="bx bx-home-circle"></i>
+                    <span>Overview</span>
+                  </Link>
+                </li>
+                {/* <li>
                   <Link to="/influencer-growth">
                     <i className="bx bx-news"></i>
                     <span>Reports</span>
                   </Link>
-                </li>
+                </li> */}
                 <li>
                   <Link to="/opportunities">
                     <i className="bx bx-rocket"></i>

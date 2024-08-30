@@ -195,10 +195,6 @@ const Register = (props) => {
                     Login
                   </Link>{" "}
                 </p>
-                <p>
-                  © {new Date().getFullYear()} Drim. Crafted with{" "}
-                  <i className="mdi mdi-heart text-danger" /> by Demo
-                </p>
               </div>
             </Col>
           </Row>

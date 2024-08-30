@@ -19,7 +19,7 @@ import profile from "../../assets/images/profile-img.png";
 import logo from "../../assets/images/Logo.png";
 import withRouter from "../../components/Common/withRouter";
 
-const VerifyOtpForm = (props) => {
+const VerifyOTP = (props) => {
 
   document.title = "Verify OTP | Drim";
 
@@ -117,10 +117,6 @@ const VerifyOtpForm = (props) => {
                     Login
                   </Link>{" "}
                 </p>
-                <p>
-                  © {new Date().getFullYear()} Drim. Crafted with{" "}
-                  <i className="mdi mdi-heart text-danger" /> by Demo
-                </p>
               </div>
             </Col>
           </Row>
@@ -130,8 +126,8 @@ const VerifyOtpForm = (props) => {
   );
 };
 
-VerifyOtpForm.propTypes = {
+VerifyOTP.propTypes = {
   history: PropTypes.object,
 };
 
-export default withRouter(VerifyOtpForm);
+export default withRouter(VerifyOTP);

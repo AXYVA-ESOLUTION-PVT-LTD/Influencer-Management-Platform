@@ -133,10 +133,10 @@ const ManageRole = (props) => {
       <div className="page-content">
         <Container fluid>
           {/* Render Breadcrumb */}
-          <Breadcrumbs
+          {/* <Breadcrumbs
             title={props.t("Manage Role")}
             breadcrumbItem={props.t("Manage Role")}
-          />
+          /> */}
 
           {/* Button to Add New Role */}
           <div className="d-flex justify-content-end mb-3">
