@@ -163,10 +163,10 @@ const Opportunity = (props) => {
       <div className="page-content">
         <Container fluid>
           {/* Render Breadcrumb */}
-          <Breadcrumbs
+          {/* <Breadcrumbs
             title={props.t("Opportunity")}
             breadcrumbItem={props.t("Opportunity")}
-          />
+          /> */}
 
           {/* Button to Add New Opportunity */}
           <div className="d-flex justify-content-end mb-3">

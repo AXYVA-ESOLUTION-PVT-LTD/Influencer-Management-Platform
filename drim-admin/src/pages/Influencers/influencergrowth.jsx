@@ -28,10 +28,10 @@ const InfluencerGrowth = (props) => {
       <div className="page-content">
         <Container fluid>
           {/* Render Breadcrumb */}
-          <Breadcrumbs
+          {/* <Breadcrumbs
             title={props.t("Influencer Growth")}
             breadcrumbItem={props.t("Statistics")}
-          />
+          /> */}
 
           {/* Import/Export Buttons */}
           <div className="d-flex justify-content-end mb-4">

@@ -45,10 +45,10 @@ const Opportunities = (props) => {
       <div className="page-content">
         <Container fluid>
           {/* Render Breadcrumb */}
-          <Breadcrumbs
+          {/* <Breadcrumbs
             title={props.t("Influencer Opportunities")}
             breadcrumbItem={props.t("Opportunities")}
-          />
+          /> */}
 
           {/* Opportunities Grid */}
           <Row>
@@ -86,7 +86,7 @@ const Opportunities = (props) => {
                     <Button
                       color="primary"
                       className="mt-3"
-                      onClick={() => handleCreateTicket(opportunity)}
+                      // onClick={() => handleCreateTicket(opportunity)}
                     >
                       Apply
                     </Button>
