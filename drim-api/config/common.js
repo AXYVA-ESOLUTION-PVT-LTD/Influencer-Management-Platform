@@ -54,8 +54,8 @@ async function _sendEmail(mailOptions) {
     host: "smtp.ethereal.email",
     port: 587,
     auth: {
-      user: "pietro.feeney@ethereal.email",
-      pass: "WeXfPDGn4Z4bKHqVzP",
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
 
