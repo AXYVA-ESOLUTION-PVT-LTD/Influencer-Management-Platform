@@ -21,7 +21,7 @@ import {
   updateOpportunity,
 } from "../../store/opportunity/actions";
 
-const Opportunity = (props) => {
+const OpportunitiesPage = (props) => {
   const dispatch = useDispatch();
 
   const { opportunities, error, loading, totalOpportunities, currentPage } =
@@ -50,7 +50,7 @@ const Opportunity = (props) => {
   const [pageCount, setPageCount] = useState(0);
 
   // Meta title
-  document.title = "Opportunity | Drim - React Admin & Dashboard Template";
+  document.title = "Opportunity | Drim ";
 
   // Toggle modals
   const toggleUpdateModal = () => setIsUpdateModalOpen(!isUpdateModalOpen);
@@ -288,4 +288,4 @@ const Opportunity = (props) => {
   );
 };
 
-export default withTranslation()(Opportunity);
+export default withTranslation()(OpportunitiesPage);

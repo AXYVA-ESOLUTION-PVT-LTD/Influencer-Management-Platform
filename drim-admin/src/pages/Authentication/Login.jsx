@@ -29,20 +29,19 @@ import { loginUser } from "../../store/actions";
 // import images
 import profile from "../../assets/images/profile-img.png";
 import logo from "../../assets/images/Logo.png";
-import axios from "axios";
 
 const Login = (props) => {
   //meta title
   document.title = "Login | Drim";
   const dispatch = useDispatch();
-  // const navigate = useNavigate();
-  // useEffect(()=>{
-  //   const token =  localStorage.getItem("authUser");
-  //   console.log({token})
-  //     if(token) {
-  //         navigate(-1);
-  //     }
-  // },[])
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token = localStorage.getItem("authUser");
+
+    if (token) {
+      navigate(-1); 
+    }
+  }, [navigate]);
 
   const validation = useFormik({
     enableReinitialize: true,

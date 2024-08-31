@@ -47,7 +47,6 @@ const client = (state = INIT_STATE, action) => {
         error: null,
       };
     case ADD_CLIENT_SUCCESS:
-      console.log(action.payload);
       return {
         ...state,
         clients: [...state.clients, action.payload],
