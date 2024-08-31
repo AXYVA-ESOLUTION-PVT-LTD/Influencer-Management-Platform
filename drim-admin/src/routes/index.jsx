@@ -21,12 +21,12 @@ import InfluencerDetails from "../pages/Influencers/influencerdetails";
 import Influencergrowth from "../pages/Influencers/influencergrowth";
 import Client from "../pages/Client";
 import UserProfile from "../pages/Authentication/UserProfile";
-import InfluencerDashboard from "../pages/Dashboard/influencerDashboard";
 import ROLES from "../constants/role"; 
 import ForgotPassword from "../pages/Authentication/ForgotPassword";
 import ChangePassword from "../pages/Authentication/ChangePassword";
 import VerifyOTP from "../pages/Authentication/VerifyOTP";
 import ClientDashboard from "../pages/Client/ClientDashboard";
+import InfluencerDashboard from "../pages/Influencers/InfluencerDashboard";
 
 const authProtectedRoutes = [
   { path: "/overview", component: <Dashboard />, allowedRoles: [ROLES.ADMIN] },

@@ -3,6 +3,7 @@ import {
   Container,
   Row,
   Col,
+  Card,
 } from "reactstrap";
 
 // Import Breadcrumb
@@ -243,29 +244,22 @@ const InfluencerDashboard = (props) => {
   };
 
   const pieChart1Data = [
-    { name: "USA", y: 50 },
-    { name: "Europe", y: 20 },
-    { name: "Asia", y: 15 },
-    { name: "Africa", y: 10 },
-    { name: "Others", y: 5 },
-  ];
+    ['Male', 45],
+    ['Female', 55],
+  ]
 
   const pieChart2Data = [
-    { name: "Fashion", y: 35 },
-    { name: "Travel", y: 25 },
-    { name: "Food", y: 15 },
-    { name: "Lifestyle", y: 10 },
-    { name: "Tech", y: 8 },
-    { name: "Fitness", y: 7 },
-  ];
+    ['0-18', 25],
+    ['19-35', 35],
+    ['36-50', 20],
+    ['51+', 20],
+  ]
 
-  const pieChart3Data = [
-    { name: "Instagram", y: 60 },
-    { name: "Facebook", y: 20 },
-    { name: "Twitter", y: 10 },
-    { name: "LinkedIn", y: 5 },
-    { name: "YouTube", y: 5 },
-  ];
+  const pieChart3Data =  [
+    ['English', 50],
+    ['Spanish', 30],
+    ['Other', 20],
+  ]
 
   return (
     <React.Fragment>
@@ -298,30 +292,15 @@ const InfluencerDashboard = (props) => {
             </Col>
           </Row>
           <Row>
-      <Col md="4">
-        <Card>
-          <Donutchart
-            options={genderChartOptions}
-            series={genderSeries}
-          />
-        </Card>
-      </Col>
-      <Col md="4">
-        <Card>
-          <Donutchart
-            options={ageChartOptions}
-            series={ageSeries}
-          />
-        </Card>
-      </Col>
-      <Col md="4">
-        <Card>
-          <Donutchart
-            options={languageChartOptions}
-            series={languageSeries}
-          />
-        </Card>
-      </Col>
+          <Col md={4}>
+              <PieChart chartoptions={donutChartOptions} chartdata={pieChart1Data} title="Gender Distribution" />
+            </Col>
+            <Col md={4}>
+              <PieChart chartoptions={donutChartOptions} chartdata={pieChart2Data} title="Age Distribution"/>
+            </Col>
+            <Col md={4}>
+              <PieChart chartoptions={donutChartOptions} chartdata={pieChart3Data} title="Language Distribution"/>
+            </Col>
     </Row>
         </Container>
       </div>
