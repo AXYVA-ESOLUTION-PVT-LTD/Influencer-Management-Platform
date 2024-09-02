@@ -11,6 +11,7 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
+  Spinner,
 } from "reactstrap";
 import * as Yup from "yup";
 import TableContainer from "../../components/Common/TableContainer"; // Adjust import path if necessary
@@ -194,33 +195,42 @@ const ClientManagement = (props) => {
             setIsSearching={setIsSearching}
           />
 
-          {/* Client Table */}
-          {clients.length ? (
-            <TableContainer
-              columns={columns}
-              data={clients}
-              isGlobalFilter={false}
-              isAddOptions={false}
-              customPageSize={10}
-              className="custom-header-css"
-              isPagination={false}
-            />
+          {loading ? (
+            <div className="text-center" style={{ marginTop: 50 }}>
+              <Spinner color="primary" />
+            </div>
           ) : (
-            <h1 className="text-center" style={{ marginTop: 50 }}>
-              No Client Found
-            </h1>
-          )}
+            <>
+              {/* Client Table */}
+              {clients.length ? (
+                <>
+                  <TableContainer
+                    columns={columns}
+                    data={clients}
+                    isGlobalFilter={false}
+                    isAddOptions={false}
+                    customPageSize={10}
+                    className="custom-header-css"
+                    isPagination={false}
+                  />
 
-          {clients.length ? (
-            <Pagination
-              totalData={totalClients}
-              setLimit={setLimit}
-              setPageCount={setPageCount}
-              limit={limit}
-              pageCount={pageCount}
-              currentPage={pageCount}
-            />
-          ) : null}
+                  {/* Pagination */}
+                  <Pagination
+                    totalData={totalClients}
+                    setLimit={setLimit}
+                    setPageCount={setPageCount}
+                    limit={limit}
+                    pageCount={pageCount}
+                    currentPage={pageCount}
+                  />
+                </>
+              ) : (
+                <h1 className="text-center" style={{ marginTop: 50 }}>
+                  No Client Found
+                </h1>
+              )}
+            </>
+          )}
         </Container>
       </div>
 
