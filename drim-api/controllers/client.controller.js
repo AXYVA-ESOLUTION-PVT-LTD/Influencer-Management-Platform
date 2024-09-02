@@ -30,8 +30,26 @@ async function _getClient(req, res) {
       };
       return res.send(json);
     }
+    const limit = req.body.limit ? req.body.limit : 10;
+    const pageCount = req.body.pageCount ? req.body.pageCount : 0;
+    const skip = limit * pageCount;
 
-    const { roleName } = req.body;
+    let query = {};
+    const { roleName, firstName, lastName, email, status } = req.body;
+    if (firstName) {
+      query.firstName = { $regex: `^${firstName}`, $options: "i" };
+    }
+    if (lastName) {
+      query.lastName = { $regex: `^${lastName}`, $options: "i" };
+    }
+    if (email) {
+      query.email = { $regex: `^${email}`, $options: "i" };
+    }
+    if (status) {
+      query.status = true;
+    } else if (status === false) {
+      query.status = false;
+    }
 
     const role = await ROLE_COLLECTION.findOne({ name: roleName });
 
@@ -42,25 +60,33 @@ async function _getClient(req, res) {
       };
       return res.send(json);
     }
-
-    const clients = await USER_COLLECTION.find(
-      { roleId: role._id },
-      { password: 0, roleId: 0 }
-    ).lean();
+    query.roleId = role._id;
+    const clients = await USER_COLLECTION.find(query, {
+      password: 0,
+      roleId: 0,
+    })
+      .skip(skip)
+      .limit(limit)
+      .lean();
     if (clients.length === 0) {
       json.status = CONSTANT.SUCCESS;
       json.result = {
         message: "No clients found",
+        data: {
+          clients,
+        },
       };
       return res.send(json);
     }
+
+    const totalClients = await USER_COLLECTION.countDocuments(query);
 
     json.status = CONSTANT.SUCCESS;
     json.result = {
       message: "Clients fetched successfully",
       data: {
         clients,
-        Totalclient: clients.length,
+        totalClients,
       },
     };
     return res.send(json);

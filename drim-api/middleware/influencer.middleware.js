@@ -47,6 +47,24 @@ const validateGetInfluencers = [
     .isString()
     .notEmpty()
     .withMessage("Role name cannot be empty!"),
+  check("firstName")
+    .exists()
+    .withMessage("First name is required!")
+    .bail()
+    .trim()
+    .isString(),
+  check("lastName")
+    .exists()
+    .withMessage("Last name is required!")
+    .bail()
+    .trim()
+    .isString(),
+  check("email")
+    .exists()
+    .withMessage("Email name is required!")
+    .bail()
+    .trim()
+    .isString(),
 ];
 const validateUpdateInfluencers = [
   check("roleName")
