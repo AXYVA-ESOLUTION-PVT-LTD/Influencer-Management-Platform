@@ -20,22 +20,37 @@ async function _getOpportunity(req, res) {
     const limit = req.body.limit ? req.body.limit : 10;
     const pageCount = req.body.pageCount ? req.body.pageCount : 0;
     const skip = limit * pageCount;
+    let query = { isDeleted: false };
+    let sort = {};
+    const { id, title, type, sortBy, sortOrder } = req.body;
 
-    const { id, title, type, sortBy } = req.body;
+    if (id) {
+      query.id = Number(id);
+    }
 
-    const opportunities = await OPPORTUNITY_COLLECTION.find({
-      isDeleted: false,
-      id: id ? Number(id) : { $exists: true },
-      title: title ? { $regex: `^${title}`, $options: "i" } : { $exists: true },
-      type: type ? { $regex: `^${type}`, $options: "i" } : { $exists: true },
-    })
-      .sort(getSortOption(sortBy))
+    if (title) {
+      query.title = { $regex: `^${title}`, $options: "i" };
+    }
+
+    if (type) {
+      query.type = { $regex: `^${type}`, $options: "i" };
+    }
+
+    if (sortBy) {
+      sort[sortBy] = sortOrder === 1 ? 1 : -1;
+    } else {
+      sort.createdAt = -1;
+    }
+    console.log({ sort });
+    const opportunities = await OPPORTUNITY_COLLECTION.find(query)
+      .collation({ locale: "en", caseLevel: true })
+      .sort(sort)
       .skip(skip)
       .limit(limit);
 
-    const totalOpportunities = await OPPORTUNITY_COLLECTION.countDocuments({
-      isDeleted: false,
-    });
+    const totalOpportunities = await OPPORTUNITY_COLLECTION.countDocuments(
+      query
+    );
     if (!opportunities) {
       json.status = CONSTANT.FAIL;
       json.result = {

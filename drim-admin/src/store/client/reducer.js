@@ -67,8 +67,6 @@ const client = (state = INIT_STATE, action) => {
       };
     case UPDATE_CLIENT_SUCCESS:
       const { _id: updatedClientId } = action.payload;
-      console.log({ updatedClientId });
-      console.log({ payload: action.payload });
       return {
         ...state,
         clients: state.clients.map((client) =>

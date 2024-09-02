@@ -24,7 +24,7 @@ Highcharts3d(Highcharts);
 
 const DashboardOverview = (props) => {
   // Meta title
-  document.title = "Influencer Dashboard | Drim";
+  document.title = "Influencer Dashboard | Raise";
 
   // Data for statistics boxes
   const dataBoxes = [

@@ -20,11 +20,11 @@ import { useFormik } from "formik";
 import { setNewPassword } from "../../store/actions";
 
 import profile from "../../assets/images/profile-img.png";
-import logo from "../../assets/images/Logo.png";
+// import logo from "../../assets/images/favicon/logo-sm.png";
 
 const ChangePassword = (props) => {
 
-  document.title = "Set New Password | Drim";
+  document.title = "Set New Password | Raise";
   const dispatch = useDispatch();
 
   const validation = useFormik({
@@ -83,12 +83,12 @@ const ChangePassword = (props) => {
                     <Link to="/">
                       <div className="avatar-md profile-user-wid mb-4">
                         <span className="avatar-title rounded-circle bg-light">
-                          <img
+                          {/* <img
                             src={logo}
                             alt=""
                             className="rounded-circle"
                             height="34"
-                          />
+                          /> */}
                         </span>
                       </div>
                     </Link>

@@ -28,20 +28,20 @@ import { loginUser } from "../../store/actions";
 
 // import images
 import profile from "../../assets/images/profile-img.png";
-import logo from "../../assets/images/Logo.png";
+// import logo from "../../assets/images/favicon/logo-sm.png";
 
 const Login = (props) => {
   //meta title
-  document.title = "Login | Drim";
+  document.title = "Login | Raise";
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  useEffect(() => {
-    const token = localStorage.getItem("authUser");
+  // const navigate = useNavigate();
+  // useEffect(() => {
+  //   const token = localStorage.getItem("authUser");
 
-    if (token) {
-      navigate(-1); 
-    }
-  }, [navigate]);
+  //   if (token) {
+  //     navigate(-1); 
+  //   }
+  // }, [navigate]);
 
   const validation = useFormik({
     enableReinitialize: true,
@@ -79,7 +79,7 @@ const Login = (props) => {
                     <Col xs={7}>
                       <div className="text-primary p-4">
                         <h5 className="text-primary">Welcome Back !</h5>
-                        <p>Sign in to continue to Drim.</p>
+                        <p>Sign in to continue to Raise.</p>
                       </div>
                     </Col>
                     <Col className="col-5 align-self-end">
@@ -92,12 +92,12 @@ const Login = (props) => {
                     <Link to="/" className="auth-logo-light">
                       <div className="avatar-md profile-user-wid mb-4">
                         <span className="avatar-title rounded-circle bg-light">
-                          <img
+                          {/* <img
                             src={logo}
                             alt=""
                             className="rounded-circle"
                             height="34"
-                          />
+                          /> */}
                         </span>
                       </div>
                     </Link>

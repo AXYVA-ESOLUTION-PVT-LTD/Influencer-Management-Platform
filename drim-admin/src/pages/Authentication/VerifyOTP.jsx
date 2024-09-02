@@ -16,12 +16,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { verifyOtp } from "../../store/actions"; 
 
 import profile from "../../assets/images/profile-img.png";
-import logo from "../../assets/images/Logo.png";
+// import logo from "../../assets/images/favicon/logo-sm.png";
 import withRouter from "../../components/Common/withRouter";
 
 const VerifyOTP = (props) => {
 
-  document.title = "Verify OTP | Drim";
+  document.title = "Verify OTP | Raise";
 
   const dispatch = useDispatch();
   const [otp, setOtp] = useState("");
@@ -66,12 +66,12 @@ const VerifyOTP = (props) => {
                     <Link to="/">
                       <div className="avatar-md profile-user-wid mb-4">
                         <span className="avatar-title rounded-circle bg-light">
-                          <img
+                          {/* <img
                             src={logo}
                             alt=""
                             className="rounded-circle"
                             height="34"
-                          />
+                          /> */}
                         </span>
                       </div>
                     </Link>
