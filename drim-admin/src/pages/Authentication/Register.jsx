@@ -15,11 +15,11 @@ import { Link, useNavigate } from "react-router-dom";
 
 // import images
 import profileImg from "../../assets/images/profile-img.png";
-import logoImg from "../../assets/images/Logo.png";
+// import logoImg from "../../assets/images/favicon/logo-sm.png";
 import withRouter from "../../components/Common/withRouter";
 
 const Register = (props) => {
-  document.title = "Register | Drim";
+  document.title = "Register | Raise";
   
   const dispatch = useDispatch();
   const history = useNavigate();
@@ -68,7 +68,7 @@ const Register = (props) => {
                     <Col className="col-7">
                       <div className="text-primary p-4">
                         <h5 className="text-primary">Free Register</h5>
-                        <p>Get your free Drim account now.</p>
+                        <p>Get your free Raise account now.</p>
                       </div>
                     </Col>
                     <Col className="col-5 align-self-end">
@@ -81,7 +81,7 @@ const Register = (props) => {
                     <Link to="/">
                       <div className="avatar-md profile-user-wid mb-4">
                         <span className="avatar-title rounded-circle bg-light">
-                          <img src={logoImg} alt="" className="rounded-circle" height="34" />
+                          {/* <img src={logoImg} alt="" className="rounded-circle" height="34" /> */}
                         </span>
                       </div>
                     </Link>
@@ -177,7 +177,7 @@ const Register = (props) => {
 
                       <div className="mt-4 text-center">
                         <p className="mb-0">
-                          By registering you agree to the Drim{" "}
+                          By registering you agree to the Raise{" "}
                           <Link to="#" className="text-primary">
                             Terms of Use
                           </Link>

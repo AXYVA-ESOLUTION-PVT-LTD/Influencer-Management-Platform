@@ -11,6 +11,7 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
+  Spinner,
 } from "reactstrap";
 import * as Yup from "yup";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
@@ -43,12 +44,13 @@ const InfluencerManagement = (props) => {
   const [isSearching, setIsSearching] = useState(false);
 
   // Meta title
-  document.title = "Influencer | Drim - React Admin & Dashboard Template";
+  document.title = "Influencer | Raise ";
 
   const dispatch = useDispatch();
 
   const { influencers, loading, error, totalInfluencers, currentPage } =
     useSelector((state) => state.influencer);
+
   const createInfluncerValidation = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -84,7 +86,6 @@ const InfluencerManagement = (props) => {
       status: Yup.string().required("Status is required"),
     }),
     onSubmit: (values, { resetForm }) => {
-      // console.log({ selectedInfluencer });
       const payload = {
         id: selectedInfluencer._id,
         status: values.status === "Inactive" ? false : true,
@@ -200,24 +201,40 @@ const InfluencerManagement = (props) => {
             setIsSearching={setIsSearching}
           />
 
-          {/* Influencers Table */}
-          <TableContainer
-            columns={columns}
-            data={influencers}
-            isGlobalFilter={false} // Assuming you don't need global filtering here
-            isAddOptions={false}
-            customPageSize={10}
-            className="custom-header-css"
-            isPagination={false}
-          />
-          <Pagination
-            totalData={totalInfluencers}
-            setLimit={setLimit}
-            setPageCount={setPageCount}
-            limit={limit}
-            pageCount={pageCount}
-            currentPage={pageCount}
-          />
+          {loading ? (
+            <div className="text-center" style={{ marginTop: 50 }}>
+              <Spinner color="primary" />{" "}
+            </div>
+          ) : (
+            <>
+              {influencers.length ? (
+                <>
+                  <TableContainer
+                    columns={columns}
+                    data={influencers}
+                    isGlobalFilter={false}
+                    isAddOptions={false}
+                    customPageSize={10}
+                    className="custom-header-css"
+                    isPagination={false}
+                  />
+
+                  <Pagination
+                    totalData={totalInfluencers}
+                    setLimit={setLimit}
+                    setPageCount={setPageCount}
+                    limit={limit}
+                    pageCount={pageCount}
+                    currentPage={pageCount}
+                  />
+                </>
+              ) : (
+                <h1 className="text-center" style={{ marginTop: 50 }}>
+                  No Influencer Found
+                </h1>
+              )}
+            </>
+          )}
         </Container>
       </div>
 
@@ -388,4 +405,3 @@ const InfluencerManagement = (props) => {
 };
 
 export default withTranslation()(InfluencerManagement);
-InfluencerManagement

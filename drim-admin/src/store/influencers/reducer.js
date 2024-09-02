@@ -31,11 +31,13 @@ const influencer = (state = INIT_STATE, action) => {
         ...state,
         influencers: [...action.payload.influencers],
         totalInfluencers: action.payload.totalInfluencers,
+        loading:false,
       };
     case GET_INFLUENCERS_FAIL:
       return {
         ...state,
         error: action.payload,
+        loading:false,
       };
 
     case ADD_INFLUENCER:
@@ -45,16 +47,17 @@ const influencer = (state = INIT_STATE, action) => {
         error: null,
       };
     case ADD_INFLUENCER_SUCCESS:
-      console.log(action.payload);
       return {
         ...state,
         influencers: [...state.influencers, action.payload],
         totalInfluencers : state.totalInfluencers + 1,
+        loading:false
       };
     case ADD_INFLUENCER_FAIL:
       return {
         ...state,
         error: action.payload,
+        loading:false
       };
 
     case UPDATE_INFLUENCER:
@@ -72,11 +75,13 @@ const influencer = (state = INIT_STATE, action) => {
             ? { ...action.payload }
             : influencer
         ),
+        loading: false,
       };
     case UPDATE_INFLUENCER_FAIL:
       return {
         ...state,
         error: action.payload,
+        loading: false,
       };
 
     default:

@@ -16,11 +16,10 @@ import NotificationDropdown from "../CommonForBoth/TopbarDropdown/NotificationDr
 import ProfileMenu from "../CommonForBoth/TopbarDropdown/ProfileMenu";
 
 import megamenuImg from "../../assets/images/megamenu-img.png";
-import logo from "../../assets/images/logo.png";
-import logoLight from "../../assets/images/drim-logo.png";
-import logoLightSvg from "../../assets/images/drim-logo.svg";
-import logoDark from "../../assets/images/drim-logo.png";
-
+// import logo from "../../assets/images/favicon/logo-sm.png";
+// import logoLight from "../../assets/images/favicon/logo-lg.png";
+// import logoLightSvg from "../../assets/images/favicon/logo-sm.svg";
+// import logoDark from "../../assets/images/favicon/logo-lg.png";
 
 //i18n
 import { withTranslation } from "react-i18next";
@@ -64,21 +63,19 @@ const Header = (props) => {
             <div className="navbar-brand-box">
               <Link to="/" className="logo logo-dark">
                 <span className="logo-sm">
-                  <img src={logo} alt="" height="22" />
+                  {/* <img src={logo} alt="" height="22" /> */}
                 </span>
                 <span className="logo-lg">
-                  <img src={logo} alt="" height="17" />
-                  <img src={logoDark} alt="" height="17" />
+                  {/* <img src={logoDark} alt="" height="17" /> */}
                 </span>
               </Link>
 
               <Link to="/" className="logo logo-light">
                 <span className="logo-sm">
-                  <img src={logoLightSvg} alt="" height="22" />
+                  {/* <img src={logoLightSvg} alt="" height="22" /> */}
                 </span>
                 <span className="logo-lg">
-                  <img src={logo} alt="" height="19" />
-                  <img src={logoLight} alt="" height="19" />
+                  {/* <img src={logoLight} alt="" height="19" /> */}
                 </span>
               </Link>
             </div>
