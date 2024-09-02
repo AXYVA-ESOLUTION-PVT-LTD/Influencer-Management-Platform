@@ -82,7 +82,6 @@ function* onUpdateClient(action) {
       yield put(updateClientFail(response?.result?.error));
     }
   } catch (error) {
-    console.log(error);
     yield put(updateClientFail(error));
     toast.update(id, {
       render: "Fail to Update Client",

@@ -50,6 +50,9 @@ const ClientManagement = (props) => {
   });
   const [isSearching, setIsSearching] = useState(false);
 
+  const [sortBy, setSortBy] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
+
   const createClientValidation = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -99,9 +102,16 @@ const ClientManagement = (props) => {
   // Get Influencer when Mount
   useEffect(() => {
     dispatch(
-      getClient({ roleName: ROLES.CLIENT, limit, pageCount, ...filterFields })
+      getClient({
+        roleName: ROLES.CLIENT,
+        limit,
+        pageCount,
+        ...filterFields,
+        sortBy,
+        sortOrder,
+      })
     );
-  }, [dispatch, limit, pageCount, isSearching]);
+  }, [dispatch, limit, pageCount, isSearching, sortOrder, sortBy]);
 
   // Toggle modals
   const toggleUpdateModal = () => {
@@ -204,6 +214,10 @@ const ClientManagement = (props) => {
               customPageSize={10}
               className="custom-header-css"
               isPagination={false}
+              setSortBy={setSortBy}
+              sortBy={sortBy}
+              setSortOrder={setSortOrder}
+              sortOrder={sortOrder}
             />
           ) : (
             <h1 className="text-center" style={{ marginTop: 50 }}>
