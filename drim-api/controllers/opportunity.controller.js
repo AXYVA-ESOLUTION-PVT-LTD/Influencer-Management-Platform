@@ -21,7 +21,8 @@ async function _getOpportunity(req, res) {
     const pageCount = req.body.pageCount ? req.body.pageCount : 0;
     const skip = limit * pageCount;
     let query = { isDeleted: false };
-    const { id, title, type, sortBy } = req.body;
+    let sort = {};
+    const { id, title, type, sortBy, sortOrder } = req.body;
 
     if (id) {
       query.id = Number(id);
@@ -35,8 +36,15 @@ async function _getOpportunity(req, res) {
       query.type = { $regex: `^${type}`, $options: "i" };
     }
 
+    if (sortBy) {
+      sort[sortBy] = sortOrder === 1 ? 1 : -1;
+    } else {
+      sort.createdAt = -1;
+    }
+    console.log({ sort });
     const opportunities = await OPPORTUNITY_COLLECTION.find(query)
-      .sort(getSortOption(sortBy))
+      .collation({ locale: "en", caseLevel: true })
+      .sort(sort)
       .skip(skip)
       .limit(limit);
 

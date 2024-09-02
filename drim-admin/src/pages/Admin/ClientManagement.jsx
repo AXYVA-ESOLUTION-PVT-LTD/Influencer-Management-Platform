@@ -51,6 +51,9 @@ const ClientManagement = (props) => {
   });
   const [isSearching, setIsSearching] = useState(false);
 
+  const [sortBy, setSortBy] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
+
   const createClientValidation = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -100,9 +103,16 @@ const ClientManagement = (props) => {
   // Get Influencer when Mount
   useEffect(() => {
     dispatch(
-      getClient({ roleName: ROLES.CLIENT, limit, pageCount, ...filterFields })
+      getClient({
+        roleName: ROLES.CLIENT,
+        limit,
+        pageCount,
+        ...filterFields,
+        sortBy,
+        sortOrder,
+      })
     );
-  }, [dispatch, limit, pageCount, isSearching]);
+  }, [dispatch, limit, pageCount, isSearching, sortOrder, sortBy]);
 
   // Toggle modals
   const toggleUpdateModal = () => {
@@ -195,10 +205,24 @@ const ClientManagement = (props) => {
             setIsSearching={setIsSearching}
           />
 
-          {loading ? (
             <div className="text-center" style={{ marginTop: 50 }}>
               <Spinner color="primary" />{" "}
             </div>
+          {/* Client Table */}
+          {clients.length ? (
+            <TableContainer
+              columns={columns}
+              data={clients}
+              isGlobalFilter={false}
+              isAddOptions={false}
+              customPageSize={10}
+              className="custom-header-css"
+              isPagination={false}
+              setSortBy={setSortBy}
+              sortBy={sortBy}
+              setSortOrder={setSortOrder}
+              sortOrder={sortOrder}
+            />
           ) : (
             <>
               {clients.length ? (
