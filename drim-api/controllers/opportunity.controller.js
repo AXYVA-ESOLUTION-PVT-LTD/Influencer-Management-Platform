@@ -43,6 +43,7 @@ async function _getOpportunity(req, res) {
     }
     console.log({ sort });
     const opportunities = await OPPORTUNITY_COLLECTION.find(query)
+      .collation({ locale: "en", caseLevel: true })
       .sort(sort)
       .skip(skip)
       .limit(limit);

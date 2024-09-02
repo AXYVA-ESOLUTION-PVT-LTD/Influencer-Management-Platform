@@ -75,6 +75,7 @@ async function _getClient(req, res) {
       password: 0,
       roleId: 0,
     })
+      .collation({ locale: "en", caseLevel: true })
       .sort(sort)
       .skip(skip)
       .limit(limit)
