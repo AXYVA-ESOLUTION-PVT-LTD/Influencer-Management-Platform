@@ -61,15 +61,15 @@ const TableContainer = ({
   handleUserClick,
   handleCustomerClick,
   isAddCustList,
-  customPageSize,
   className,
   customPageSizeOptions,
-  handleFilter,
   isPagination,
   isFiltering,
   isSorting,
   setSortBy,
   sortBy,
+  setSortOrder,
+  sortOrder,
 }) => {
   const tableHooks = [useGlobalFilter, useExpanded, usePagination];
 
@@ -95,7 +95,6 @@ const TableContainer = ({
     nextPage,
     previousPage,
     setPageSize,
-    state,
     preGlobalFilteredRows,
     setGlobalFilter,
     state: { pageIndex, pageSize, filters },
@@ -130,12 +129,14 @@ const TableContainer = ({
   };
 
   const handleSort = (value) => {
-    const sortValue = value.toLowerCase();
-    if (sortValue === "title" || sortValue === "type") {
-      setSortBy((prev) => ({
-        ...prev,
-        [sortValue]: !prev[sortValue],
-      }));
+    if (value === "actions") {
+      return;
+    }
+    if (value === sortBy) {
+      setSortOrder(sortOrder === 1 ? -1 : 1);
+    } else {
+      setSortBy(value);
+      setSortOrder(-1);
     }
   };
   return (
@@ -219,24 +220,32 @@ const TableContainer = ({
               <tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map((column) => {
                   const headerTitle = column.render("Header");
+                  const accessorTitle = column.render("id");
+
                   return (
-                    <th key={column.id} onClick={() => handleSort(headerTitle)}>
+                    <th
+                      key={column.id}
+                      onClick={() => handleSort(accessorTitle)}
+                    >
                       <div
                         className="mb-2"
                         style={{
-                          fontWeight:
-                            sortBy &&
-                            Object.entries(sortBy).some(
-                              ([key, value]) =>
-                                key.toLowerCase() ===
-                                  headerTitle.toLowerCase() && value
-                            )
-                              ? 800
-                              : 500,
+                          cursor: "pointer",
                         }}
                         {...(isSorting ? column.getSortByToggleProps() : {})}
                       >
                         {headerTitle}
+                        {sortBy === accessorTitle ? (
+                          sortOrder === -1 ? (
+                            <i class="bx bx-sort-down"></i>
+                          ) : sortOrder === 1 ? (
+                            <i class="bx bx-sort-up"></i>
+                          ) : (
+                            ""
+                          )
+                        ) : (
+                          ""
+                        )}
                         {generateSortingIndicator(column)}
                       </div>
                       {isFiltering && column.Header !== "Actions" && (

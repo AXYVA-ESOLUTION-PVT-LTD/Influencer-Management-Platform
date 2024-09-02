@@ -122,8 +122,10 @@ async function _getInfluencers(req, res) {
     const skip = limit * pageCount;
 
     let query = {};
-    const { roleName, firstName, lastName, email, status } = req.body;
+    let sort = {};
 
+    const { roleName, firstName, lastName, email, status, sortBy, sortOrder } =
+      req.body;
     if (firstName) {
       query.firstName = { $regex: `^${firstName}`, $options: "i" };
     }
@@ -138,7 +140,12 @@ async function _getInfluencers(req, res) {
     } else if (status === false) {
       query.status = false;
     }
-    console.log({ query });
+
+    if (sortBy) {
+      sort[sortBy] = sortOrder === 1 ? 1 : -1;
+    } else {
+      sort.createdAt = -1;
+    }
     const role = await ROLE_COLLECTION.findOne({ name: roleName });
 
     if (!role) {
@@ -154,6 +161,7 @@ async function _getInfluencers(req, res) {
       password: 0,
       roleId: 0,
     })
+      .sort(sort)
       .skip(skip)
       .limit(limit)
       .lean();

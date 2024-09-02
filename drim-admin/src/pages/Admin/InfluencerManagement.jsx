@@ -42,6 +42,9 @@ const InfluencerManagement = (props) => {
   });
   const [isSearching, setIsSearching] = useState(false);
 
+  const [sortBy, setSortBy] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
+
   // Meta title
   document.title = "Influencer | Drim - React Admin & Dashboard Template";
 
@@ -104,9 +107,11 @@ const InfluencerManagement = (props) => {
         limit,
         pageCount,
         ...filterFields,
+        sortBy,
+        sortOrder,
       })
     );
-  }, [dispatch, limit, pageCount, isSearching]);
+  }, [dispatch, limit, pageCount, isSearching, sortOrder, sortBy]);
 
   // Toggle modals
   const toggleUpdateModal = () => {
@@ -209,6 +214,11 @@ const InfluencerManagement = (props) => {
             customPageSize={10}
             className="custom-header-css"
             isPagination={false}
+            isSorting={false}
+            setSortBy={setSortBy}
+            sortBy={sortBy}
+            setSortOrder={setSortOrder}
+            sortOrder={sortOrder}
           />
           <Pagination
             totalData={totalInfluencers}
@@ -388,4 +398,4 @@ const InfluencerManagement = (props) => {
 };
 
 export default withTranslation()(InfluencerManagement);
-InfluencerManagement
+InfluencerManagement;

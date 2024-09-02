@@ -35,7 +35,10 @@ async function _getClient(req, res) {
     const skip = limit * pageCount;
 
     let query = {};
-    const { roleName, firstName, lastName, email, status } = req.body;
+    let sort = {};
+
+    const { roleName, firstName, lastName, email, status, sortBy, sortOrder } =
+      req.body;
     if (firstName) {
       query.firstName = { $regex: `^${firstName}`, $options: "i" };
     }
@@ -51,6 +54,12 @@ async function _getClient(req, res) {
       query.status = false;
     }
 
+    if (sortBy) {
+      sort[sortBy] = sortOrder === 1 ? 1 : -1;
+    } else {
+      sort.createdAt = -1;
+    }
+
     const role = await ROLE_COLLECTION.findOne({ name: roleName });
 
     if (!role) {
@@ -60,14 +69,17 @@ async function _getClient(req, res) {
       };
       return res.send(json);
     }
+
     query.roleId = role._id;
     const clients = await USER_COLLECTION.find(query, {
       password: 0,
       roleId: 0,
     })
+      .sort(sort)
       .skip(skip)
       .limit(limit)
       .lean();
+
     if (clients.length === 0) {
       json.status = CONSTANT.SUCCESS;
       json.result = {

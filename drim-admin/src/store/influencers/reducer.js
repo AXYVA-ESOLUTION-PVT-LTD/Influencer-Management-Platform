@@ -45,11 +45,10 @@ const influencer = (state = INIT_STATE, action) => {
         error: null,
       };
     case ADD_INFLUENCER_SUCCESS:
-      console.log(action.payload);
       return {
         ...state,
         influencers: [...state.influencers, action.payload],
-        totalInfluencers : state.totalInfluencers + 1,
+        totalInfluencers: state.totalInfluencers + 1,
       };
     case ADD_INFLUENCER_FAIL:
       return {

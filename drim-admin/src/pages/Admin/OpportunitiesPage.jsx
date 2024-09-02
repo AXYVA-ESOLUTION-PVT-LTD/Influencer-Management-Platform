@@ -41,10 +41,8 @@ const OpportunitiesPage = (props) => {
     title: "",
     type: "",
   });
-  const [sortBy, setSortBy] = useState({
-    title: false,
-    type: false,
-  });
+  const [sortBy, setSortBy] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
 
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(0);
@@ -59,8 +57,16 @@ const OpportunitiesPage = (props) => {
 
   // FETCH OPPORTUNITY WHEN COMPONENT MOUNT
   useEffect(() => {
-    dispatch(getOpportunity({ limit, pageCount, ...filterFields, sortBy }));
-  }, [dispatch, limit, pageCount, sortBy, isSearching]);
+    dispatch(
+      getOpportunity({
+        limit,
+        pageCount,
+        ...filterFields,
+        sortBy: sortBy.toLowerCase(),
+        sortOrder,
+      })
+    );
+  }, [dispatch, limit, pageCount, sortBy, isSearching, sortOrder, sortBy]);
 
   // Handle view
   const handleViewOpportunity = (opportunity) => {
@@ -193,6 +199,8 @@ const OpportunitiesPage = (props) => {
             isFiltering={false}
             isSorting={false}
             sortBy={sortBy}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
           />
           <Pagination
             totalData={totalOpportunities}
