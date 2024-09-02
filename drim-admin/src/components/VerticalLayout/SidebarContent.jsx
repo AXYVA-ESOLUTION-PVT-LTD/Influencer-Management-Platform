@@ -32,13 +32,12 @@ const SidebarContent = (props) => {
       const parent2 = parent.parentElement;
 
       if (parent2) {
-        parent2.classList.add("mm-show"); // ul tag
-
-        const parent3 = parent2.parentElement; // li tag
+        parent2.classList.add("mm-show"); 
+        const parent3 = parent2.parentElement; 
 
         if (parent3) {
-          parent3.classList.add("mm-active"); // li
-          parent3.childNodes[0].classList.add("mm-active"); //a
+          parent3.classList.add("mm-active"); 
+          parent3.childNodes[0].classList.add("mm-active");
           const parent4 = parent3.parentElement; // ul
           if (parent4) {
             parent4.classList.add("mm-show"); // ul
@@ -192,7 +191,7 @@ const SidebarContent = (props) => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/opportunity">
+                  <Link to="/opportunities">
                     <i className="bx bx-star"></i>
                     <span>Opportunities</span>
                   </Link>
@@ -212,13 +211,13 @@ const SidebarContent = (props) => {
                 </li>
 
                 <li>
-                  <Link to="/influencers">
+                  <Link to="/client/influencers">
                     <i className="bx bxs-group"></i>
                     <span>Influencers</span>
                   </Link>
                 </li>
                 <li>
-                  <Link to="/publication">
+                  <Link to="/client/publications">
                     <i className="bx bxs-book-open"></i>
                     <span>Publications</span>
                   </Link>
@@ -244,7 +243,7 @@ const SidebarContent = (props) => {
                   </Link>
                 </li> */}
                 <li>
-                  <Link to="/opportunities">
+                  <Link to="/influencer/opportunities">
                     <i className="bx bx-rocket"></i>
                     <span>Opportunities</span>
                   </Link>

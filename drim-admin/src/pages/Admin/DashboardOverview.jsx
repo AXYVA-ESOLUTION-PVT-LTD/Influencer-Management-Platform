@@ -12,9 +12,9 @@ import Barchart from "../../components/Common/Chart/Barchart";
 import PieChart from "../../components/Common/Chart/PieChart";
 Highcharts3d(Highcharts); 
 
-const Dashboard = (props) => {
+const DashboardOverview = (props) => {
   // Meta title
-  document.title = "Dashboard | Drim";
+  document.title = "Overview | Drim";
 
   // State for filters
   const [filters, setFilters] = useState({
@@ -350,7 +350,7 @@ const Dashboard = (props) => {
         <Container fluid>
           {/* Render Breadcrumb */}
           <Breadcrumbs
-            title={props.t("Dashboard")}
+            title={props.t("DashboardOverview")}
             breadcrumbItem={props.t("Overall statistics")}
           />
           <Row className="mt-4">
@@ -383,4 +383,4 @@ const Dashboard = (props) => {
   );
 };
 
-export default withTranslation()(Dashboard);
+export default withTranslation()(DashboardOverview);

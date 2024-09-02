@@ -22,8 +22,10 @@ import {
 // Import components
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
-function Publications() {
-  // Data for publications
+function PublicationsListPage() {
+  document.title =
+  "Publications | Drim ";
+
   const data = [
     { id: 1, title: "Research on AI", author: "Jennifer Chang", publicationDate: "2023/01/15", journal: "AI Journal", volume: "15", pages: "45-67" },
     { id: 2, title: "Advances in Robotics", author: "Gavin Joyce", publicationDate: "2023/02/20", journal: "Robotics Today", volume: "22", pages: "78-89" },
@@ -192,7 +194,7 @@ function Publications() {
                 <p><strong>Volume:</strong> {selectedPublication.volume}</p>
                 <p><strong>Pages:</strong> {selectedPublication.pages}</p>
                 <a
-                  href={`https://dummyurl.com/${selectedPublication.id}`} // Dummy link to publication
+                  href={`https://dummyurl.com/${selectedPublication.id}`} 
                   target="_blank"
                   rel="demo"
                 >
@@ -207,8 +209,8 @@ function Publications() {
   );
 }
 
-Publications.propTypes = {
+PublicationsListPage.propTypes = {
   preGlobalFilteredRows: PropTypes.any,
 };
 
-export default Publications;
+export default PublicationsListPage;

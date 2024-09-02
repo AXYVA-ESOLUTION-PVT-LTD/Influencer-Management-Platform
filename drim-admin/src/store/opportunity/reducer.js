@@ -1,4 +1,4 @@
-import opportunities from "../../pages/Opportunities/opportunities";
+
 import {
   CREATE_OPPORTUNITY_ERROR,
   CREATE_OPPORTUNITY_REQUEST,

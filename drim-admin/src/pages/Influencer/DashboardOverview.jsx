@@ -22,7 +22,7 @@ import Highcharts3d from "highcharts/highcharts-3d";
 import Donutchart from "../../components/Common/Chart/Donutchart";
 Highcharts3d(Highcharts);
 
-const InfluencerDashboard = (props) => {
+const DashboardOverview = (props) => {
   // Meta title
   document.title = "Influencer Dashboard | Drim";
 
@@ -308,4 +308,4 @@ const InfluencerDashboard = (props) => {
   );
 };
 
-export default withTranslation()(InfluencerDashboard);
+export default withTranslation()(DashboardOverview);

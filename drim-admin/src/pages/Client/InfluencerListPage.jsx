@@ -22,31 +22,31 @@ import Breadcrumbs from "../../components/Common/Breadcrumb";
 import { withTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-const Influencers = (props) => {
+const InfluencerListPage = (props) => {
   // Meta title
-  document.title = "Dashboard | Drim - React Admin & Dashboard Template";
+  document.title = "Influencers | Drim ";
 
-  // Sample influencer data with 20 entries
   const sampleInfluencers = [
-      { id: 1, name: "Jane Doe", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Jane+Doe" },
-      { id: 2, name: "John Smith", status: "pending", followers: 12000, image: "https://via.placeholder.com/150?text=John+Smith" },
-      { id: 3, name: "Jane Doe", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Jane+Doe" },
-      { id: 4, name: "John Smith", status: "pending", followers: 12000, image: "https://via.placeholder.com/150?text=John+Smith" },
-      { id: 5, name: "Jane Doe", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Jane+Doe" },
-      { id: 6, name: "John Smith", status: "pending", followers: 12000, image: "https://via.placeholder.com/150?text=John+Smith" },
-      { id: 7, name: "Jane Doe", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Jane+Doe" },
-      { id: 8, name: "John Smith", status: "pending", followers: 12000, image: "https://via.placeholder.com/150?text=John+Smith" },
-      { id: 9, name: "Jane Doe", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Jane+Doe" },
-      { id: 10, name: "John Smith", status: "pending", followers: 12000, image: "https://via.placeholder.com/150?text=John+Smith" },
-      { id: 11, name: "Jane Doe", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Jane+Doe" },
-      { id: 12, name: "John Smith", status: "pending", followers: 12000, image: "https://via.placeholder.com/150?text=John+Smith" },
-      { id: 13, name: "Jane Doe", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Jane+Doe" },
-      { id: 14, name: "John Smith", status: "pending", followers: 12000, image: "https://via.placeholder.com/150?text=John+Smith" },
-      { id: 15, name: "Jane Doe", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Jane+Doe" },
-      { id: 16, name: "John Smith", status: "pending", followers: 12000, image: "https://via.placeholder.com/150?text=John+Smith" },
-      { id: 17, name: "Jane Doe", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Jane+Doe" },
-      { id: 18, name: "John Smith", status: "pending", followers: 12000, image: "https://via.placeholder.com/150?text=John+Smith" },
+    { id: 1, name: "Alice Johnson", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Alice+Johnson" },
+    { id: 2, name: "Bob Brown", status: "pending", followers: 12000, image: "https://via.placeholder.com/150?text=Bob+Brown" },
+    { id: 3, name: "Catherine Lee", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Catherine+Lee" },
+    { id: 4, name: "David Wilson", status: "pending", followers: 12000, image: "https://via.placeholder.com/150?text=David+Wilson" },
+    { id: 5, name: "Emily Davis", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Emily+Davis" },
+    { id: 6, name: "Frank Miller", status: "pending", followers: 12000, image: "https://via.placeholder.com/150?text=Frank+Miller" },
+    { id: 7, name: "Grace Martinez", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Grace+Martinez" },
+    { id: 8, name: "Henry Thompson", status: "pending", followers: 12000, image: "https://via.placeholder.com/150?text=Henry+Thompson" },
+    { id: 9, name: "Ivy Harris", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Ivy+Harris" },
+    { id: 10, name: "Jack Scott", status: "pending", followers: 12000, image: "https://via.placeholder.com/150?text=Jack+Scott" },
+    { id: 11, name: "Karen Lewis", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Karen+Lewis" },
+    { id: 12, name: "Larry Young", status: "pending", followers: 12000, image: "https://via.placeholder.com/150?text=Larry+Young" },
+    { id: 13, name: "Mia Walker", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Mia+Walker" },
+    { id: 14, name: "Nate Allen", status: "pending", followers: 12000, image: "https://via.placeholder.com/150?text=Nate+Allen" },
+    { id: 15, name: "Olivia King", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Olivia+King" },
+    { id: 16, name: "Paul Wright", status: "pending", followers: 12000, image: "https://via.placeholder.com/150?text=Paul+Wright" },
+    { id: 17, name: "Quinn Adams", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Quinn+Adams" },
+    { id: 18, name: "Riley Green", status: "pending", followers: 12000, image: "https://via.placeholder.com/150?text=Riley+Green" },
   ];
+  
 
   // State for influencers, filters, and pagination
   const [filter, setFilter] = useState("all");
@@ -78,7 +78,7 @@ const Influencers = (props) => {
   };
 
   const handleViewProfile = (id) => {
-    navigate(`/influencer-details`);
+    navigate(`/client/influencer-details`);
   };
 
   return (
@@ -160,4 +160,4 @@ const Influencers = (props) => {
   );
 };
 
-export default withTranslation()(Influencers);
+export default withTranslation()(InfluencerListPage);

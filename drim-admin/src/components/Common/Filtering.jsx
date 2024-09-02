@@ -1,11 +1,7 @@
 import React from "react";
-import { useDispatch } from "react-redux";
-import { Col, Input, Row, FormGroup, Label, Button } from "reactstrap";
-import { getOpportunity } from "../../store/opportunity/actions";
+import { Button, Col, FormGroup, Input, Label, Row } from "reactstrap";
 
 const Filtering = ({ setFilterFields, filterFields, setIsSearching }) => {
-  const dispatch = useDispatch();
-
   const handleFilter = (e) => {
     const { name, value } = e.target;
     setFilterFields((prev) => ({ ...prev, [name]: value }));

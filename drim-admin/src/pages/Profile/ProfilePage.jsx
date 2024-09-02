@@ -26,8 +26,6 @@ import classnames from "classnames";
 // Formik Validation
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { userResetPassword, userResetPasswordError } from "../../store/auth/reset-pwd/actions";
-import PropTypes from "prop-types";
 //Import Breadcrumb
 import Breadcrumb from "../../components/Common/Breadcrumb";
 
@@ -35,7 +33,7 @@ import avatar from "../../assets/images/users/avatar-1.jpg";
 import { useDispatch } from "react-redux";
 import { updateProfile } from "../../store/user/actions";
 import { API_URL } from "../../helpers/api_helper";
-import ResetPassword from "./ResetPassword";
+import ResetPassword from "../Authentication/ResetPassword";
 
 const validationSchema = Yup.object({
   oldPassword: Yup.string().required("Old password is required"),
@@ -47,7 +45,7 @@ const validationSchema = Yup.object({
     .required("Confirm password is required"),
 });
 
-const UserProfile = () => {
+const ProfilePage = () => {
   const dispatch = useDispatch();
 
   //meta title
@@ -267,4 +265,4 @@ const UserProfile = () => {
   );
 };
 
-export default UserProfile;
+export default ProfilePage;

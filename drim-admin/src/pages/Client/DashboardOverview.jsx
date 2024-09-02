@@ -20,11 +20,12 @@ import Highcharts3d from "highcharts/highcharts-3d";
 import Mixchart from "../../components/Common/Chart/Mixchart";
 import Barchart from "../../components/Common/Chart/Barchart";
 import PieChart from "../../components/Common/Chart/PieChart";
+
 Highcharts3d(Highcharts);
 // i18n
 import { withTranslation } from "react-i18next";
 
-const ClientDashboard = (props) => {
+const DashboardOverview = (props) => {
   // Meta title
   document.title = "Dashboard | Drim";
 
@@ -385,4 +386,4 @@ const ClientDashboard = (props) => {
   );
 };
 
-export default withTranslation()(ClientDashboard);
+export default withTranslation()(DashboardOverview);

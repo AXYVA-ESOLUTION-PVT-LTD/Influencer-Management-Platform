@@ -12,7 +12,7 @@ import {
 
 const INIT_STATE = {
   clients: [],
-  totalClient: null,
+  totalClients: null,
   loading: false,
   error: {},
 };
@@ -29,7 +29,7 @@ const client = (state = INIT_STATE, action) => {
       return {
         ...state,
         clients: [...action.payload.clients],
-        totalClient: action.payload.totalClient,
+        totalClients: action.payload.totalClients,
         loading: false,
         error: null,
       };
@@ -47,7 +47,6 @@ const client = (state = INIT_STATE, action) => {
         error: null,
       };
     case ADD_CLIENT_SUCCESS:
-      console.log(action.payload);
       return {
         ...state,
         clients: [...state.clients, action.payload],

@@ -25,7 +25,10 @@ import ReactionRangeCard from "../../components/Common/ReactionRangeCard";
 import DataCard from "../../components/Common/DataCard";
 import UserDataCard from "../../components/Common/UserDataCard";
 
-function InfluencerDetails() {
+function InfluencerDetailsPage() {
+
+  document.title = "Influencers | Drim ";
+  
   const areaChartOptions = {
     chart: {
       height: 350,
@@ -386,4 +389,4 @@ function InfluencerDetails() {
   );
 }
 
-export default InfluencerDetails;
+export default InfluencerDetailsPage;

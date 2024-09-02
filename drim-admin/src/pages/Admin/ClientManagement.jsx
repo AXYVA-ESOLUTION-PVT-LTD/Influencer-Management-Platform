@@ -13,34 +13,44 @@ import {
   ModalHeader,
 } from "reactstrap";
 import * as Yup from "yup";
-import Breadcrumbs from "../../components/Common/Breadcrumb";
 import TableContainer from "../../components/Common/TableContainer"; // Adjust import path if necessary
-import {
-  addNewInfluencer,
-  getInfluencers,
-  updateInfluencer,
-} from "../../store/influencers/actions";
 import ROLES from "../../constants/role";
+import {
+  addNewClient,
+  getClient,
+  updateClient,
+} from "../../store/client/actions";
 import Pagination from "../../components/Common/Pagination";
+import ClientFiltering from "../../components/Common/ClientFiltering";
 
-const Influencer = (props) => {
+const ClientManagement = (props) => {
   // State for modals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [selectedInfluencer, setSelectedInfluencer] = useState(null);
-  const [limit, setLimit] = useState(10);
-  const [pageCount, setPageCount] = useState(0);
+  const [selectedClient, setSelectedClient] = useState(null);
 
   // Meta title
   document.title = "Influencer | Drim - React Admin & Dashboard Template";
 
   const dispatch = useDispatch();
 
-  const { influencers, loading, error, totalInfluencer, currentPage } =
-    useSelector((state) => state.influencer);
-  console.log({ influencers });
-  const createInfluncerValidation = useFormik({
+  const { clients, loading, error, totalClients } = useSelector(
+    (state) => state.client
+  );
+
+  const [limit, setLimit] = useState(10);
+  const [pageCount, setPageCount] = useState(0);
+
+  const [filterFields, setFilterFields] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    status: "",
+  });
+  const [isSearching, setIsSearching] = useState(false);
+
+  const createClientValidation = useFormik({
     enableReinitialize: true,
     initialValues: {
       firstName: "",
@@ -59,14 +69,14 @@ const Influencer = (props) => {
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
-        roleName: ROLES.INFLUENCER,
+        roleName: ROLES.CLIENT,
       };
-      dispatch(addNewInfluencer(payload));
+      dispatch(addNewClient(payload));
       resetForm();
       toggleCreateModal();
     },
   });
-  const updateInfluncerValidation = useFormik({
+  const updateClientValidation = useFormik({
     enableReinitialize: true,
     initialValues: {
       status: "Active",
@@ -75,13 +85,12 @@ const Influencer = (props) => {
       status: Yup.string().required("Status is required"),
     }),
     onSubmit: (values, { resetForm }) => {
-      // console.log({ selectedInfluencer });
       const payload = {
-        id: selectedInfluencer._id,
+        id: selectedClient._id,
         status: values.status === "Inactive" ? false : true,
-        roleName: ROLES.INFLUENCER,
+        roleName: ROLES.CLIENT,
       };
-      dispatch(updateInfluencer(payload));
+      dispatch(updateClient(payload));
       resetForm();
       toggleUpdateModal();
     },
@@ -89,8 +98,10 @@ const Influencer = (props) => {
 
   // Get Influencer when Mount
   useEffect(() => {
-    dispatch(getInfluencers({ roleName: ROLES.INFLUENCER }));
-  }, []);
+    dispatch(
+      getClient({ roleName: ROLES.CLIENT, limit, pageCount, ...filterFields })
+    );
+  }, [dispatch, limit, pageCount, isSearching]);
 
   // Toggle modals
   const toggleUpdateModal = () => {
@@ -104,14 +115,14 @@ const Influencer = (props) => {
     setIsDetailsModalOpen(!isDetailsModalOpen);
   };
   // Handle update
-  const handleUpdateInfluencer = (influencer) => {
-    setSelectedInfluencer(influencer);
+  const handleUpdateClient = (client) => {
+    setSelectedClient(client);
     toggleUpdateModal();
   };
 
   // Handle view details
-  const handleViewDetails = (influencer) => {
-    setSelectedInfluencer(influencer);
+  const handleViewDetails = (client) => {
+    setSelectedClient(client);
     toggleDetailsModal();
   };
 
@@ -155,7 +166,7 @@ const Influencer = (props) => {
               color="link"
               size="lg"
               className="p-0 me-2"
-              onClick={() => handleUpdateInfluencer(original)}
+              onClick={() => handleUpdateClient(original)}
             >
               <i className="bx bx-edit" style={{ color: "orange" }}></i>
             </Button>
@@ -163,7 +174,7 @@ const Influencer = (props) => {
         ),
       },
     ],
-    [handleUpdateInfluencer, handleViewDetails]
+    [handleUpdateClient, handleViewDetails]
   );
 
   return (
@@ -173,47 +184,60 @@ const Influencer = (props) => {
           {/* Button to Add New Influencer */}
           <div className="d-flex justify-content-end mb-3">
             <Button color="primary" onClick={toggleCreateModal}>
-              Add Influencer
+              Add Client
             </Button>
           </div>
 
-          {/* Influencers Table */}
-          <TableContainer
-            columns={columns}
-            data={influencers}
-            isGlobalFilter={false} // Assuming you don't need global filtering here
-            isAddOptions={false}
-            customPageSize={10}
-            className="custom-header-css"
-            isPagination={false}
+          <ClientFiltering
+            filterFields={filterFields}
+            setFilterFields={setFilterFields}
+            setIsSearching={setIsSearching}
           />
-          {/* <Pagination
-            totalData={totalInfluencer}
-            setLimit={setLimit}
-            setPageCount={setPageCount}
-            limit={limit}
-            pageCount={pageCount}
-            currentPage={pageCount}
-          /> */}
+
+          {/* Client Table */}
+          {clients.length ? (
+            <TableContainer
+              columns={columns}
+              data={clients}
+              isGlobalFilter={false}
+              isAddOptions={false}
+              customPageSize={10}
+              className="custom-header-css"
+              isPagination={false}
+            />
+          ) : (
+            <h1 className="text-center" style={{ marginTop: 50 }}>
+              No Client Found
+            </h1>
+          )}
+
+          {clients.length ? (
+            <Pagination
+              totalData={totalClients}
+              setLimit={setLimit}
+              setPageCount={setPageCount}
+              limit={limit}
+              pageCount={pageCount}
+              currentPage={pageCount}
+            />
+          ) : null}
         </Container>
       </div>
 
       {/* Details Modal */}
       <Modal isOpen={isDetailsModalOpen} toggle={toggleDetailsModal}>
-        <ModalHeader toggle={toggleDetailsModal}>
-          Influencer Details
-        </ModalHeader>
+        <ModalHeader toggle={toggleDetailsModal}>Client Details</ModalHeader>
         <ModalBody>
-          {selectedInfluencer && (
+          {selectedClient && (
             <>
               <p>
-                <strong>First Name:</strong> {selectedInfluencer.firstName}
+                <strong>First Name:</strong> {selectedClient.firstName}
               </p>
               <p>
-                <strong>Last Name:</strong> {selectedInfluencer.lastName}
+                <strong>Last Name:</strong> {selectedClient.lastName}
               </p>
               <p>
-                <strong>Email:</strong> {selectedInfluencer.email}
+                <strong>Email:</strong> {selectedClient.email}
               </p>
             </>
           )}
@@ -227,8 +251,8 @@ const Influencer = (props) => {
 
       {/* Create Modal */}
       <Modal isOpen={isCreateModalOpen} toggle={toggleCreateModal}>
-        <ModalHeader toggle={toggleCreateModal}>Add Influencer</ModalHeader>
-        <form onSubmit={createInfluncerValidation.handleSubmit}>
+        <ModalHeader toggle={toggleCreateModal}>Add Client</ModalHeader>
+        <form onSubmit={createClientValidation.handleSubmit}>
           <ModalBody>
             <div className="mb-2">
               <Label htmlFor="firstName" className="block mb-1">
@@ -238,20 +262,20 @@ const Influencer = (props) => {
                 id="firstName"
                 name="firstName"
                 type="text"
-                onChange={createInfluncerValidation.handleChange}
-                onBlur={createInfluncerValidation.handleBlur}
-                value={createInfluncerValidation.values.firstName}
+                onChange={createClientValidation.handleChange}
+                onBlur={createClientValidation.handleBlur}
+                value={createClientValidation.values.firstName}
                 invalid={
-                  createInfluncerValidation.touched.firstName &&
-                  createInfluncerValidation.errors.firstName
+                  createClientValidation.touched.firstName &&
+                  createClientValidation.errors.firstName
                     ? true
                     : false
                 }
               />
-              {createInfluncerValidation.touched.firstName &&
-              createInfluncerValidation.errors.firstName ? (
+              {createClientValidation.touched.firstName &&
+              createClientValidation.errors.firstName ? (
                 <div className="invalid-feedback">
-                  {createInfluncerValidation.errors.firstName}
+                  {createClientValidation.errors.firstName}
                 </div>
               ) : null}
             </div>
@@ -263,20 +287,20 @@ const Influencer = (props) => {
                 id="lastName"
                 name="lastName"
                 type="text"
-                onChange={createInfluncerValidation.handleChange}
-                onBlur={createInfluncerValidation.handleBlur}
-                value={createInfluncerValidation.values.lastName}
+                onChange={createClientValidation.handleChange}
+                onBlur={createClientValidation.handleBlur}
+                value={createClientValidation.values.lastName}
                 invalid={
-                  createInfluncerValidation.touched.lastName &&
-                  createInfluncerValidation.errors.lastName
+                  createClientValidation.touched.lastName &&
+                  createClientValidation.errors.lastName
                     ? true
                     : false
                 }
               />
-              {createInfluncerValidation.touched.lastName &&
-              createInfluncerValidation.errors.lastName ? (
+              {createClientValidation.touched.lastName &&
+              createClientValidation.errors.lastName ? (
                 <div className="invalid-feedback">
-                  {createInfluncerValidation.errors.lastName}
+                  {createClientValidation.errors.lastName}
                 </div>
               ) : null}
             </div>
@@ -288,20 +312,20 @@ const Influencer = (props) => {
                 id="email"
                 name="email"
                 type="email"
-                onChange={createInfluncerValidation.handleChange}
-                onBlur={createInfluncerValidation.handleBlur}
-                value={createInfluncerValidation.values.email}
+                onChange={createClientValidation.handleChange}
+                onBlur={createClientValidation.handleBlur}
+                value={createClientValidation.values.email}
                 invalid={
-                  createInfluncerValidation.touched.email &&
-                  createInfluncerValidation.errors.email
+                  createClientValidation.touched.email &&
+                  createClientValidation.errors.email
                     ? true
                     : false
                 }
               />
-              {createInfluncerValidation.touched.email &&
-              createInfluncerValidation.errors.email ? (
+              {createClientValidation.touched.email &&
+              createClientValidation.errors.email ? (
                 <div className="invalid-feedback">
-                  {createInfluncerValidation.errors.email}
+                  {createClientValidation.errors.email}
                 </div>
               ) : null}
             </div>
@@ -320,7 +344,7 @@ const Influencer = (props) => {
       {/* Update Modal */}
       <Modal isOpen={isUpdateModalOpen} toggle={toggleUpdateModal}>
         <ModalHeader toggle={toggleUpdateModal}>Update Client</ModalHeader>
-        <form onSubmit={updateInfluncerValidation.handleSubmit}>
+        <form onSubmit={updateClientValidation.handleSubmit}>
           <ModalBody>
             <div className="mb-2">
               <Label htmlFor="status" className="block mb-1">
@@ -329,12 +353,12 @@ const Influencer = (props) => {
               <Input
                 name="status"
                 type="select"
-                onChange={updateInfluncerValidation.handleChange}
-                onBlur={updateInfluncerValidation.handleBlur}
-                value={updateInfluncerValidation.values.status}
+                onChange={updateClientValidation.handleChange}
+                onBlur={updateClientValidation.handleBlur}
+                value={updateClientValidation.values.status}
                 invalid={
-                  updateInfluncerValidation.touched.status &&
-                  updateInfluncerValidation.errors.status
+                  updateClientValidation.touched.status &&
+                  updateClientValidation.errors.status
                     ? true
                     : false
                 }
@@ -342,10 +366,10 @@ const Influencer = (props) => {
                 <option>Active</option>
                 <option>Inactive</option>
               </Input>
-              {updateInfluncerValidation.touched.status &&
-              updateInfluncerValidation.errors.status ? (
+              {updateClientValidation.touched.status &&
+              updateClientValidation.errors.status ? (
                 <div className="invalid-feedback">
-                  {updateInfluncerValidation.errors.status}
+                  {updateClientValidation.errors.status}
                 </div>
               ) : null}
             </div>
@@ -364,4 +388,4 @@ const Influencer = (props) => {
   );
 };
 
-export default withTranslation()(Influencer);
+export default withTranslation()(ClientManagement);

@@ -1,6 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Button,
+  Dropdown,
+  DropdownMenu,
+  DropdownToggle,
   Input,
   Modal,
   ModalBody,
@@ -15,7 +18,7 @@ import publicationData from "../../data/publication";
 import PublicationSearching from "../../components/publications/PublicationSearching";
 import ColumnSelector from "../../components/Common/ColumnSelector";
 
-function Publications() {
+function PublicationsPage() {
   // State for managing data
   const [data, setData] = useState(publicationData);
 
@@ -253,16 +256,7 @@ function Publications() {
           >
             {isShowFilter ? "Hide " : "Show "}Filters
           </Button>
-          <Button onClick={() => setIsHeaderDropDown(!isHeaderDropDown)}>
-            <i className="bx bx-filter" style={{ fontSize: 18 }}></i>
-          </Button>
-          {isHeaderDropDown && (
-            <ColumnSelector
-              columns={columns}
-              filterHeader={filterHeader}
-              setFilterHeader={setFilterHeader}
-            />
-          )}
+
           {/* <Button
             color="primary"
             onClick={() =>
@@ -276,6 +270,33 @@ function Publications() {
           >
             Add Publication
           </Button> */}
+
+          <Dropdown
+            isOpen={isHeaderDropDown}
+            toggle={() => setIsHeaderDropDown(!isHeaderDropDown)}
+            className="d-inline-block"
+          >
+            <DropdownToggle>
+              <i className="bx bx-filter" style={{ fontSize: 18 }}></i>
+            </DropdownToggle>
+            <DropdownMenu
+              className="dropdown-menu-end"
+              style={{
+                maxHeight: 300,
+                width: 200,
+                overflowY: "scroll",
+                zIndex: 1000,
+                padding: "5px 15px",
+                marginTop: "12px",
+              }}
+            >
+              <ColumnSelector
+                columns={columns}
+                filterHeader={filterHeader}
+                setFilterHeader={setFilterHeader}
+              />
+            </DropdownMenu>
+          </Dropdown>
         </div>
 
         {isShowFilter && (
@@ -430,4 +451,4 @@ function Publications() {
   );
 }
 
-export default Publications;
+export default PublicationsPage;
