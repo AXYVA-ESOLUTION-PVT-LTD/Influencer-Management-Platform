@@ -12,7 +12,7 @@ import {
 
 const INIT_STATE = {
   influencers: [],
-  totalInfluencer: null,
+  totalInfluencers: null,
   currentPage: null,
   loading: false,
   error: {},
@@ -30,7 +30,7 @@ const influencer = (state = INIT_STATE, action) => {
       return {
         ...state,
         influencers: [...action.payload.influencers],
-        totalInfluencer: action.payload.totalInfluencer,
+        totalInfluencers: action.payload.totalInfluencers,
       };
     case GET_INFLUENCERS_FAIL:
       return {
@@ -49,6 +49,7 @@ const influencer = (state = INIT_STATE, action) => {
       return {
         ...state,
         influencers: [...state.influencers, action.payload],
+        totalInfluencers : state.totalInfluencers + 1,
       };
     case ADD_INFLUENCER_FAIL:
       return {
