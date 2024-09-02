@@ -42,7 +42,7 @@ const ClientManagement = (props) => {
 
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(0);
-
+  
   const [filterFields, setFilterFields] = useState({
     firstName: "",
     lastName: "",
@@ -205,25 +205,13 @@ const ClientManagement = (props) => {
             setIsSearching={setIsSearching}
           />
 
+          {loading ? (
             <div className="text-center" style={{ marginTop: 50 }}>
-              <Spinner color="primary" />{" "}
+              <Spinner color="primary" />
             </div>
-          {/* Client Table */}
-          {clients.length ? (
-            <TableContainer
-              columns={columns}
-              data={clients}
-              isGlobalFilter={false}
-              isAddOptions={false}
-              customPageSize={10}
-              className="custom-header-css"
-              isPagination={false}
-              setSortBy={setSortBy}
-              sortBy={sortBy}
-              setSortOrder={setSortOrder}
-              sortOrder={sortOrder}
-            />
           ) : (
+            <>
+              {/* Client Table */}
               {clients.length ? (
                 <>
                   <TableContainer
@@ -234,10 +222,13 @@ const ClientManagement = (props) => {
                     customPageSize={10}
                     className="custom-header-css"
                     isPagination={false}
+                    setSortBy={setSortBy}
+                    sortBy={sortBy}
+                    setSortOrder={setSortOrder}
+                    sortOrder={sortOrder}
                   />
 
                   {/* Pagination */}
-
                   <Pagination
                     totalData={totalClients}
                     setLimit={setLimit}

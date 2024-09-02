@@ -39,7 +39,7 @@ const Pagination = ({
         <select className="form-select" value={limit} onChange={handleShowMore}>
           {[10, 20, 30, 40, 50].map((pageSize) => (
             <option key={pageSize} value={pageSize}>
-              Show {pageSize}
+               {pageSize}
             </option>
           ))}
         </select>
