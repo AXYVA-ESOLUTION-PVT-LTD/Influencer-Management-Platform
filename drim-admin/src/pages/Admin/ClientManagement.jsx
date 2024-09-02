@@ -224,7 +224,6 @@ const ClientManagement = (props) => {
               sortOrder={sortOrder}
             />
           ) : (
-            <>
               {clients.length ? (
                 <>
                   <TableContainer
@@ -236,6 +235,9 @@ const ClientManagement = (props) => {
                     className="custom-header-css"
                     isPagination={false}
                   />
+
+                  {/* Pagination */}
+
                   <Pagination
                     totalData={totalClients}
                     setLimit={setLimit}
