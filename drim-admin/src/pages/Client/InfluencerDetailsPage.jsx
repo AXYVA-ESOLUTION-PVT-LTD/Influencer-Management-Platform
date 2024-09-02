@@ -1,21 +1,5 @@
 import React, { useState } from "react";
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  CardBody,
-  CardTitle,
-  CardText,
-  Table,
-  Progress,
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Badge,
-} from "reactstrap";
+import { Container, Row, Col, Card, CardBody, CardTitle } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 import Mixchart from "../../components/Common/Chart/Mixchart";
 import ApexCharts from "react-apexcharts";
@@ -24,142 +8,30 @@ import MetricListCard from "../../components/Common/MetricListCard";
 import ReactionRangeCard from "../../components/Common/ReactionRangeCard";
 import DataCard from "../../components/Common/DataCard";
 import UserDataCard from "../../components/Common/UserDataCard";
+import {
+  ageChartOptions,
+  ageSeries,
+  cardData,
+  columns,
+  data,
+  genderChartOptions,
+  genderSeries,
+  languageChartOptions,
+  languageSeries,
+  MainData,
+  metrics,
+  metricsData,
+  subscriberHashtagData,
+  tagData,
+  userData,
+} from "../../data/InfluencerDetailsData";
+import { areaChartOptions, areaChartSeries } from "../../data/DashboardData";
+import CardComponent from "../../components/Influencer/CardComponent/CardComponent";
+import ProgressBox from "../../components/Influencer/ProgressBox/ProgressBox";
+import TableContainer from "../../components/Common/TableContainer";
 
 function InfluencerDetailsPage() {
-
   document.title = "Influencers | Raise ";
-  
-  const areaChartOptions = {
-    chart: {
-      height: 350,
-      type: "line",
-      stacked: false,
-    },
-    stroke: {
-      width: [2, 2, 2, 2, 2, 2], // Uniform stroke width for lines
-      curve: "smooth",
-    },
-    plotOptions: {
-      bar: {
-        columnWidth: "50%", // Width for bar type series
-        endingShape: "rounded", // Rounded ends for bars
-        dataLabels: {
-          enabled: false, // Disable data labels for bar series
-        },
-      },
-      line: {
-        curve: "smooth", // Smooth line curves
-        dataLabels: {
-          enabled: true, // Enable data labels for line series
-          formatter: function (value) {
-            return value; // Show data labels for line series
-          },
-        },
-      },
-      area: {
-        dataLabels: {
-          enabled: false, // Disable data labels for area series
-        },
-      },
-    },
-    markers: {
-      size: 6, // Size of the markers
-      colors: [
-        "#003f5c",
-        "#2f4b7c",
-        "#665191",
-        "#6a4c93",
-        "#4a4e69",
-        "#6c757d",
-      ], // Updated marker colors
-      strokeColors: "#fff", // Border color for markers
-      strokeWidth: 2, // Border width for markers
-      hover: {
-        size: 8, // Size of markers on hover
-      },
-    },
-    fill: {
-      opacity: [0.85, 0.5, 0.5, 0.5, 0.5, 0.5], // Opacity for different series
-      gradient: {
-        inverseColors: false,
-        shade: "light",
-        type: "vertical",
-        opacityFrom: 0.85,
-        opacityTo: 0.55,
-        stops: [0, 100, 100, 100],
-      },
-    },
-    xaxis: {
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-      ],
-      title: {
-        text: "Month",
-      },
-      labels: {
-        style: {
-          colors: "#9E9E9E", // Label color
-          fontSize: "12px", // Font size
-        },
-      },
-    },
-    yaxis: {
-      title: {
-        text: "Values",
-      },
-      labels: {
-        style: {
-          colors: "#9E9E9E", // Label color
-          fontSize: "12px", // Font size
-        },
-      },
-    },
-    tooltip: {
-      shared: true,
-      intersect: false,
-      y: {
-        formatter: function (
-          value,
-          { series, seriesIndex, dataPointIndex, w }
-        ) {
-          // Show y-axis values for line series and hide for bar series
-          if (w.config.series[seriesIndex].type === "line") {
-            return value; // Show values for line series
-          }
-          return ""; // Hide values for bar series
-        },
-      },
-    },
-    colors: ["#003f5c", "#2f4b7c", "#665191", "#6a4c93", "#4a4e69", "#6c757d"], // Updated colors for each series
-  };
-
-  const areaChartSeries = [
-    {
-      name: "Orders",
-      type: "bar",
-      data: [12, 25, 18, 40, 28, 35, 25, 30, 20, 45, 40],
-    },
-    {
-      name: "Repeated Posts",
-      type: "area",
-      data: [22, 18, 20, 30, 40, 25, 30, 35, 50, 55, 60],
-    },
-    {
-      name: "First Posts",
-      type: "line",
-      data: [15, 20, 25, 30, 35, 30, 35, 25, 45, 50, 45],
-    },
-  ];
 
   const toggleModal = () => setModalOpen(!modalOpen);
 
@@ -168,106 +40,7 @@ function InfluencerDetailsPage() {
     toggleModal();
   };
 
-  const MainData = [
-    {
-      title: "Engagement rate (ER)",
-      desc: "Percentage of subscribers engaging with the content",
-      data: "2,79%",
-      tag: "High",
-    },
-    {
-      title: "Account activity",
-      desc: "Average number of publications per week",
-      data: "3,33",
-      tag: "Moderate",
-    },
-    {
-      title: "Audience quality",
-      desc: "The number of real people and influencers among the subscribers",
-      data: "2,79%",
-      tag: "Satisfactory",
-    },
-    {
-      title: "Audience reachability",
-      desc: "Subscribers whose number of subscriptions does not exceed 1000",
-      data: "23,38%",
-      tag: "High",
-    },
-  ];
 
-  const chartOptions = {
-    chart: {
-      type: "donut",
-    },
-    plotOptions: {
-      pie: {
-        donut: {
-          size: "70%",
-        },
-      },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    legend: {
-      position: "bottom",
-    },
-  };
-
-  // Individual series and color options for each chart
-  const genderChartOptions = {
-    ...chartOptions,
-    colors: ["#003f5c", "#2f4b7c", "#665191"], // Colors for Audience Gender
-    title: {
-      text: "Audience Gender",
-    },
-  };
-
-  const ageChartOptions = {
-    ...chartOptions,
-    colors: ["#6a4c93", "#4a4e69", "#6c757d"], // Colors for Age by Category
-    title: {
-      text: "Age by Category",
-    },
-  };
-
-  const languageChartOptions = {
-    ...chartOptions,
-    colors: ["#003f5c", "#2f4b7c", "#665191", "#6a4c93", "#4a4e69", "#6c757d"], // Colors for Audience Language
-    title: {
-      text: "Audience Language",
-    },
-  };
-
-  // Sample data series for each chart
-  const genderSeries = [44, 33, 23];
-  const ageSeries = [25, 35, 20];
-  const languageSeries = [30, 25, 20, 15, 5, 5];
-
-  const metrics = [
-    { title: "Reach", value: "69,76k" },
-    { title: "Subscribers", value: "226,07k" },
-    { title: "Engagement Rate (ER)", value: "1,2%" },
-    { title: "Views", value: "500K" },
-  ];
-
-  const metricsData = [
-    { title: "Average number of reactions", value: "5796" },
-    { title: "Average number of comments", value: "101" },
-    { title: "Average number of views", value: "55742" },
-    { title: "Reactions of real subscribers", value: "In development" },
-    { title: "Number of posts per week", value: "4" },
-  ];
-
-  const userData = {
-    imageUrl:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQz9XyMm2fcQCxkFmgn5558mIhd5oZpAKifEA&s",
-    name: "Merk Fran",
-    profileUrl: "#",
-    publication: "200",
-    subscribers: "500K",
-    subscriptions: "50",
-  };
 
   return (
     <React.Fragment>
@@ -383,6 +156,48 @@ function InfluencerDetailsPage() {
               </Row>
             </CardBody>
           </Card>
+          <Card className="p-4 mb-4">
+            <Row>
+              {cardData.map((data, index) => (
+                <CardComponent
+                  key={index}
+                  image={data.image}
+                  title={data.title}
+                  uploadTime={data.uploadTime}
+                  views={data.views}
+                  likes={data.likes}
+                  comments={data.comments}
+                />
+              ))}
+            </Row>
+          </Card>
+          <Row>
+            <Col md="6" className="mb-4">
+              <ProgressBox title="Tags" data={tagData} />
+            </Col>
+            <Col md="6" className="mb-4">
+              <ProgressBox
+                title="Subscriber Hashtags"
+                data={subscriberHashtagData}
+              />
+            </Col>
+          </Row>
+
+          <Card>
+      <CardBody>
+        <CardTitle tag="h5">Publications</CardTitle>
+        <TableContainer
+          columns={columns}
+          data={data}
+          isGlobalFilter={true}
+          isAddOptions={false}
+          customPageSize={10}
+          className="custom-header-css"
+          isPagination={true}
+        />
+      </CardBody>
+    </Card>
+
         </Container>
       </div>
     </React.Fragment>

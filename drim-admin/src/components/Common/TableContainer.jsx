@@ -133,10 +133,10 @@ const TableContainer = ({
       return;
     }
     if (value === sortBy) {
-      setSortOrder(sortOrder === 1 ? -1 : 1);
+      setSortOrder(sortOrder === -1 ? 1 : -1);
     } else {
       setSortBy(value);
-      setSortOrder(-1);
+      setSortOrder(1);
     }
   };
   return (
@@ -237,9 +237,9 @@ const TableContainer = ({
                         {headerTitle}
                         {sortBy === accessorTitle ? (
                           sortOrder === -1 ? (
-                            <i class="bx bx-sort-down"></i>
+                            <i className="bx bx-sort-down"></i>
                           ) : sortOrder === 1 ? (
-                            <i class="bx bx-sort-up"></i>
+                            <i className="bx bx-sort-up"></i>
                           ) : (
                             ""
                           )

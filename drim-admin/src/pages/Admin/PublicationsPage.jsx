@@ -14,7 +14,7 @@ import {
 // Import components
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 import TableContainer from "../../components/Common/TableContainer";
-import publicationData from "../../data/publication";
+import publicationData from "../../data/publicationData";
 import PublicationSearching from "../../components/publications/PublicationSearching";
 import ColumnSelector from "../../components/Common/ColumnSelector";
 

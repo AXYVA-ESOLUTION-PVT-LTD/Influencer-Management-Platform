@@ -86,10 +86,10 @@ const InfluencerListPage = (props) => {
       <div className="page-content">
         <Container fluid>
           {/* Render Breadcrumb */}
-          <Breadcrumbs
+          {/* <Breadcrumbs
             title={props.t("Influencers")}
             breadcrumbItem={props.t("Influencers")}
-          />
+          /> */}
 
           {/* Filters */}
           <FormGroup className="d-flex mb-3">

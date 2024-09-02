@@ -16,6 +16,7 @@ import { AdminDashboardOverview, ClientManagement, InfluencerManagement, Opportu
 import {  ClientDashboardOverview, InfluencerDetailsPage, InfluencerListPage ,PublicationsListPage } from "../pages/Client";
 import { InfluencerDashboardOverview, OpportunitiesListPage } from "../pages/Influencer";
 import { ProfilePage } from "../pages/Profile";
+import { Notifications } from "../pages/Notification";
 
 
 const authProtectedRoutes = [
@@ -33,6 +34,7 @@ const authProtectedRoutes = [
   { path: "/influencer/overview", component: <InfluencerDashboardOverview />, allowedRoles: [ROLES.ADMIN, ROLES.INFLUENCER] },
   { path: "/influencer/opportunities", component: <OpportunitiesListPage />, allowedRoles: [ROLES.ADMIN, ROLES.INFLUENCER] },
   { path: "/profile", component: <ProfilePage />, allowedRoles: [ROLES.ADMIN, ROLES.CLIENT, ROLES.INFLUENCER] },
+  { path: "/notifications", component: <Notifications />, allowedRoles: [ROLES.ADMIN, ROLES.CLIENT, ROLES.INFLUENCER] },
 ];
 
 const publicRoutes = [
