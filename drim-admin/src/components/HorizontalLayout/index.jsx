@@ -41,7 +41,7 @@ const Layout = (props) => {
     let currentage = title.charAt(1).toUpperCase() + title.slice(2);
 
     document.title =
-      currentage + " | Drim - Vite React Admin & Dashboard Template";
+      currentage + " | Raise Dashboard ";
   }, [pathName.pathname]);
 
   useEffect(() => {

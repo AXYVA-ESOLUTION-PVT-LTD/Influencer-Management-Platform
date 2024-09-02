@@ -97,7 +97,7 @@ const opportunitiesData = [
 ];
 
 const OpportunitiesPage = (props) => {
-  document.title = "Dashboard | Drim - React Admin & Dashboard Template";
+  document.title = "Dashboard | Raise ";
 
   const handleCreateTicket = (opportunity) => {
     alert(`Creating a request for ${opportunity.name}`);

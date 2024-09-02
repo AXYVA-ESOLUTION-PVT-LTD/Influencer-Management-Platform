@@ -9,6 +9,7 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
+  Spinner,
 } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 import Filtering from "../../components/Common/Filtering";
@@ -47,8 +48,8 @@ const OpportunitiesPage = (props) => {
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(0);
 
-  // Meta title
-  document.title = "Opportunity | Drim ";
+  // Meta title`
+  document.title = "Opportunity | Raise ";
 
   // Toggle modals
   const toggleUpdateModal = () => setIsUpdateModalOpen(!isUpdateModalOpen);
@@ -184,32 +185,47 @@ const OpportunitiesPage = (props) => {
             setIsSearching={setIsSearching}
           />
 
-          {/* Opportunities Table  */}
-          <TableContainer
-            columns={columns}
-            data={opportunities}
-            isGlobalFilter={true}
-            isAddOptions={false}
-            customPageSize={limit}
-            className="custom-header-css"
-            setPageCount={setPageCount}
-            setLimit={setLimit}
-            setSortBy={setSortBy}
-            isPagination={false}
-            isFiltering={false}
-            isSorting={false}
-            sortBy={sortBy}
-            sortOrder={sortOrder}
-            setSortOrder={setSortOrder}
-          />
-          <Pagination
-            totalData={totalOpportunities}
-            setLimit={setLimit}
-            setPageCount={setPageCount}
-            limit={limit}
-            pageCount={pageCount}
-            currentPage={currentPage}
-          />
+          {loading ? (
+            <div className="text-center" style={{ marginTop: 50 }}>
+              <Spinner color="primary" />
+            </div>
+          ) : (
+            <>
+              {opportunities.length ? (
+                <>
+                  <TableContainer
+                    columns={columns}
+                    data={opportunities}
+                    isGlobalFilter={true}
+                    isAddOptions={false}
+                    customPageSize={limit}
+                    className="custom-header-css"
+                    setPageCount={setPageCount}
+                    setLimit={setLimit}
+                    setSortBy={setSortBy}
+                    isPagination={false}
+                    isFiltering={false}
+                    isSorting={false}
+                    sortBy={sortBy}
+                    sortOrder={sortOrder}
+                    setSortOrder={setSortOrder}
+                  />
+                  <Pagination
+                    totalData={totalOpportunities}
+                    setLimit={setLimit}
+                    setPageCount={setPageCount}
+                    limit={limit}
+                    pageCount={pageCount}
+                    currentPage={currentPage}
+                  />
+                </>
+              ) : (
+                <h1 className="text-center" style={{ marginTop: 50 }}>
+                  No Opportunities Found
+                </h1>
+              )}
+            </>
+          )}
         </Container>
       </div>
 

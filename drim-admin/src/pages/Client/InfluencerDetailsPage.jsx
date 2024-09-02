@@ -27,7 +27,7 @@ import UserDataCard from "../../components/Common/UserDataCard";
 
 function InfluencerDetailsPage() {
 
-  document.title = "Influencers | Drim ";
+  document.title = "Influencers | Raise ";
   
   const areaChartOptions = {
     chart: {

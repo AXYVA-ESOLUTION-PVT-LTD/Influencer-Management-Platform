@@ -11,6 +11,7 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
+  Spinner,
 } from "reactstrap";
 import * as Yup from "yup";
 import TableContainer from "../../components/Common/TableContainer"; // Adjust import path if necessary
@@ -31,7 +32,7 @@ const ClientManagement = (props) => {
   const [selectedClient, setSelectedClient] = useState(null);
 
   // Meta title
-  document.title = "Influencer | Drim - React Admin & Dashboard Template";
+  document.title = "Client | Raise ";
 
   const dispatch = useDispatch();
 
@@ -204,6 +205,9 @@ const ClientManagement = (props) => {
             setIsSearching={setIsSearching}
           />
 
+            <div className="text-center" style={{ marginTop: 50 }}>
+              <Spinner color="primary" />{" "}
+            </div>
           {/* Client Table */}
           {clients.length ? (
             <TableContainer
@@ -220,21 +224,34 @@ const ClientManagement = (props) => {
               sortOrder={sortOrder}
             />
           ) : (
-            <h1 className="text-center" style={{ marginTop: 50 }}>
-              No Client Found
-            </h1>
+            <>
+              {clients.length ? (
+                <>
+                  <TableContainer
+                    columns={columns}
+                    data={clients}
+                    isGlobalFilter={false}
+                    isAddOptions={false}
+                    customPageSize={10}
+                    className="custom-header-css"
+                    isPagination={false}
+                  />
+                  <Pagination
+                    totalData={totalClients}
+                    setLimit={setLimit}
+                    setPageCount={setPageCount}
+                    limit={limit}
+                    pageCount={pageCount}
+                    currentPage={pageCount}
+                  />
+                </>
+              ) : (
+                <h1 className="text-center" style={{ marginTop: 50 }}>
+                  No Client Found
+                </h1>
+              )}
+            </>
           )}
-
-          {clients.length ? (
-            <Pagination
-              totalData={totalClients}
-              setLimit={setLimit}
-              setPageCount={setPageCount}
-              limit={limit}
-              pageCount={pageCount}
-              currentPage={pageCount}
-            />
-          ) : null}
         </Container>
       </div>
 

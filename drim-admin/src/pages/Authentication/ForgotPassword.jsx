@@ -16,7 +16,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import withRouter from "../../components/Common/withRouter";
-import logo from "../../assets/images/Logo.png";
+// import logo from "../../assets/images/favicon/logo-sm.png";
 import profile from "../../assets/images/profile-img.png"; 
 
 import * as Yup from "yup";
@@ -26,7 +26,7 @@ import { useFormik } from "formik";
 import { userForgetPassword } from "../../store/actions";
 
 const ForgotPassword = (props) => {
-  document.title = "Forget Password | Drim";
+  document.title = "Forget Password | Raise";
 
   const dispatch = useDispatch();
 
@@ -74,12 +74,12 @@ const ForgotPassword = (props) => {
                     <Link to="/">
                       <div className="avatar-md profile-user-wid mb-4">
                         <span className="avatar-title rounded-circle bg-light">
-                          <img
+                          {/* <img
                             src={logo}
                             alt=""
                             className="rounded-circle"
                             height="34"
-                          />
+                          /> */}
                         </span>
                       </div>
                     </Link>

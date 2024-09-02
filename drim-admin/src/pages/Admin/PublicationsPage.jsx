@@ -79,7 +79,7 @@ function PublicationsPage() {
 
   // Meta title
   document.title =
-    "Publications | Drim - Vite React Admin & Dashboard Template";
+    "Publications | Raise ";
 
   // Toggle modals
   const toggleUpdateModal = () => setIsUpdateModalOpen(!isUpdateModalOpen);

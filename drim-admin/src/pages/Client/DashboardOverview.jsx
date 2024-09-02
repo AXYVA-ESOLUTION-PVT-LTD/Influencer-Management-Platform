@@ -27,7 +27,7 @@ import { withTranslation } from "react-i18next";
 
 const DashboardOverview = (props) => {
   // Meta title
-  document.title = "Dashboard | Drim";
+  document.title = "Dashboard | Raise";
 
   const dataBoxes = [
     { title: "Views", value: 15, rate: 2, isIncrease: true },

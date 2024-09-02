@@ -24,7 +24,7 @@ import { useNavigate } from "react-router-dom";
 
 const InfluencerListPage = (props) => {
   // Meta title
-  document.title = "Influencers | Drim ";
+  document.title = "Influencers | Raise ";
 
   const sampleInfluencers = [
     { id: 1, name: "Alice Johnson", status: "approved", followers: 15000, image: "https://via.placeholder.com/150?text=Alice+Johnson" },

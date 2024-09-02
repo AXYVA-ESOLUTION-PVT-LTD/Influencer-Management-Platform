@@ -24,7 +24,7 @@ import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 function PublicationsListPage() {
   document.title =
-  "Publications | Drim ";
+  "Publications | Raise";
 
   const data = [
     { id: 1, title: "Research on AI", author: "Jennifer Chang", publicationDate: "2023/01/15", journal: "AI Journal", volume: "15", pages: "45-67" },

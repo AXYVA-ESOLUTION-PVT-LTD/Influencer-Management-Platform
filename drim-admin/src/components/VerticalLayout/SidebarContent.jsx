@@ -180,7 +180,7 @@ const SidebarContent = (props) => {
                 <li>
                   <Link to="/client">
                     <i className="bx bxs-user"></i>
-                    <span>Client</span>
+                    <span>Clients</span>
                   </Link>
                 </li>
 
