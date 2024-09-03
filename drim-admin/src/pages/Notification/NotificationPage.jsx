@@ -16,7 +16,10 @@ import Breadcrumb from "../../components/Common/Breadcrumb";
 import TableContainer from "../../components/Common/TableContainer";
 import { data } from "../../data/notification";
 import { useDispatch, useSelector } from "react-redux";
-import { getNotification } from "../../store/notification/actions";
+import {
+  createNotification,
+  getNotification,
+} from "../../store/notification/actions";
 import useLocalStorage from "../../hooks/useLocalStorage";
 
 const TicketPage = () => {
@@ -35,26 +38,51 @@ const TicketPage = () => {
   const [newTicket, setNewTicket] = useState({
     title: "",
     description: "",
-    status: "Pending",
+  });
+  const [errors, setErrors] = useState({
+    title: "",
+    description: "",
   });
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-  
+
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-  
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+
     return `${year}-${month}-${day} ${hours}:${minutes}`;
   };
-  
-  useEffect(()=>{
-    let data = JSON.parse(localStorage.getItem('user'));
+
+  const validateForm = () => {
+    const newErrors = {
+      title: "",
+      description: "",
+    };
+
+    let isValid = true;
+
+    if (newTicket.title.trim() === "") {
+      newErrors.title = "Title is required";
+      isValid = false;
+    }
+
+    if (newTicket.description.trim() === "") {
+      newErrors.description = "Description is required";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  useEffect(() => {
+    let data = JSON.parse(localStorage.getItem("user"));
     setRole(data.roleId.name);
-  },[]);
+  }, []);
 
   const columns = [
     {
@@ -155,14 +183,14 @@ const TicketPage = () => {
   };
 
   const handleCreate = () => {
-    // Add your create logic here
-    console.log("Creating ticket", newTicket);
-    setNewTicket({
-      title: "",
-      description: "",
-      status: "Pending",
-    });
-    handleCloseCreateModal();
+    if (validateForm()) {
+      dispatch(createNotification(newTicket));
+      setNewTicket({
+        title: "",
+        description: "",
+      });
+      handleCloseCreateModal();
+    }
   };
 
   useEffect(() => {
@@ -187,7 +215,7 @@ const TicketPage = () => {
           ) : (
             <>
               {/* Client Table */}
-              { notifications.length ? (
+              {notifications.length ? (
                 <>
                   <TableContainer
                     columns={columns}
@@ -293,6 +321,9 @@ const TicketPage = () => {
                   setNewTicket({ ...newTicket, title: e.target.value })
                 }
               />
+              {errors.title && (
+                <div className="text-danger">{errors.title}</div>
+              )}
             </FormGroup>
             <FormGroup>
               <Label for="newDescription">Description</Label>
@@ -304,6 +335,9 @@ const TicketPage = () => {
                   setNewTicket({ ...newTicket, description: e.target.value })
                 }
               />
+              {errors.description && (
+                <div className="text-danger">{errors.description}</div>
+              )}
             </FormGroup>
           </Form>
         </ModalBody>
