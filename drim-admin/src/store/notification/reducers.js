@@ -5,6 +5,9 @@ import {
   GET_NOTIFICATION,
   GET_NOTIFICATION_FAIL,
   GET_NOTIFICATION_SUCCESS,
+  UPDATE_NOTIFICATION,
+  UPDATE_NOTIFICATION_FAIL,
+  UPDATE_NOTIFICATION_SUCCESS,
 } from "./actionTypes";
 
 const INIT_STATE = {
@@ -49,6 +52,26 @@ const notification = (state = INIT_STATE, action) => {
         error: null,
       };
     case CREATE_NOTIFICATION_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case UPDATE_NOTIFICATION:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case UPDATE_NOTIFICATION_SUCCESS:
+      return {
+        ...state,
+        notifications: [state.notifications, ...action.payload.notification],
+        loading: false,
+        error: null,
+      };
+    case UPDATE_NOTIFICATION_FAIL:
       return {
         ...state,
         loading: false,
