@@ -244,6 +244,8 @@ function PublicationsPage() {
     () => columns.filter((column) => column.isVisible),
     [columns, filterHeader]
   );
+  
+  const toggleFilterModal = () => setIsShowFilter(!isShowFilter);
 
   return (
     <div className="page-content">
@@ -298,14 +300,26 @@ function PublicationsPage() {
             </DropdownMenu>
           </Dropdown>
         </div>
-
+{/* 
         {isShowFilter && (
           <PublicationSearching
             filterFields={filterFields}
             setFilterFields={setFilterFields}
             setIsSearching={setIsSearching}
           />
-        )}
+        )} */}
+
+        <Modal isOpen={isShowFilter} toggle={toggleFilterModal}>
+        <ModalHeader toggle={toggleFilterModal}>Filter Options</ModalHeader>
+        <ModalBody>
+          <PublicationSearching
+            filterFields={filterFields}
+            setFilterFields={setFilterFields}
+            setIsSearching={setIsSearching}
+            closeModal={toggleFilterModal}
+          />
+        </ModalBody>
+      </Modal>
 
         <TableContainer
           columns={visibleColumns}

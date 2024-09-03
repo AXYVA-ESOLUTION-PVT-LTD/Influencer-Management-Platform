@@ -31,7 +31,7 @@ function InfluencerFiltering({
   return (
     <div>
       <Row className="align-items-center">
-        <Col md="3">
+        <Col xs="12" sm="6"  md="2">
           <FormGroup>
             <Label for="firstName">First Name</Label>
             <Input
@@ -44,7 +44,7 @@ function InfluencerFiltering({
             />
           </FormGroup>
         </Col>
-        <Col md="3">
+        <Col xs="12" sm="6"  md="2">
           <FormGroup>
             <Label for="lastName">Last Name</Label>
             <Input
@@ -57,7 +57,7 @@ function InfluencerFiltering({
             />
           </FormGroup>
         </Col>
-        <Col md="3">
+        <Col xs="12" sm="6"  md="2">
           <FormGroup>
             <Label for="email">Email</Label>
             <Input
@@ -70,7 +70,7 @@ function InfluencerFiltering({
             />
           </FormGroup>
         </Col>
-        <Col md="3">
+        <Col xs="12" sm="6"  md="2">
           <FormGroup>
             <Label for="status">Status</Label>
             <Input
@@ -93,16 +93,22 @@ function InfluencerFiltering({
             </Input>
           </FormGroup>
         </Col>
-      </Row>
-      <Row className="align-item-center justify-content-center">
-        <Col md="2">
-          <Button color="primary" className="w-100" onClick={handleSearch}>
-            Search
+        <Col xs="3" sm="2" md="auto" className="d-flex align-items-center mt-2">
+          <Button
+            color="primary"
+            className="w-100"
+            onClick={handleSearch}
+          >
+            <i className='bx bx-search-alt-2'></i>
           </Button>
         </Col>
-        <Col md="2">
-          <Button color="danger" className="w-100" onClick={handleClear}>
-            Clear Filter
+        <Col xs="3" sm="2" md="auto" className="d-flex align-items-center mt-2">
+          <Button
+            color="danger"
+            className="w-100"
+            onClick={handleClear}
+          >
+            <i className='bx bx-x'></i> 
           </Button>
         </Col>
       </Row>

@@ -40,7 +40,7 @@ function* loginUser({ payload: { user, history } }) {
           history('/404')
       }
     } else {
-      throw new Error("Invalid login credentials");
+      throw new Error(response.result.message);
     }
   } catch (error) {
     yield put(loginFail(error.message)); 
