@@ -79,18 +79,12 @@ async function _getNotifications(req, res) {
       return res.send(json);
     }
 
-    const { title, description } = req.body;
     const user = req.user;
     let notifications;
     if (user.roleId.name === "Admin") {
-      notifications = await NOTIFICATION_COLLECTION.find({
-        title,
-        description,
-      });
+      notifications = await NOTIFICATION_COLLECTION.find();
     } else {
       notifications = await NOTIFICATION_COLLECTION.find({
-        title,
-        description,
         from: user._id,
       });
     }
