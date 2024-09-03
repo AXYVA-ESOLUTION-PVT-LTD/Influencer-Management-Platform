@@ -4,7 +4,7 @@ import {
   getNotificationUrl,
   updateNotificationUrl,
 } from "../../services/notification";
-import { createNotificationSuccess, getNotificationFail, getNotificationSuccess, } from "./actions";
+import { createNotificationFail, createNotificationSuccess, getNotificationFail, getNotificationSuccess, updateNotificationFail, updateNotificationSuccess, } from "./actions";
 import {
   CREATE_NOTIFICATION,
   GET_NOTIFICATION,
@@ -27,27 +27,29 @@ function* createNotification(action) {
     const response = yield call(createNotificationUrl, token,action.payload);
     toast.success(response.result.message);
     yield put(createNotificationSuccess(response.result.data));
-    
   } catch (error) {
-    yield put(getNotificationFail(error));
+    yield put(createNotificationFail(error));
     toast.error(response.result.error);
   }
 }
 
-function* updateNotification(action) {
+function* updateNotifications(action) {
   try {
+    console.log({action})
     const token = localStorage.getItem("authUser");
-    const response = yield call(updateNotificationUrl, token);
-    console.log(response);
+    const response = yield call(updateNotificationUrl, token,action.payload);
+    toast.success(response.result.message);
+    yield put(updateNotificationSuccess(response.result.data));
   } catch (error) {
-    yield put(getNotificationFail(error));
+    yield put(updateNotificationFail(error));
+    toast.error(response.result.error);
   }
 }
 
 function* notificationSaga() {
   yield takeEvery(GET_NOTIFICATION, fetchNotification);
   yield takeEvery(CREATE_NOTIFICATION, createNotification);
-  yield takeEvery(UPDATE_NOTIFICATION, updateNotification);
+  yield takeEvery(UPDATE_NOTIFICATION, updateNotifications);
 }
 
 export default notificationSaga;

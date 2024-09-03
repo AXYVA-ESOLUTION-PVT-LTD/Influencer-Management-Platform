@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   createNotification,
   getNotification,
+  updateNotification,
 } from "../../store/notification/actions";
 import useLocalStorage from "../../hooks/useLocalStorage";
 
@@ -171,14 +172,15 @@ const TicketPage = () => {
   const handleCloseCreateModal = () => setCreateModal(false);
 
   const handleDelete = () => {
-    // Add your delete logic here
-    console.log("Deleting ticket", currentTicket);
+    // // Add your delete logic here
+    // console.log("Deleting ticket", currentTicket);
     handleCloseDeleteModal();
   };
 
   const handleSaveEdit = () => {
     // Add your edit logic here
     console.log("Editing ticket", currentTicket);
+    dispatch(updateNotification({id:currentTicket._id,status:currentTicket.status}));
     handleCloseEditModal();
   };
 
@@ -266,17 +268,17 @@ const TicketPage = () => {
             <FormGroup>
               <Label for="editStatus">Status</Label>
               <Input
-                type="select"
-                id="editStatus"
-                value={currentTicket?.status || ""}
-                onChange={(e) =>
-                  setCurrentTicket({ ...currentTicket, status: e.target.value })
-                }
-              >
-                <option value="Pending">Pending</option>
-                <option value="Read">Read</option>
-                <option value="Completed">Completed</option>
-              </Input>
+              type="select"
+              id="editStatus"
+              value={currentTicket?.status || ""}
+              onChange={(e) =>
+                setCurrentTicket({ ...currentTicket, status: e.target.value })
+              }
+            >
+              <option value="pending">Pending</option>
+              <option value="read">Read</option>
+              <option value="completed">Completed</option>
+            </Input>
             </FormGroup>
           </Form>
         </ModalBody>

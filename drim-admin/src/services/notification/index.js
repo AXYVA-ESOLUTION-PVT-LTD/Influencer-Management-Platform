@@ -25,10 +25,11 @@ export const createNotificationUrl = (token, data) => {
 };
 
 export const updateNotificationUrl = (token, data) => {
-  const { id } = data;
+  const { id,status } = data;
+
   return put(
     `${UPDATE_NOTIFICATION_API}/${id}`,
-    { ...data },
+    { status },
     {
       headers: { Authorization: `Bearer ${token}` },
     }
