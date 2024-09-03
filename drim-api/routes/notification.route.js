@@ -34,4 +34,12 @@ router.put(
   Notification.updateNotification
 );
 
+// Delete Notification
+router.delete(
+  "/:id",
+  auth,
+  NotificationMiddleware.validateAdmin,
+  Notification.deleteNotification
+);
+
 module.exports = router;
