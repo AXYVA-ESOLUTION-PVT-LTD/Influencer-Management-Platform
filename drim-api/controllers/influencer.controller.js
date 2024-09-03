@@ -71,7 +71,7 @@ async function _addInfluencer(req, res) {
     }
 
     let mailOptions = {
-      from: '"DRIM" <drim@drim.com>',
+      from: '"RAISE" <raise@raise.com>',
       to: email,
       subject: "Password for Influencer login",
       text: `Your email is ${email} and password is ${password}`,

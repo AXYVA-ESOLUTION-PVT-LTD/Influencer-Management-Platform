@@ -8,7 +8,7 @@ const userSchema = mongoose.Schema(
     roleId: { type: String, required: true },
     isDeleted: { type: Boolean, default: false },
     profilePhoto: { type: String, default: "" },
-    status: { type: Boolean, default: false },
+    status: { type: Boolean, default: true },
   },
   {
     collection: "User",

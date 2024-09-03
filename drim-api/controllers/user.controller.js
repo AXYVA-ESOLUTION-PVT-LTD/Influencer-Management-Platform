@@ -126,6 +126,15 @@ async function _login(req, res) {
       return res.send(json);
     }
 
+    if (!existUser.status) {
+      json.status = CONSTANT.FAIL;
+      json.result = {
+        message: "User is being Inactive, Please contact Admin",
+        error: "User is being Inactive, Please contact Admin",
+      };
+      return res.send(json);
+    }
+
     const decryptedPassword = await COMMON.decryptPassword(existUser.password);
 
     if (password == decryptedPassword) {
