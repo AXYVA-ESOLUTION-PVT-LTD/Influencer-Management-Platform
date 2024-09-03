@@ -41,7 +41,7 @@ async function _getOpportunity(req, res) {
     } else {
       sort.createdAt = -1;
     }
-    console.log({ sort });
+
     const opportunities = await OPPORTUNITY_COLLECTION.find(query)
       .collation({ locale: "en", caseLevel: true })
       .sort(sort)

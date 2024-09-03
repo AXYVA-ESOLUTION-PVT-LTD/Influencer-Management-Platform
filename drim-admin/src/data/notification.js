@@ -1,0 +1,116 @@
+
+export const columns = [
+    {
+      Header: 'Time',
+      accessor: 'time', 
+    },
+    {
+      Header: 'Category',
+      accessor: 'category',
+    },
+    {
+      Header: 'Message',
+      accessor: 'message',
+    },
+    {
+      Header: 'Viewed',
+      accessor: 'viewed',
+    },
+    {
+      Header: 'Send to email',
+      accessor: 'sendToEmail',
+    },
+    {
+      Header: 'Send to Telegram',
+      accessor: 'sendToTelegram',
+    },
+    {
+      Header: 'Send to mobile devices',
+      accessor: 'sendToMobile',
+    }
+  ];
+  
+  export const data = [
+    {
+      time: '2024-09-01 12:00',
+      category: 'System',
+      message: 'System update scheduled.',
+      viewed: 'Yes',
+      sendToEmail: 'No',
+      sendToTelegram: 'Yes',
+      sendToMobile: 'No',
+    },
+    {
+      time: '2024-09-02 14:30',
+      category: 'Reminder',
+      message: 'Reminder: Meeting at 3 PM.',
+      viewed: 'No',
+      sendToEmail: 'Yes',
+      sendToTelegram: 'No',
+      sendToMobile: 'Yes',
+    },
+    {
+      time: '2024-09-06 11:30',
+      category: 'Notification',
+      message: 'Your subscription is about to expire.',
+      viewed: 'No',
+      sendToEmail: 'Yes',
+      sendToTelegram: 'No',
+      sendToMobile: 'Yes',
+    },
+    {
+      time: '2024-09-11 17:00',
+      category: 'Notification',
+      message: 'Maintenance scheduled for 3 AM.',
+      viewed: 'Yes',
+      sendToEmail: 'No',
+      sendToTelegram: 'Yes',
+      sendToMobile: 'Yes',
+    },
+    {
+      time: '2024-09-12 18:00',
+      category: 'Reminder',
+      message: 'Review your account settings.',
+      viewed: 'No',
+      sendToEmail: 'Yes',
+      sendToTelegram: 'No',
+      sendToMobile: 'Yes',
+    },
+    {
+      time: '2024-09-13 19:30',
+      category: 'Alert',
+      message: 'Unusual activity detected.',
+      viewed: 'Yes',
+      sendToEmail: 'No',
+      sendToTelegram: 'Yes',
+      sendToMobile: 'No',
+    },
+    {
+      time: '2024-09-14 20:45',
+      category: 'Update',
+      message: 'New policy update available.',
+      viewed: 'No',
+      sendToEmail: 'Yes',
+      sendToTelegram: 'No',
+      sendToMobile: 'Yes',
+    },
+    {
+      time: '2024-09-15 21:00',
+      category: 'Reminder',
+      message: 'Survey feedback requested.',
+      viewed: 'Yes',
+      sendToEmail: 'No',
+      sendToTelegram: 'Yes',
+      sendToMobile: 'No',
+    },
+    {
+      time: '2024-09-16 22:00',
+      category: 'Notification',
+      message: 'Your request has been processed.',
+      viewed: 'No',
+      sendToEmail: 'Yes',
+      sendToTelegram: 'No',
+      sendToMobile: 'Yes',
+    },
+  ];
+  

@@ -22,7 +22,7 @@ function* fetchClient(action) {
   try {
     const token = localStorage.getItem("authUser");
     const response = yield call(getClientUrl, token, action.payload);
-    yield put(getClientSuccess(response.result.data));
+    yield put(getClientSuccess(response.result.data));  // TODO: Error handling
   } catch (error) {
     yield put(getClientFail(error));
   }
