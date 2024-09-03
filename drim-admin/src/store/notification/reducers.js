@@ -47,7 +47,7 @@ const notification = (state = INIT_STATE, action) => {
     case CREATE_NOTIFICATION_SUCCESS:
       return {
         ...state,
-        notifications: [state.notifications, ...action.payload.notification],
+        notifications: [ action.payload.notification,...state.notifications],
         loading: false,
         error: null,
       };
