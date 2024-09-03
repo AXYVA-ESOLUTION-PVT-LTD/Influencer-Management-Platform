@@ -1,4 +1,7 @@
 import {
+  CREATE_NOTIFICATION,
+  CREATE_NOTIFICATION_FAIL,
+  CREATE_NOTIFICATION_SUCCESS,
   GET_NOTIFICATION,
   GET_NOTIFICATION_FAIL,
   GET_NOTIFICATION_SUCCESS,
@@ -26,6 +29,26 @@ const notification = (state = INIT_STATE, action) => {
         error: null,
       };
     case GET_NOTIFICATION_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case CREATE_NOTIFICATION:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case CREATE_NOTIFICATION_SUCCESS:
+      return {
+        ...state,
+        notifications: [state.notifications, ...action.payload.notification],
+        loading: false,
+        error: null,
+      };
+    case CREATE_NOTIFICATION_FAIL:
       return {
         ...state,
         loading: false,

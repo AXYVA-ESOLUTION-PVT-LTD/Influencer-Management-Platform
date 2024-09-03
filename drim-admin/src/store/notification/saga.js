@@ -1,7 +1,10 @@
 import { call, call, put, takeEvery } from "redux-saga/effects";
-import { getNotificationUrl } from "../../services/notification";
+import {
+  createNotificationUrl,
+  getNotificationUrl,
+} from "../../services/notification";
 import { getNotificationFail } from "./actions";
-import { GET_NOTIFICATION } from "./actionTypes";
+import { CREATE_NOTIFICATION, GET_NOTIFICATION } from "./actionTypes";
 
 function* fetchNotification(action) {
   try {
@@ -12,9 +15,19 @@ function* fetchNotification(action) {
     yield put(getNotificationFail(error));
   }
 }
+function* createNotification(action) {
+  try {
+    const token = localStorage.getItem("authUser");
+    const response = yield call(createNotificationUrl, token);
+    console.log(response);
+  } catch (error) {
+    yield put(getNotificationFail(error));
+  }
+}
 
 function* notificationSaga() {
   yield takeEvery(GET_NOTIFICATION, fetchNotification);
+  yield takeEvery(CREATE_NOTIFICATION, createNotification);
 }
 
 export default notificationSaga;
