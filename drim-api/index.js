@@ -21,6 +21,7 @@ const Opportunity = require("./routes/opportunity.route");
 const Post = require("./routes/post.route");
 const Influencer = require("./routes/influencer.route");
 const Client = require("./routes/client.route");
+const Notification = require("./routes/notification.route");
 const path = require("path");
 
 let server;
@@ -71,6 +72,7 @@ app.use("/api/v1/opportunity", Opportunity);
 app.use("/api/v1/posts", Post);
 app.use("/api/v1/influencer", Influencer);
 app.use("/api/v1/client", Client);
+app.use("/api/v1/notification", Notification);
 
 mongoose
   .connect(DB_URL)
