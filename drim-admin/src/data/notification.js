@@ -1,34 +1,4 @@
 
-export const columns = [
-    {
-      Header: 'Time',
-      accessor: 'time', 
-    },
-    {
-      Header: 'Category',
-      accessor: 'category',
-    },
-    {
-      Header: 'Message',
-      accessor: 'message',
-    },
-    {
-      Header: 'Viewed',
-      accessor: 'viewed',
-    },
-    {
-      Header: 'Send to email',
-      accessor: 'sendToEmail',
-    },
-    {
-      Header: 'Send to Telegram',
-      accessor: 'sendToTelegram',
-    },
-    {
-      Header: 'Send to mobile devices',
-      accessor: 'sendToMobile',
-    }
-  ];
   
   export const data = [
     {
