@@ -15,7 +15,7 @@ import {
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 import TableContainer from "../../components/Common/TableContainer";
 import publicationData from "../../data/publicationData";
-import PublicationSearching from "../../components/publications/PublicationSearching";
+import PublicationSearching from "../../components/Publications/PublicationSearching";
 import ColumnSelector from "../../components/Common/ColumnSelector";
 
 function PublicationsPage() {

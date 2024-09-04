@@ -12,6 +12,7 @@ import user from "./user/reducer";
 import influencer from "./influencers/reducer";
 import client from "./client/reducer";
 import notification from "./notification/reducers";
+import chats from "./chats/reducers";
 
 const rootReducer = combineReducers({
   Layout,
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
   influencer,
   client,
   notification,
+  chats,
 });
 
 export default rootReducer;

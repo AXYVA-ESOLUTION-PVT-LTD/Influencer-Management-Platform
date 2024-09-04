@@ -22,6 +22,7 @@ import {
   updateNotification,
 } from "../../store/notification/actions";
 import useLocalStorage from "../../hooks/useLocalStorage";
+import Chat from "../../components/Notification/Chat";
 import Pagination from "../../components/Common/Pagination";
 
 const TicketPage = () => {
@@ -39,6 +40,8 @@ const TicketPage = () => {
   const [createModal, setCreateModal] = useState(false);
   const [currentTicket, setCurrentTicket] = useState(null);
   const [role, setRole] = useState("");
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState(null);
   const [newTicket, setNewTicket] = useState({
     title: "",
     description: "",
@@ -60,6 +63,13 @@ const TicketPage = () => {
 
     return `${year}-${month}-${day} ${hours}:${minutes}`;
   };
+
+  const handleOpenChat = (ticket) => {
+    setSelectedTicket(ticket);
+    setIsChatOpen(true);
+  };
+
+  const handleCloseChat = () => setIsChatOpen(false);
 
   const validateForm = () => {
     const newErrors = {
@@ -137,25 +147,43 @@ const TicketPage = () => {
               >
                 <i className="bx bx-edit" style={{ color: "orange" }}></i>
               </Button>
-              <Button
+              {/* <Button
                 color="link"
                 size="lg"
                 className="p-0"
                 onClick={() => handleDeleteTicket(original)}
               >
                 <i className="bx bx-trash" style={{ color: "red" }}></i>
+              </Button> */}
+              <Button
+                color="link"
+                size="lg"
+                className="p-0"
+                onClick={() => handleOpenChat(original)}
+              >
+                <i className="bx bx-message" style={{ color: "blue" }}></i>
               </Button>
             </>
           )}
           {role === "Client" || role === "Influencer" ? (
-            <Button
-              color="link"
-              size="lg"
-              className="p-0"
-              onClick={() => handleViewTicket(original)}
-            >
-              <i className="bx bx-show" style={{ color: "blue" }}></i>
-            </Button>
+            <>
+              <Button
+                color="link"
+                size="lg"
+                className="p-0 me-2"
+                onClick={() => handleViewTicket(original)}
+              >
+                <i className="bx bx-show" style={{ color: "blue" }}></i>
+              </Button>
+              <Button
+                color="link"
+                size="lg"
+                className="p-0"
+                onClick={() => handleOpenChat(original)}
+              >
+                <i className="bx bx-message" style={{ color: "blue" }}></i>
+              </Button>
+            </>
           ) : null}
         </>
       ),
@@ -376,6 +404,8 @@ const TicketPage = () => {
           </Button>
         </ModalFooter>
       </Modal>
+
+      {isChatOpen && <Chat ticket={selectedTicket} onClose={handleCloseChat} />}
     </React.Fragment>
   );
 };
