@@ -1,6 +1,5 @@
 import { all, fork } from "redux-saga/effects";
 
-
 import AccountSaga from "./auth/register/saga";
 import AuthSaga from "./auth/login/saga";
 import ForgetSaga from "./auth/forgetpwd/saga";
@@ -11,6 +10,7 @@ import userSaga from "./user/saga";
 import opportunitySaga from "./opportunity/saga";
 import clientsSaga from "./client/saga";
 import influencersSaga from "./influencers/saga";
+import notificationSaga from "./notification/saga";
 
 export default function* rootSaga() {
   yield all([
@@ -24,6 +24,7 @@ export default function* rootSaga() {
     fork(opportunitySaga),
     fork(userSaga),
     fork(clientsSaga),
-    fork(influencersSaga)
+    fork(influencersSaga),
+    fork(notificationSaga),
   ]);
 }

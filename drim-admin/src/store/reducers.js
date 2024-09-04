@@ -11,6 +11,7 @@ import opportunity from "./opportunity/reducer";
 import user from "./user/reducer";
 import influencer from "./influencers/reducer";
 import client from "./client/reducer";
+import notification from "./notification/reducers";
 
 const rootReducer = combineReducers({
   Layout,
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
   user,
   influencer,
   client,
+  notification,
 });
 
 export default rootReducer;
