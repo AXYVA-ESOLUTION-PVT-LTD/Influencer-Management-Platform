@@ -178,8 +178,6 @@ const TicketPage = () => {
   };
 
   const handleSaveEdit = () => {
-    // Add your edit logic here
-    console.log("Editing ticket", currentTicket);
     dispatch(updateNotification({id:currentTicket._id,status:currentTicket.status}));
     handleCloseEditModal();
   };
