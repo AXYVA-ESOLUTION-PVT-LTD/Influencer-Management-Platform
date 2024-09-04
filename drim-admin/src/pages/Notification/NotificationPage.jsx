@@ -61,8 +61,6 @@ const TicketPage = () => {
     return `${year}-${month}-${day} ${hours}:${minutes}`;
   };
 
-
-
   const handleOpenChat = (ticket) => {
     setSelectedTicket(ticket);
     setIsChatOpen(true);
@@ -158,15 +156,15 @@ const TicketPage = () => {
           )}
           {role === "Client" || role === "Influencer" ? (
             <>
-            <Button
-              color="link"
-              size="lg"
-              className="p-0 me-2"
-              onClick={() => handleViewTicket(original)}
-            >
-              <i className="bx bx-show" style={{ color: "blue" }}></i>
-            </Button>
-            <Button
+              <Button
+                color="link"
+                size="lg"
+                className="p-0 me-2"
+                onClick={() => handleViewTicket(original)}
+              >
+                <i className="bx bx-show" style={{ color: "blue" }}></i>
+              </Button>
+              <Button
                 color="link"
                 size="lg"
                 className="p-0"
@@ -208,7 +206,12 @@ const TicketPage = () => {
   };
 
   const handleSaveEdit = () => {
-    dispatch(updateNotification({id:currentTicket._id,status:currentTicket.status}));
+    dispatch(
+      updateNotification({
+        id: currentTicket._id,
+        status: currentTicket.status,
+      })
+    );
     handleCloseEditModal();
   };
 
@@ -296,17 +299,17 @@ const TicketPage = () => {
             <FormGroup>
               <Label for="editStatus">Status</Label>
               <Input
-              type="select"
-              id="editStatus"
-              value={currentTicket?.status || ""}
-              onChange={(e) =>
-                setCurrentTicket({ ...currentTicket, status: e.target.value })
-              }
-            >
-              <option value="pending">Pending</option>
-              <option value="read">Read</option>
-              <option value="completed">Completed</option>
-            </Input>
+                type="select"
+                id="editStatus"
+                value={currentTicket?.status || ""}
+                onChange={(e) =>
+                  setCurrentTicket({ ...currentTicket, status: e.target.value })
+                }
+              >
+                <option value="pending">Pending</option>
+                <option value="read">Read</option>
+                <option value="completed">Completed</option>
+              </Input>
             </FormGroup>
           </Form>
         </ModalBody>
@@ -380,7 +383,6 @@ const TicketPage = () => {
           </Button>
         </ModalFooter>
       </Modal>
-
 
       {isChatOpen && <Chat ticket={selectedTicket} onClose={handleCloseChat} />}
     </React.Fragment>

@@ -1,21 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import './Chat.css';
+import React, { useEffect, useState } from "react";
+import "./Chat.css";
+import useLocalStorage from "../../hooks/useLocalStorage";
+import { useDispatch, useSelector } from "react-redux";
+import { createChats, getChats } from "../../store/chats/actions";
 
 const Chat = ({ ticket, onClose }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
+  const [user, setUser] = useLocalStorage("user", {});
 
+  const dispatch = useDispatch();
+
+  // console.log({ user });
   // Dummy messages to simulate a conversation
-  const dummyMessages = [
-    { id: 1, text: "Hello! How can I assist you today?", sender: "agent" },
-    { id: 2, text: "I'm having an issue with my account. Can you help?", sender: "user" },
-    { id: 3, text: "Sure! Can you please provide more details about the issue?", sender: "agent" },
-    { id: 4, text: "I can't log in, and I keep getting an error message.", sender: "user" },
-  ];
+
+  const { chats, loading, error } = useSelector((state) => state.chats);
 
   useEffect(() => {
     setIsVisible(true);
-    return () => setIsVisible(false);
+    dispatch(getChats({ ticketId: ticket._id }));
+    return () => {
+      setIsVisible(false);
+    };
   }, []);
 
   const handleMessageChange = (e) => {
@@ -24,28 +30,43 @@ const Chat = ({ ticket, onClose }) => {
 
   const handleSendMessage = (e) => {
     e.preventDefault();
-    console.log('Message sent:', message);
-    setMessage('');
+    dispatch(createChats({ message, ticketId: ticket._id }));
+    setMessage("");
   };
 
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      dispatch(getChats({ ticketId: ticket._id }));
+    }, 1000 * 10);
+
+    return () => clearInterval(timerId);
+  }, []);
+
   return (
-    <div className={`chat-modal ${isVisible ? 'show' : ''}`}>
+    <div className={`chat-modal ${isVisible ? "show" : ""}`}>
       <div className="modal-header">
-        <button className="close-button" onClick={onClose}>×</button>
-        <h5>Chat {ticket?.title}</h5>
+        <button className="close-button" onClick={onClose}>
+          ×
+        </button>
+        <h5>{ticket?.title}</h5>
       </div>
       <div className="modal-body">
         <div className="chat-messages">
-          {dummyMessages.map(msg => (
-            <div key={msg.id} className={`chat-message ${msg.sender}`}>
-              <p>{msg.text}</p>
+          {chats.map((msg) => (
+            <div
+              key={msg._id}
+              className={`chat-message ${
+                msg.sender === user._id ? "sender" : "reciever"
+              }`}
+            >
+              <p>{msg.message}</p>
             </div>
           ))}
         </div>
         <form onSubmit={handleSendMessage} className="chat-input-form">
-          <input 
-            type="text" 
-            placeholder="Type a message..." 
+          <input
+            type="text"
+            placeholder="Type a message..."
             value={message}
             onChange={handleMessageChange}
             className="chat-input"

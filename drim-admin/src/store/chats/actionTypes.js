@@ -1,0 +1,7 @@
+export const GET_CHAT = "GET_CHAT";
+export const GET_CHAT_SUCCESS = "GET_CHAT_SUCCESS";
+export const GET_CHAT_FAIL = "GET_CHAT_FAIL";
+
+export const CREATE_CHAT = "CREATE_CHAT";
+export const CREATE_CHAT_SUCCESS = "CREATE_CHAT_SUCCESS";
+export const CREATE_CHAT_FAIL = "CREATE_CHAT_FAIL";

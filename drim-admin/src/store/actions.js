@@ -11,3 +11,4 @@ export * from "./user/actions";
 export * from "./influencers/actions";
 export * from "./client/actions";
 export * from "./notification/actions";
+export * from "./chats/actions";

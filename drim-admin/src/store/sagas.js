@@ -11,6 +11,7 @@ import opportunitySaga from "./opportunity/saga";
 import clientsSaga from "./client/saga";
 import influencersSaga from "./influencers/saga";
 import notificationSaga from "./notification/saga";
+import ChatsSaga from "./chats/saga";
 
 export default function* rootSaga() {
   yield all([
@@ -26,5 +27,6 @@ export default function* rootSaga() {
     fork(clientsSaga),
     fork(influencersSaga),
     fork(notificationSaga),
+    fork(ChatsSaga),
   ]);
 }
