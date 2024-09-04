@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./Chat.css";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,10 +9,9 @@ const Chat = ({ ticket, onClose }) => {
   const [message, setMessage] = useState("");
   const [user, setUser] = useLocalStorage("user", {});
 
-  const dispatch = useDispatch();
+  const chatMessagesRef = useRef(null);
 
-  // console.log({ user });
-  // Dummy messages to simulate a conversation
+  const dispatch = useDispatch();
 
   const { chats, loading, error } = useSelector((state) => state.chats);
 
@@ -42,6 +41,12 @@ const Chat = ({ ticket, onClose }) => {
     return () => clearInterval(timerId);
   }, []);
 
+  useEffect(() => {
+    if (chatMessagesRef.current) {
+      chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
+    }
+  }, [chats]);
+
   return (
     <div className={`chat-modal ${isVisible ? "show" : ""}`}>
       <div className="modal-header">
@@ -51,7 +56,7 @@ const Chat = ({ ticket, onClose }) => {
         <h5>{ticket?.title}</h5>
       </div>
       <div className="modal-body">
-        <div className="chat-messages">
+        <div className="chat-messages" ref={chatMessagesRef}>
           {chats.map((msg) => (
             <div
               key={msg._id}
@@ -63,19 +68,19 @@ const Chat = ({ ticket, onClose }) => {
             </div>
           ))}
         </div>
-        <form onSubmit={handleSendMessage} className="chat-input-form">
-          <input
-            type="text"
-            placeholder="Type a message..."
-            value={message}
-            onChange={handleMessageChange}
-            className="chat-input"
-          />
-          <button type="submit" className="chat-send-button">
-            <i className="fas fa-paper-plane"></i>
-          </button>
-        </form>
       </div>
+      <form onSubmit={handleSendMessage} className="chat-input-form">
+        <input
+          type="text"
+          placeholder="Type a message..."
+          value={message}
+          onChange={handleMessageChange}
+          className="chat-input"
+        />
+        <button type="submit" className="chat-send-button">
+          <i className="fas fa-paper-plane"></i>
+        </button>
+      </form>
     </div>
   );
 };
