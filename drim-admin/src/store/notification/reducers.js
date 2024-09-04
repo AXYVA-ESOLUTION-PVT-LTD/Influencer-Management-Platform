@@ -12,6 +12,7 @@ import {
 
 const INIT_STATE = {
   notifications: [],
+  totalNotifications: null,
   loading: false,
   error: {},
 };
@@ -28,6 +29,7 @@ const notification = (state = INIT_STATE, action) => {
       return {
         ...state,
         notifications: [...action.payload.notifications],
+        totalNotifications: action.payload.totalNotifications,
         loading: false,
         error: null,
       };

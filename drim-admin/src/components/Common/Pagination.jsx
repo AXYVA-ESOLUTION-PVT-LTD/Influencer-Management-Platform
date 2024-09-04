@@ -5,10 +5,8 @@ const Pagination = ({
   setLimit,
   setPageCount,
   customPageSizeOptions,
-  pageSize = 10,
   totalData,
   limit,
-  pageCount,
   currentPage,
 }) => {
   const totalPages = Math.ceil(totalData / limit);
@@ -39,7 +37,7 @@ const Pagination = ({
         <select className="form-select" value={limit} onChange={handleShowMore}>
           {[10, 20, 30, 40, 50].map((pageSize) => (
             <option key={pageSize} value={pageSize}>
-               {pageSize}
+              {pageSize}
             </option>
           ))}
         </select>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { Dropdown, DropdownToggle, DropdownMenu, Row, Col } from "reactstrap";
@@ -14,7 +14,17 @@ import { withTranslation } from "react-i18next";
 const NotificationDropdown = (props) => {
   // Declare a new state variable, which we'll call "menu"
   const [menu, setMenu] = useState(false);
+  const [role, setRole] = useState("");
+  useEffect(() => {
+    const data = JSON.parse(localStorage.getItem("user"));
+    if (data && data.roleId && data.roleId.name) {
+      setRole(data.roleId.name);
+    }
+  }, []);
 
+  if (role === "Client") {
+    return null; 
+  }
   return (
     <React.Fragment>
       <Dropdown

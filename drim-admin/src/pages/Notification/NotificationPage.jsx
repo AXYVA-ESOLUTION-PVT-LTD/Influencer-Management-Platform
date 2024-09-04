@@ -23,13 +23,16 @@ import {
 } from "../../store/notification/actions";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import Chat from "../../components/Notification/Chat";
+import Pagination from "../../components/Common/Pagination";
 
 const TicketPage = () => {
   document.title = "Tickets | Raise";
   const dispatch = useDispatch();
-  const { notifications, error, loading } = useSelector(
+  const { notifications, error, loading, totalNotifications } = useSelector(
     (state) => state.notification
   );
+  const [limit, setLimit] = useState(10);
+  const [pageCount, setPageCount] = useState(0);
 
   const [viewModal, setViewModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
@@ -104,6 +107,14 @@ const TicketPage = () => {
     {
       Header: "Title",
       accessor: "title",
+    },
+    {
+      Header: "First Name",
+      accessor: "from.firstName",
+    },
+    {
+      Header: "Email",
+      accessor: "from.email",
     },
     {
       Header: "Description",
@@ -235,11 +246,13 @@ const TicketPage = () => {
       <div className="page-content">
         <Container fluid>
           <Breadcrumb title="Notification" breadcrumbItem="Notification" />
-          <div className="d-flex justify-content-end mb-3">
-            <Button color="primary" onClick={() => setCreateModal(true)}>
-              Create Ticket
-            </Button>
-          </div>
+          {role === "Influencer" && (
+            <div className="d-flex justify-content-end mb-3">
+              <Button color="primary" onClick={() => setCreateModal(true)}>
+                Create Ticket
+              </Button>
+            </div>
+          )}
 
           {loading ? (
             <div className="text-center" style={{ marginTop: 50 }}>
@@ -257,7 +270,15 @@ const TicketPage = () => {
                     isAddOptions={false}
                     customPageSize={10}
                     className="custom-header-css"
-                    isPagination={true}
+                    isPagination={false}
+                  />
+                  <Pagination
+                    totalData={totalNotifications}
+                    limit={limit}
+                    pageCount={pageCount}
+                    setLimit={setLimit}
+                    setPageCount={setPageCount}
+                    currentPage={pageCount}
                   />
                 </>
               ) : (

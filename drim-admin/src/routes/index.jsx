@@ -34,7 +34,7 @@ const authProtectedRoutes = [
   { path: "/influencer/overview", component: <InfluencerDashboardOverview />, allowedRoles: [ROLES.ADMIN, ROLES.INFLUENCER] },
   { path: "/influencer/opportunities", component: <OpportunitiesListPage />, allowedRoles: [ROLES.ADMIN, ROLES.INFLUENCER] },
   { path: "/profile", component: <ProfilePage />, allowedRoles: [ROLES.ADMIN, ROLES.CLIENT, ROLES.INFLUENCER] },
-  { path: "/notifications", component: <Notifications />, allowedRoles: [ROLES.ADMIN, ROLES.CLIENT, ROLES.INFLUENCER] },
+  { path: "/notifications", component: <Notifications />, allowedRoles: [ROLES.ADMIN, ROLES.INFLUENCER] },
 ];
 
 const publicRoutes = [
