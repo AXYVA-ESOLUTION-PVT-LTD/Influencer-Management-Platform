@@ -115,7 +115,7 @@ async function _getNotifications(req, res) {
     const totalNotifications = await NOTIFICATION_COLLECTION.countDocuments(
       query
     );
-    console.log({ totalNotifications });
+
     if (!notifications) {
       json.status = CONSTANT.FAIL;
       json.result = {
