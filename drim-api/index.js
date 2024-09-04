@@ -22,6 +22,7 @@ const Post = require("./routes/post.route");
 const Influencer = require("./routes/influencer.route");
 const Client = require("./routes/client.route");
 const Notification = require("./routes/notification.route");
+const Chat = require("./routes/chat.route");
 const path = require("path");
 
 let server;
@@ -73,6 +74,7 @@ app.use("/api/v1/posts", Post);
 app.use("/api/v1/influencer", Influencer);
 app.use("/api/v1/client", Client);
 app.use("/api/v1/notification", Notification);
+app.use("/api/v1/chat", Chat);
 
 mongoose
   .connect(DB_URL)
