@@ -4,7 +4,14 @@ import {
   getNotificationUrl,
   updateNotificationUrl,
 } from "../../services/notification";
-import { createNotificationFail, createNotificationSuccess, getNotificationFail, getNotificationSuccess, updateNotificationFail, updateNotificationSuccess, } from "./actions";
+import {
+  createNotificationFail,
+  createNotificationSuccess,
+  getNotificationFail,
+  getNotificationSuccess,
+  updateNotificationFail,
+  updateNotificationSuccess,
+} from "./actions";
 import {
   CREATE_NOTIFICATION,
   GET_NOTIFICATION,
@@ -35,7 +42,6 @@ function* createNotification(action) {
 
 function* updateNotifications(action) {
   try {
-    console.log({action})
     const token = localStorage.getItem("authUser");
     const response = yield call(updateNotificationUrl, token,action.payload);
     toast.success(response.result.message);
