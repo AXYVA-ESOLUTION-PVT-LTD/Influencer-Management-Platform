@@ -22,13 +22,16 @@ import {
   updateNotification,
 } from "../../store/notification/actions";
 import useLocalStorage from "../../hooks/useLocalStorage";
+import Pagination from "../../components/Common/Pagination";
 
 const TicketPage = () => {
   document.title = "Tickets | Raise";
   const dispatch = useDispatch();
-  const { notifications, error, loading } = useSelector(
+  const { notifications, error, loading, totalNotifications } = useSelector(
     (state) => state.notification
   );
+  const [limit, setLimit] = useState(10);
+  const [pageCount, setPageCount] = useState(0);
 
   const [viewModal, setViewModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
@@ -94,6 +97,14 @@ const TicketPage = () => {
     {
       Header: "Title",
       accessor: "title",
+    },
+    {
+      Header: "First Name",
+      accessor: "from.firstName",
+    },
+    {
+      Header: "Email",
+      accessor: "from.email",
     },
     {
       Header: "Description",
@@ -231,7 +242,15 @@ const TicketPage = () => {
                     isAddOptions={false}
                     customPageSize={10}
                     className="custom-header-css"
-                    isPagination={true}
+                    isPagination={false}
+                  />
+                  <Pagination
+                    totalData={totalNotifications}
+                    limit={limit}
+                    pageCount={pageCount}
+                    setLimit={setLimit}
+                    setPageCount={setPageCount}
+                    currentPage={pageCount}
                   />
                 </>
               ) : (
