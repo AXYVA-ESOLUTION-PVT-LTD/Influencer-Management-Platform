@@ -47,7 +47,7 @@ const notification = (state = INIT_STATE, action) => {
     case CREATE_NOTIFICATION_SUCCESS:
       return {
         ...state,
-        notifications: [ action.payload.notification,...state.notifications],
+        notifications: [action.payload.notification, ...state.notifications],
         loading: false,
         error: null,
       };
@@ -65,9 +65,12 @@ const notification = (state = INIT_STATE, action) => {
         error: null,
       };
     case UPDATE_NOTIFICATION_SUCCESS:
+      const { _id: updatedNotificationId } = action.payload.notification;
       return {
         ...state,
-        notifications: [state.notifications, ...action.payload.notification],
+        notifications: state.notifications.map((ntf) =>
+          ntf._id === updatedNotificationId ? action.payload.notification : ntf
+        ),
         loading: false,
         error: null,
       };
