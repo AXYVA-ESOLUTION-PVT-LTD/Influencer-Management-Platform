@@ -178,7 +178,12 @@ const TicketPage = () => {
   };
 
   const handleSaveEdit = () => {
-    dispatch(updateNotification({id:currentTicket._id,status:currentTicket.status}));
+    dispatch(
+      updateNotification({
+        id: currentTicket._id,
+        status: currentTicket.status,
+      })
+    );
     handleCloseEditModal();
   };
 
@@ -202,11 +207,13 @@ const TicketPage = () => {
       <div className="page-content">
         <Container fluid>
           <Breadcrumb title="Notification" breadcrumbItem="Notification" />
-          <div className="d-flex justify-content-end mb-3">
-            <Button color="primary" onClick={() => setCreateModal(true)}>
-              Create Ticket
-            </Button>
-          </div>
+          {role === "Influencer" && (
+            <div className="d-flex justify-content-end mb-3">
+              <Button color="primary" onClick={() => setCreateModal(true)}>
+                Create Ticket
+              </Button>
+            </div>
+          )}
 
           {loading ? (
             <div className="text-center" style={{ marginTop: 50 }}>
@@ -266,17 +273,17 @@ const TicketPage = () => {
             <FormGroup>
               <Label for="editStatus">Status</Label>
               <Input
-              type="select"
-              id="editStatus"
-              value={currentTicket?.status || ""}
-              onChange={(e) =>
-                setCurrentTicket({ ...currentTicket, status: e.target.value })
-              }
-            >
-              <option value="pending">Pending</option>
-              <option value="read">Read</option>
-              <option value="completed">Completed</option>
-            </Input>
+                type="select"
+                id="editStatus"
+                value={currentTicket?.status || ""}
+                onChange={(e) =>
+                  setCurrentTicket({ ...currentTicket, status: e.target.value })
+                }
+              >
+                <option value="pending">Pending</option>
+                <option value="read">Read</option>
+                <option value="completed">Completed</option>
+              </Input>
             </FormGroup>
           </Form>
         </ModalBody>
