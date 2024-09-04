@@ -8,6 +8,7 @@ const json = {};
 exports.createNotification = _createNotification;
 exports.getNotifications = _getNotifications;
 exports.updateNotification = _updateNotification;
+exports.deleteNotification = _deleteNotification;
 
 /*
 TYPE: Post
@@ -79,16 +80,42 @@ async function _getNotifications(req, res) {
       return res.send(json);
     }
 
-    const user = req.user;
-    let notifications;
-    if (user.roleId.name === "Admin") {
-      notifications = await NOTIFICATION_COLLECTION.find();
-    } else {
-      notifications = await NOTIFICATION_COLLECTION.find({
-        from: user._id,
-      });
+    const limit = req.body.limit ? req.body.limit : 10;
+    const pageCount = req.body.pageCount ? req.body.pageCount : 0;
+    const skip = limit * pageCount;
+
+    let query = {};
+    let sort = {};
+
+    const { title, description, status, createdAt, sortBy, sortOption } =
+      req.body;
+
+    if (title) {
+      query.title = { $regex: `^${title}`, $options: "i" };
+    }
+    if (description) {
+      query.description = { $regex: `^${description}`, $options: "i" };
+    }
+    if (status) {
+      query.status = { $regex: `^${status}`, $options: "i" };
     }
 
+    const user = req.user;
+    if (user.roleId.name === "Client" || user.roleId.name === "Influencer") {
+      query.from = user._id.toString();
+    }
+    const notifications = await NOTIFICATION_COLLECTION.find(query)
+      .collation({
+        locale: "en",
+        caseLevel: true,
+      })
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
+    const totalNotifications = await NOTIFICATION_COLLECTION.countDocuments(
+      query
+    );
+    console.log({ totalNotifications });
     if (!notifications) {
       json.status = CONSTANT.FAIL;
       json.result = {
@@ -101,6 +128,7 @@ async function _getNotifications(req, res) {
       message: "Notification fetched Successfully",
       data: {
         notifications,
+        totalNotifications,
       },
     };
     return res.send(json);
@@ -119,7 +147,7 @@ async function _getNotifications(req, res) {
 }
 
 /*
-TYPE: Post
+TYPE: Put
 TODO: Get Notifications
 */
 async function _updateNotification(req, res) {
@@ -167,6 +195,47 @@ async function _updateNotification(req, res) {
     json.status = CONSTANT.FAIL;
     json.result = {
       message: "An error occurred while updating notification",
+      error: e,
+    };
+    return res.send(json);
+  }
+}
+
+/*
+TYPE: Delete
+TODO: Delete Notification
+*/
+async function _deleteNotification(req, res) {
+  try {
+    const { id } = req.params;
+
+    const notification = await NOTIFICATION_COLLECTION.findOneAndDelete({
+      _id: id,
+    });
+
+    if (!notification) {
+      json.status = CONSTANT.FAIL;
+      json.result = {
+        error: "Fail to Delete Notification",
+      };
+      return res.send(json);
+    }
+    json.status = CONSTANT.SUCCESS;
+    json.result = {
+      message: "Notification deleted Successfully",
+      data: {
+        notification,
+      },
+    };
+    return res.send(json);
+  } catch (e) {
+    console.error(
+      "Controller: notification | Method: _deleteNotification | Error: ",
+      e
+    );
+    json.status = CONSTANT.FAIL;
+    json.result = {
+      message: "An error occurred while deleting notification",
       error: e,
     };
     return res.send(json);
