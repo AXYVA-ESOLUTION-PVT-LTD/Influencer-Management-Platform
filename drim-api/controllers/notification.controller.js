@@ -84,10 +84,12 @@ async function _getNotifications(req, res) {
     const pageCount = req.body.pageCount ? req.body.pageCount : 0;
     const skip = limit * pageCount;
 
+    const user = req.user;
+
     let query = {};
     let sort = {};
 
-    const { title, description, status, createdAt, sortBy, sortOption } =
+    const { title, description, status, sortBy, sortOrder, firstName, email } =
       req.body;
 
     if (title) {
@@ -100,15 +102,22 @@ async function _getNotifications(req, res) {
       query.status = { $regex: `^${status}`, $options: "i" };
     }
 
-    const user = req.user;
-    if (user.roleId.name === "Client" || user.roleId.name === "Influencer") {
+    if (sortBy) {
+      sort[sortBy] = sortOrder === 1 ? 1 : -1;
+    } else {
+      sort.createdAt = -1;
+    }
+
+    if (user.roleId.name === "Influencer") {
       query.from = user._id.toString();
     }
+
     const notifications = await NOTIFICATION_COLLECTION.find(query)
       .collation({
         locale: "en",
         caseLevel: true,
       })
+      .populate({ path: "from", model: "User", select: ["email", "firstName"] })
       .sort(sort)
       .skip(skip)
       .limit(limit);
