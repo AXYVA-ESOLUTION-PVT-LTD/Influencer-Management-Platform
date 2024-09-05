@@ -31,6 +31,7 @@ import {
 } from "../pages/Influencer";
 import { ProfilePage } from "../pages/Profile";
 import { Notifications } from "../pages/Notification";
+import { PaymentPage } from "../pages/Payment";
 
 const authProtectedRoutes = [
   {
@@ -98,6 +99,11 @@ const authProtectedRoutes = [
   {
     path: "/notifications",
     component: <Notifications />,
+    allowedRoles: [ROLES.ADMIN, ROLES.INFLUENCER],
+  },
+  {
+    path: "/payment",
+    component: <PaymentPage />,
     allowedRoles: [ROLES.ADMIN, ROLES.INFLUENCER],
   },
 ];

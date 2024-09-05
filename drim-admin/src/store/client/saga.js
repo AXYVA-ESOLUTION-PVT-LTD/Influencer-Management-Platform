@@ -26,35 +26,35 @@ function* fetchClient(action) {
     if (response?.status === STATUS.SUCCESS) {
       yield put(getClientSuccess(response.result.data));
     } else {
-      throw new Error(response?.result?.error || 'Failed to fetch client data. Please try again later');
+      throw new Error(response?.result?.error || 'Failed to fetch brand data. Please try again later');
     }
   } catch (error) {
-    yield put(getClientFail(error.message || 'Failed to fetch client data. Please try again later'));
+    yield put(getClientFail(error.message || 'Failed to fetch brand data. Please try again later'));
   }
 }
 
 // Add a new influencer
 function* onAddNewClient(action) {
-  const id = toast.loading("Creating Client...");
+  const id = toast.loading("Creating brand...");
   try {
     const token = localStorage.getItem("authUser");
     const response = yield call(createClientUrl, token, action.payload);
 
     if (response?.status === STATUS.SUCCESS) {
       toast.update(id, {
-        render: response?.result?.message || 'Client created successfully',
+        render: response?.result?.message || 'brand created successfully',
         type: "success",
         isLoading: false,
         autoClose: true,
       });
       yield put(addClientSuccess(response.result.data.client));
     } else {
-      throw new Error(response?.result?.error || 'Failed to create client. Please try again later.');
+      throw new Error(response?.result?.error || 'Failed to create brand. Please try again later.');
     }
   } catch (error) {
-    yield put(addClientFail(error.message || 'Failed to create client. Please try again later.'));
+    yield put(addClientFail(error.message || 'Failed to create brand. Please try again later.'));
     toast.update(id, {
-      render: error.message || 'Failed to create client',
+      render: error.message || 'Failed to create brand',
       type: "error",
       isLoading: false,
       autoClose: true,
@@ -64,26 +64,26 @@ function* onAddNewClient(action) {
 
 // Update an influencer
 function* onUpdateClient(action) {
-  const id = toast.loading("Updating Client...");
+  const id = toast.loading("Updating brand...");
   try {
     const token = localStorage.getItem("authUser");
     const response = yield call(updateClientUrl, token, action.payload);
 
     if (response?.status === STATUS.SUCCESS) {
       toast.update(id, {
-        render: response?.result?.message || 'Client updated successfully',
+        render: response?.result?.message || 'brand updated successfully',
         type: "success",
         isLoading: false,
         autoClose: true,
       });
       yield put(updateClientSuccess(response?.result?.data?.client));
     } else {
-      throw new Error(response?.result?.error || 'Failed to update client. Please try again later.');
+      throw new Error(response?.result?.error || 'Failed to update brand. Please try again later.');
     }
   } catch (error) {
-    yield put(updateClientFail(error.message || 'Failed to update client. Please try again later.'));
+    yield put(updateClientFail(error.message || 'Failed to update brand. Please try again later.'));
     toast.update(id, {
-      render: error.message || 'Failed to update client',
+      render: error.message || 'Failed to update brand',
       type: "error",
       isLoading: false,
       autoClose: true,

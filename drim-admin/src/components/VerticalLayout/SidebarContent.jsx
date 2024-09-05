@@ -211,6 +211,19 @@ const SidebarContent = (props) => {
                     <span>Opportunities</span>
                   </NavLink>
                 </li>
+                {roleName === ROLES.ADMIN && (
+                  <li>
+                    <NavLink
+                      to="/payment"
+                      className={({ isActive }) =>
+                        isActive ? "mm-active" : ""
+                      }
+                    >
+                      <i className="bx bxs-credit-card"></i>
+                      <span>Payment</span>
+                    </NavLink>
+                  </li>
+                )}
               </>
             )}
 
@@ -278,6 +291,19 @@ const SidebarContent = (props) => {
                     <span>Opportunities</span>
                   </NavLink>
                 </li>
+                {roleName === ROLES.INFLUENCER && (
+                  <li>
+                    <NavLink
+                      to="/payment"
+                      className={({ isActive }) =>
+                        isActive ? "mm-active" : ""
+                      }
+                    >
+                      <i className="bx bxs-credit-card"></i>
+                      <span>Payment</span>
+                    </NavLink>
+                  </li>
+                )}
               </>
             )}
           </ul>

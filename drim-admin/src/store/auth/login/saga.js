@@ -13,6 +13,7 @@ import {
 } from "./actions";
 import { LoginApi } from "../../../services/index";
 import STATUS from "../../../constants/status";
+import ROLES from "../../../constants/role";
 
 function* loginUser({ payload: { user, history } }) {
   try {
@@ -28,14 +29,14 @@ function* loginUser({ payload: { user, history } }) {
       const user = JSON.parse(localStorage.getItem("user"));
       const role = user.roleId.name;
       switch (role) {
-        case 'Admin':
-          history("/overview");
+        case ROLES.ADMIN:
+          history("/overview/admin");
           break;
-        case 'Client':
-          history("/client/overview");
+        case ROLES.BRAND:
+          history("/overview/brand");
           break;
-        case 'Influencer':
-          history("/influencer/overview");
+        case ROLES.INFLUENCER:
+          history("/overview/influencer");
           break;
         default:
           history('/404')
