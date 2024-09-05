@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import withRouter from "../Common/withRouter";
 
@@ -16,6 +16,14 @@ import { Link } from "react-router-dom";
 // import logoDark from "../../assets/images/favicon/logo-lg.png";
 
 const Sidebar = (props) => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      setUser(JSON.parse(user));
+    }
+  }, []);
   return (
     <React.Fragment>
       <div className="vertical-menu">
@@ -29,7 +37,10 @@ const Sidebar = (props) => {
             </span>
           </Link>
 
-          <Link to="/" className="logo logo-light">
+          <Link
+            to={`/overview/${user?.roleId?.name.toLowerCase()}`}
+            className="logo logo-light"
+          >
             <span className="logo-sm">
               {/* <img src={logoLightSvg} alt="" height="22" /> */}
               <h1 className="mt-3">R</h1>

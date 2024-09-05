@@ -368,7 +368,7 @@ const InfluencerManagement = (props) => {
 
       {/* Update Modal */}
       <Modal isOpen={isUpdateModalOpen} toggle={toggleUpdateModal}>
-        <ModalHeader toggle={toggleUpdateModal}>Update Client</ModalHeader>
+        <ModalHeader toggle={toggleUpdateModal}>Update Brand</ModalHeader>
         <form onSubmit={updateInfluncerValidation.handleSubmit}>
           <ModalBody>
             <div className="mb-2">

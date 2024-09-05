@@ -8,7 +8,7 @@ const {
   validateOTP,
   validateChangePassword,
   validateResetPassword,
-  updateProfile,
+
   validateUpdateProfile,
 } = require("../middleware/user.middleware");
 const auth = require("../config/authentication");
@@ -21,9 +21,9 @@ router.post("/signUp", addUser, User.signUp);
 // update profile
 router.post(
   "/updateProfile",
-  validateUpdateProfile,
   auth,
   upload.single("profilePhoto"),
+  validateUpdateProfile,
   User.updateProfile
 );
 
