@@ -84,7 +84,7 @@ async function _getClient(req, res) {
     if (clients.length === 0) {
       json.status = CONSTANT.SUCCESS;
       json.result = {
-        message: "No clients found",
+        message: "No Brands found",
         data: {
           clients,
         },
@@ -96,7 +96,7 @@ async function _getClient(req, res) {
 
     json.status = CONSTANT.SUCCESS;
     json.result = {
-      message: "Clients fetched successfully",
+      message: "Brands fetched successfully",
       data: {
         clients,
         totalClients,
@@ -155,7 +155,7 @@ async function _addClient(req, res) {
     if (!user) {
       json.status = CONSTANT.FAIL;
       json.result = {
-        error: "Fail to create client",
+        error: "Fail to create Brand",
       };
       return res.send(json);
     }
@@ -163,7 +163,7 @@ async function _addClient(req, res) {
     let mailOptions = {
       from: '"RAISE" <raise@raise.com>',
       to: email,
-      subject: "Password for Client login",
+      subject: "Password for Brand login",
       text: `Your email is ${email} and password is ${password}`,
       html: `<b>Your email is ${email} and password is ${password}</b>`,
     };
@@ -172,7 +172,7 @@ async function _addClient(req, res) {
     const { password: userPassword, ...sanitizeUser } = user.toObject();
     json.status = CONSTANT.SUCCESS;
     json.result = {
-      message: "Client created successfully",
+      message: "Brand created successfully",
       data: {
         client: sanitizeUser,
       },
@@ -227,14 +227,14 @@ async function _updateClientById(req, res) {
     if (!client) {
       json.status = CONSTANT.FAIL;
       json.result = {
-        message: "Fail to update Client",
+        message: "Fail to update Brand",
       };
       return res.send(json);
     }
     const { password, ...sanitizeClient } = client.toObject();
     json.status = CONSTANT.SUCCESS;
     json.result = {
-      message: "Client Updated successfully",
+      message: "Brand Updated successfully",
       data: {
         client: sanitizeClient,
       },

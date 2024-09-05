@@ -34,6 +34,13 @@ async function _createNotification(req, res) {
       description,
       from: user._id,
     });
+
+    await notification.populate({
+      path: "from",
+      model: "User",
+      select: ["email", "firstName"],
+    });
+
     if (!notification) {
       json.status = CONSTANT.FAIL;
       json.result = {

@@ -1,7 +1,7 @@
 const ROLES = {
   ADMIN: "Admin",
   INFLUENCER: "Influencer",
-  CLIENT: "Client",
+  BRAND: "Brand",
 };
 
 export default ROLES;

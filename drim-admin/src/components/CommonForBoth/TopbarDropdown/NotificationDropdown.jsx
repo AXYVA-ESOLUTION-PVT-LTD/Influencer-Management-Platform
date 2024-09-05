@@ -10,6 +10,7 @@ import avatar4 from "../../../assets/images/users/avatar-4.jpg";
 
 //i18n
 import { withTranslation } from "react-i18next";
+import ROLES from "../../../constants/role";
 
 const NotificationDropdown = (props) => {
   // Declare a new state variable, which we'll call "menu"
@@ -22,8 +23,8 @@ const NotificationDropdown = (props) => {
     }
   }, []);
 
-  if (role === "Client") {
-    return null; 
+  if (role === ROLES.BRAND) {
+    return null;
   }
   return (
     <React.Fragment>

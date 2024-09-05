@@ -3,24 +3,20 @@ import { RESET_PASSWORD } from "./actionTypes";
 import { userResetPasswordSuccess, userResetPasswordError } from "./actions";
 import { ResetPasswordApi } from "../../../services"; // Ensure the correct path
 import { toast } from "react-toastify";
+import STATUS from "../../../constants/status";
 // Function to handle the reset password API call
 function* resetUserPassword({ payload: { user } }) {
 
   try {
     const token = localStorage.getItem("authUser");
     const response = yield call(ResetPasswordApi,token,user);
-    if (response.status === "Success") {
-      yield put(userResetPasswordSuccess("Password has been reset successfully."));
-      // toast.success("Password has been reset successfully.");
-    } else if (response.status === "Fail") {
-      yield put(userResetPasswordError(response.result.message));
-      // toast.error(response.result.message);
+    if (response?.status === STATUS.SUCCESS) {
+      yield put(userResetPasswordSuccess(response?.result?.message));
     } else {
-      yield put(userResetPasswordError("Please try again later."));
-      // toast.error("Fail to reset password");
+      throw new Error(response?.result?.message || "Password reset failed. Please try again.");
     }
   } catch (error) {
-    yield put(userResetPasswordError(error.message || "Please try again later."));
+    yield put(userResetPasswordError(error.message || "Password reset failed. Please try again."));
   }
 }
 

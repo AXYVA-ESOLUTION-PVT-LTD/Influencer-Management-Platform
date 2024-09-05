@@ -26,9 +26,14 @@ function* fetchInfluencers(action) {
   try {
     const token = localStorage.getItem("authUser");
     const response = yield call(getInfluencersUrl, token, action.payload);
-    yield put(getInfluencersSuccess(response.result.data));
+    
+    if (response?.status === STATUS.SUCCESS) {
+      yield put(getInfluencersSuccess(response.result.data));
+    } else {
+      throw new Error(response?.result?.error || 'Failed to fetch influencers. Please try again later.');
+    }
   } catch (error) {
-    yield put(getInfluencersFail(error));
+    yield put(getInfluencersFail(error.message || 'Failed to fetch influencers. Please try again later.'));
   }
 }
 
@@ -39,27 +44,21 @@ function* onAddNewInfluencer(action) {
     const token = localStorage.getItem("authUser");
     const response = yield call(createInfluencersUrl, token, action.payload);
 
-    if (response?.status === STATUS.FAIL) {
+    if (response?.status === STATUS.SUCCESS) {
       toast.update(id, {
-        render: response?.result?.error,
-        type: "error",
-        isLoading: false,
-        autoClose: true,
-      });
-      yield put(addInfluencerFail(response?.result?.error));
-    } else {
-      toast.update(id, {
-        render: response?.result?.message,
+        render: response?.result?.message || 'Influencer created successfully',
         type: "success",
         isLoading: false,
         autoClose: true,
       });
-      yield put(addInfluencerSuccess(response?.result?.data?.influencer));
+      yield put(addInfluencerSuccess(response.result.data.influencer));
+    } else {
+      throw new Error(response?.result?.error || 'Failed to create influencer. Please try again later.');
     }
   } catch (error) {
-    yield put(addInfluencerFail(error));
+    yield put(addInfluencerFail(error.message || 'Failed to create influencer. Please try again later.'));
     toast.update(id, {
-      render: "fail to create influencer",
+      render: error.message || 'Failed to create influencer',
       type: "error",
       isLoading: false,
       autoClose: true,
@@ -69,29 +68,30 @@ function* onAddNewInfluencer(action) {
 
 // Update an influencer
 function* onUpdateInfluencer(action) {
+  const id = toast.loading("Updating Influencer...");
   try {
     const token = localStorage.getItem("authUser");
-    const id = toast.loading("Creating Influencer...");
     const response = yield call(updateInfluencerUrl, token, action.payload);
+
     if (response?.status === STATUS.SUCCESS) {
       toast.update(id, {
-        render: response?.result?.message,
+        render: response?.result?.message || 'Influencer updated successfully',
         type: "success",
         isLoading: false,
         autoClose: true,
       });
-      yield put(updateInfluencerSuccess(response?.result?.data?.influencer));
+      yield put(updateInfluencerSuccess(response.result.data.influencer));
     } else {
-      toast.update(id, {
-        render: response?.result?.error,
-        type: "error",
-        isLoading: false,
-        autoClose: true,
-      });
-      yield put(updateInfluencerFail(response?.result?.error));
+      throw new Error(response?.result?.error || 'Failed to update influencer. Please try again later.');
     }
   } catch (error) {
-    yield put(updateInfluencerFail(error));
+    yield put(updateInfluencerFail(error.message || 'Failed to update influencer. Please try again later.'));
+    toast.update(id, {
+      render: error.message || 'Failed to update influencer',
+      type: "error",
+      isLoading: false,
+      autoClose: true,
+    });
   }
 }
 

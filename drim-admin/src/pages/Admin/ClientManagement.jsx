@@ -32,7 +32,7 @@ const ClientManagement = (props) => {
   const [selectedClient, setSelectedClient] = useState(null);
 
   // Meta title
-  document.title = "Client | Raise ";
+  document.title = "Brand | Raise ";
 
   const dispatch = useDispatch();
 
@@ -42,7 +42,7 @@ const ClientManagement = (props) => {
 
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(0);
-  
+
   const [filterFields, setFilterFields] = useState({
     firstName: "",
     lastName: "",
@@ -73,7 +73,7 @@ const ClientManagement = (props) => {
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
-        roleName: ROLES.CLIENT,
+        roleName: ROLES.BRAND,
       };
       dispatch(addNewClient(payload));
       resetForm();
@@ -92,7 +92,7 @@ const ClientManagement = (props) => {
       const payload = {
         id: selectedClient._id,
         status: values.status === "Inactive" ? false : true,
-        roleName: ROLES.CLIENT,
+        roleName: ROLES.BRAND,
       };
       dispatch(updateClient(payload));
       resetForm();
@@ -104,7 +104,7 @@ const ClientManagement = (props) => {
   useEffect(() => {
     dispatch(
       getClient({
-        roleName: ROLES.CLIENT,
+        roleName: ROLES.BRAND,
         limit,
         pageCount,
         ...filterFields,
@@ -195,7 +195,7 @@ const ClientManagement = (props) => {
           {/* Button to Add New Influencer */}
           <div className="d-flex justify-content-end mb-3">
             <Button color="primary" onClick={toggleCreateModal}>
-              Add Client
+              Add Brand
             </Button>
           </div>
 
@@ -240,7 +240,7 @@ const ClientManagement = (props) => {
                 </>
               ) : (
                 <h1 className="text-center" style={{ marginTop: 50 }}>
-                  No Client Found
+                  No Brand Found
                 </h1>
               )}
             </>
@@ -250,7 +250,7 @@ const ClientManagement = (props) => {
 
       {/* Details Modal */}
       <Modal isOpen={isDetailsModalOpen} toggle={toggleDetailsModal}>
-        <ModalHeader toggle={toggleDetailsModal}>Client Details</ModalHeader>
+        <ModalHeader toggle={toggleDetailsModal}>Brand Details</ModalHeader>
         <ModalBody>
           {selectedClient && (
             <>
@@ -275,7 +275,7 @@ const ClientManagement = (props) => {
 
       {/* Create Modal */}
       <Modal isOpen={isCreateModalOpen} toggle={toggleCreateModal}>
-        <ModalHeader toggle={toggleCreateModal}>Add Client</ModalHeader>
+        <ModalHeader toggle={toggleCreateModal}>Add Brand</ModalHeader>
         <form onSubmit={createClientValidation.handleSubmit}>
           <ModalBody>
             <div className="mb-2">
@@ -367,7 +367,7 @@ const ClientManagement = (props) => {
 
       {/* Update Modal */}
       <Modal isOpen={isUpdateModalOpen} toggle={toggleUpdateModal}>
-        <ModalHeader toggle={toggleUpdateModal}>Update Client</ModalHeader>
+        <ModalHeader toggle={toggleUpdateModal}>Update Brand</ModalHeader>
         <form onSubmit={updateClientValidation.handleSubmit}>
           <ModalBody>
             <div className="mb-2">

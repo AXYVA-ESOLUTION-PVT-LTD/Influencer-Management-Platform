@@ -12,6 +12,8 @@ import {
   apiError,
 } from "./actions";
 import { LoginApi } from "../../../services/index";
+import STATUS from "../../../constants/status";
+import ROLES from "../../../constants/role";
 
 function* loginUser({ payload: { user, history } }) {
   try {
@@ -20,30 +22,30 @@ function* loginUser({ payload: { user, history } }) {
       password: user.password,
     });
     
-    if (response?.result?.data?.token) {
+    if (response?.status === STATUS.SUCCESS) {
       localStorage.setItem("authUser", response.result.data.token);
       localStorage.setItem("user", JSON.stringify(response.result.data.user));
       yield put(loginSuccess(response.result.data));
       const user = JSON.parse(localStorage.getItem("user"));
       const role = user.roleId.name;
       switch (role) {
-        case 'Admin':
-          history("/overview");
+        case ROLES.ADMIN:
+          history("/overview/admin");
           break;
-        case 'Client':
-          history("/client/overview");
+        case ROLES.BRAND:
+          history("/overview/brand");
           break;
-        case 'Influencer':
-          history("/influencer/overview");
+        case ROLES.INFLUENCER:
+          history("/overview/influencer");
           break;
         default:
           history('/404')
       }
     } else {
-      throw new Error("Invalid login credentials");
+      throw new Error(response?.result?.message || "Login failed. Please try again.");
     }
   } catch (error) {
-    yield put(loginFail(error.message)); 
+    yield put(loginFail(error.message || "Login failed. Please try again."));
   }
 }
 

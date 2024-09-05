@@ -7,7 +7,7 @@ import SimpleBar from "simplebar-react";
 
 // MetisMenu
 import MetisMenu from "metismenujs";
-import { Link, useLocation } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import withRouter from "../Common/withRouter";
 
 //i18n
@@ -32,11 +32,11 @@ const SidebarContent = (props) => {
       const parent2 = parent.parentElement;
 
       if (parent2) {
-        parent2.classList.add("mm-show"); 
-        const parent3 = parent2.parentElement; 
+        parent2.classList.add("mm-show");
+        const parent3 = parent2.parentElement;
 
         if (parent3) {
-          parent3.classList.add("mm-active"); 
+          parent3.classList.add("mm-active");
           parent3.childNodes[0].classList.add("mm-active");
           const parent4 = parent3.parentElement; // ul
           if (parent4) {
@@ -160,67 +160,104 @@ const SidebarContent = (props) => {
                 <li className="menu-title">Admin Menu</li>
 
                 <li>
-                  <Link to="/overview">
+                  <NavLink
+                    to="/overview/admin"
+                    className={({ isActive }) => (isActive ? "mm-active" : "")}
+                  >
                     <i className="bx bx-home-circle"></i>
                     <span>Overview</span>
-                  </Link>
+                  </NavLink>
                 </li>
                 {/* <li>
-                  <Link to="/manage-role">
+                  <NavLink to="/manage-role">
                     <i className="bx bxs-user-badge"></i>
                     <span>Manage Role</span>
-                  </Link>
+                  </NavLink>
                 </li> */}
                 <li>
-                  <Link to="/influencer">
+                  <NavLink
+                    to="/influencer"
+                    className={({ isActive }) => (isActive ? "mm-active" : "")}
+                  >
                     <i className="bx bxs-group"></i>
                     <span>Influencers</span>
-                  </Link>
+                  </NavLink>
                 </li>
                 <li>
-                  <Link to="/client">
+                  <NavLink
+                    to="/brand"
+                    className={({ isActive }) => (isActive ? "mm-active" : "")}
+                  >
                     <i className="bx bxs-user"></i>
-                    <span>Clients</span>
-                  </Link>
+                    <span>Brands</span>
+                  </NavLink>
                 </li>
 
                 <li>
-                  <Link to="/publications">
+                  <NavLink
+                    to="/publications"
+                    className={({ isActive }) => (isActive ? "mm-active" : "")}
+                  >
                     <i className="bx bxs-book-bookmark"></i>
                     <span>Publications</span>
-                  </Link>
+                  </NavLink>
                 </li>
                 <li>
-                  <Link to="/opportunities">
+                  <NavLink
+                    to="/opportunities"
+                    className={({ isActive }) => (isActive ? "mm-active" : "")}
+                  >
                     <i className="bx bx-star"></i>
                     <span>Opportunities</span>
-                  </Link>
+                  </NavLink>
                 </li>
+                {roleName === ROLES.ADMIN && (
+                  <li>
+                    <NavLink
+                      to="/payment"
+                      className={({ isActive }) =>
+                        isActive ? "mm-active" : ""
+                      }
+                    >
+                      <i className="bx bxs-credit-card"></i>
+                      <span>Payment</span>
+                    </NavLink>
+                  </li>
+                )}
               </>
             )}
 
             {/* User Menu Item */}
-            {(roleName === ROLES.ADMIN || roleName === ROLES.CLIENT) && (
+            {(roleName === ROLES.ADMIN || roleName === ROLES.BRAND) && (
               <>
-                <li className="menu-title">Client Menu</li>
+                <li className="menu-title">Brands Menu</li>
                 <li>
-                  <Link to="/client/overview">
+                  <NavLink
+                    to="/overview/brand"
+                    className={({ isActive }) => (isActive ? "mm-active" : "")}
+                  >
                     <i className="bx bx-home-circle"></i>
                     <span>Overview</span>
-                  </Link>
+                  </NavLink>
                 </li>
 
                 <li>
-                  <Link to="/client/influencers">
+                  <NavLink
+                    to="/influencers/brand"
+                    className={({ isActive }) => (isActive ? "mm-active" : "")}
+                  >
                     <i className="bx bxs-group"></i>
                     <span>Influencers</span>
-                  </Link>
+                  </NavLink>
                 </li>
                 <li>
-                  <Link to="/client/publications">
+                  <NavLink
+                    to="/publications/brand"
+                    className={({ isActive }) => (isActive ? "mm-active" : "")}
+                  >
                     <i className="bx bxs-book-open"></i>
                     <span>Publications</span>
-                  </Link>
+                  </NavLink>
                 </li>
               </>
             )}
@@ -231,23 +268,42 @@ const SidebarContent = (props) => {
               <>
                 <li className="menu-title">Influencer Menu</li>
                 <li>
-                  <Link to="/influencer/overview">
+                  <NavLink
+                    to="/overview/influencer"
+                    className={({ isActive }) => (isActive ? "mm-active" : "")}
+                  >
                     <i className="bx bx-home-circle"></i>
                     <span>Overview</span>
-                  </Link>
+                  </NavLink>
                 </li>
                 {/* <li>
-                  <Link to="/influencer-growth">
+                  <NavLink to="/influencer-growth">
                     <i className="bx bx-news"></i>
                     <span>Reports</span>
-                  </Link>
+                  </NavLink>
                 </li> */}
                 <li>
-                  <Link to="/influencer/opportunities">
+                  <NavLink
+                    to="/opportunities/influencer"
+                    className={({ isActive }) => (isActive ? "mm-active" : "")}
+                  >
                     <i className="bx bx-rocket"></i>
                     <span>Opportunities</span>
-                  </Link>
+                  </NavLink>
                 </li>
+                {roleName === ROLES.INFLUENCER && (
+                  <li>
+                    <NavLink
+                      to="/payment"
+                      className={({ isActive }) =>
+                        isActive ? "mm-active" : ""
+                      }
+                    >
+                      <i className="bx bxs-credit-card"></i>
+                      <span>Payment</span>
+                    </NavLink>
+                  </li>
+                )}
               </>
             )}
           </ul>
