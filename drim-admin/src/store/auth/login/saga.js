@@ -12,6 +12,7 @@ import {
   apiError,
 } from "./actions";
 import { LoginApi } from "../../../services/index";
+import STATUS from "../../../constants/status";
 
 function* loginUser({ payload: { user, history } }) {
   try {
@@ -20,7 +21,7 @@ function* loginUser({ payload: { user, history } }) {
       password: user.password,
     });
     
-    if (response?.result?.data?.token) {
+    if (response?.status === STATUS.SUCCESS) {
       localStorage.setItem("authUser", response.result.data.token);
       localStorage.setItem("user", JSON.stringify(response.result.data.user));
       yield put(loginSuccess(response.result.data));
@@ -40,10 +41,10 @@ function* loginUser({ payload: { user, history } }) {
           history('/404')
       }
     } else {
-      throw new Error("Invalid login credentials");
+      throw new Error(response?.result?.message || "Login failed. Please try again.");
     }
   } catch (error) {
-    yield put(loginFail(error.message)); 
+    yield put(loginFail(error.message || "Login failed. Please try again."));
   }
 }
 
