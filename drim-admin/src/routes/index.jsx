@@ -8,33 +8,98 @@ import Logout from "../pages/Authentication/Logout";
 import Register from "../pages/Authentication/Register";
 import ResetPasswordForm from "../pages/Authentication/ResetPassword";
 
-import ROLES from "../constants/role"; 
+import ROLES from "../constants/role";
 import ForgotPassword from "../pages/Authentication/ForgotPassword";
 import ChangePassword from "../pages/Authentication/ChangePassword";
 import VerifyOTP from "../pages/Authentication/VerifyOTP";
-import { AdminDashboardOverview, ClientManagement, InfluencerManagement, OpportunitiesPage, PublicationsPage } from "../pages/Admin";
-import {  ClientDashboardOverview, InfluencerDetailsPage, InfluencerListPage ,PublicationsListPage } from "../pages/Client";
-import { InfluencerDashboardOverview, OpportunitiesListPage } from "../pages/Influencer";
+import {
+  AdminDashboardOverview,
+  ClientManagement,
+  InfluencerManagement,
+  OpportunitiesPage,
+  PublicationsPage,
+} from "../pages/Admin";
+import {
+  ClientDashboardOverview,
+  InfluencerDetailsPage,
+  InfluencerListPage,
+  PublicationsListPage,
+} from "../pages/Client";
+import {
+  InfluencerDashboardOverview,
+  OpportunitiesListPage,
+} from "../pages/Influencer";
 import { ProfilePage } from "../pages/Profile";
 import { Notifications } from "../pages/Notification";
 
-
 const authProtectedRoutes = [
-  { path: "/overview", component: <AdminDashboardOverview />, allowedRoles: [ROLES.ADMIN] },
-  { path: "/influencer", component: <InfluencerManagement />, allowedRoles: [ROLES.ADMIN] },
-  { path: "/client", component: <ClientManagement />, allowedRoles: [ROLES.ADMIN] },
-  { path: "/publications", component: <PublicationsPage />, allowedRoles: [ROLES.ADMIN] },
-  { path: "/opportunities", component: <OpportunitiesPage />, allowedRoles: [ROLES.ADMIN] },
+  {
+    path: "/overview/admin",
+    component: <AdminDashboardOverview />,
+    allowedRoles: [ROLES.ADMIN],
+  },
+  {
+    path: "/influencer",
+    component: <InfluencerManagement />,
+    allowedRoles: [ROLES.ADMIN],
+  },
+  {
+    path: "/brand",
+    component: <ClientManagement />,
+    allowedRoles: [ROLES.ADMIN],
+  },
+  {
+    path: "/publications",
+    component: <PublicationsPage />,
+    allowedRoles: [ROLES.ADMIN],
+  },
+  {
+    path: "/opportunities",
+    component: <OpportunitiesPage />,
+    allowedRoles: [ROLES.ADMIN],
+  },
 
-  { path: "/client/overview", component: <ClientDashboardOverview />, allowedRoles: [ROLES.ADMIN, ROLES.CLIENT] },
-  { path: "/client/influencers", component: <InfluencerListPage />, allowedRoles: [ROLES.ADMIN, ROLES.CLIENT] },
-  { path: "/client/influencer-details", component: <InfluencerDetailsPage />, allowedRoles: [ROLES.ADMIN, ROLES.CLIENT] },
-  { path: "/client/publications", component: <PublicationsListPage />, allowedRoles: [ROLES.ADMIN, ROLES.CLIENT] },
-  
-  { path: "/influencer/overview", component: <InfluencerDashboardOverview />, allowedRoles: [ROLES.ADMIN, ROLES.INFLUENCER] },
-  { path: "/influencer/opportunities", component: <OpportunitiesListPage />, allowedRoles: [ROLES.ADMIN, ROLES.INFLUENCER] },
-  { path: "/profile", component: <ProfilePage />, allowedRoles: [ROLES.ADMIN, ROLES.CLIENT, ROLES.INFLUENCER] },
-  { path: "/notifications", component: <Notifications />, allowedRoles: [ROLES.ADMIN, ROLES.INFLUENCER] },
+  {
+    path: "/overview/brand",
+    component: <ClientDashboardOverview />,
+    allowedRoles: [ROLES.ADMIN, ROLES.BRAND],
+  },
+  {
+    path: "/influencers/brand",
+    component: <InfluencerListPage />,
+    allowedRoles: [ROLES.ADMIN, ROLES.BRAND],
+  },
+  {
+    path: "/brand/influencer-details",
+    component: <InfluencerDetailsPage />,
+    allowedRoles: [ROLES.ADMIN, ROLES.BRAND],
+  },
+  {
+    path: "/publications/brand",
+    component: <PublicationsListPage />,
+    allowedRoles: [ROLES.ADMIN, ROLES.BRAND],
+  },
+
+  {
+    path: "/overview/influencer",
+    component: <InfluencerDashboardOverview />,
+    allowedRoles: [ROLES.ADMIN, ROLES.INFLUENCER],
+  },
+  {
+    path: "/opportunities/influencer",
+    component: <OpportunitiesListPage />,
+    allowedRoles: [ROLES.ADMIN, ROLES.INFLUENCER],
+  },
+  {
+    path: "/profile",
+    component: <ProfilePage />,
+    allowedRoles: [ROLES.ADMIN, ROLES.BRAND, ROLES.INFLUENCER],
+  },
+  {
+    path: "/notifications",
+    component: <Notifications />,
+    allowedRoles: [ROLES.ADMIN, ROLES.INFLUENCER],
+  },
 ];
 
 const publicRoutes = [

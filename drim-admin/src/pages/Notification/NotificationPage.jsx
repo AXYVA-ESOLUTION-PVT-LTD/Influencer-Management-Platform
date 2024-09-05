@@ -1,29 +1,28 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Button,
   Container,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Form,
   FormGroup,
   Input,
   Label,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   Spinner,
 } from "reactstrap";
 import Breadcrumb from "../../components/Common/Breadcrumb";
+import Pagination from "../../components/Common/Pagination";
 import TableContainer from "../../components/Common/TableContainer";
-import { data } from "../../data/notification";
-import { useDispatch, useSelector } from "react-redux";
+import Chat from "../../components/Notification/Chat";
+import ROLES from "../../constants/role";
 import {
   createNotification,
   getNotification,
   updateNotification,
 } from "../../store/notification/actions";
-import useLocalStorage from "../../hooks/useLocalStorage";
-import Chat from "../../components/Notification/Chat";
-import Pagination from "../../components/Common/Pagination";
 
 const TicketPage = () => {
   document.title = "Tickets | Raise";
@@ -165,7 +164,7 @@ const TicketPage = () => {
               </Button>
             </>
           )}
-          {role === "Client" || role === "Influencer" ? (
+          {role === ROLES.BRAND || role === ROLES.INFLUENCER ? (
             <>
               <Button
                 color="link"

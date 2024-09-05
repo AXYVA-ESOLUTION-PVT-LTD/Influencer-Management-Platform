@@ -34,39 +34,41 @@ const Login = (props) => {
   //meta title
   document.title = "Login | Raise";
   const dispatch = useDispatch();
-  // const navigate = useNavigate();
-  // useEffect(() => {
-  //   const token = localStorage.getItem("authUser");
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token = localStorage.getItem("authUser");
+    const user = localStorage.getItem("user");
 
-  //   if (token) {
-  //     navigate(-1); 
-  //   }
-  // }, [navigate]);
+    if (token && user) {
+      const roleName = JSON.parse(user).roleId?.name?.toLowerCase();
+      navigate(`/overview/${roleName}`);
+    }
+  }, []);
 
   const validation = useFormik({
     enableReinitialize: true,
-  
+
     initialValues: {
       email: "",
       password: "",
     },
     validationSchema: Yup.object({
       email: Yup.string()
-        .email("Invalid email address") 
+        .email("Invalid email address")
         .required("Please Enter Your Email"),
       password: Yup.string()
-        .min(6, "Password must be at least 6 characters") 
+        .min(6, "Password must be at least 6 characters")
         .required("Please Enter Your Password"),
     }),
     onSubmit: (values) => {
       dispatch(loginUser(values, props.router.navigate));
     },
   });
-  
+
   const { error } = useSelector((state) => ({
     error: state.Login.error,
   }));
-  
+
   return (
     <React.Fragment>
       <div className="account-pages my-5 pt-sm-5">
@@ -112,7 +114,7 @@ const Login = (props) => {
                       }}
                     >
                       {error ? <Alert color="danger">{error}</Alert> : null}
-                      
+
                       <div className="mb-3">
                         <Label className="form-label">Email</Label>
                         <Input

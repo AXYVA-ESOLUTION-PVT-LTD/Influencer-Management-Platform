@@ -24,12 +24,21 @@ import PieChart from "../../components/Common/Chart/PieChart";
 Highcharts3d(Highcharts);
 // i18n
 import { withTranslation } from "react-i18next";
-import { areaChartOptions, areaChartSeries, barChartOptions, barChartSeries, dataBoxes, donutChartOptions, pieChart1Data, pieChart2Data, pieChart3Data } from "../../data/DashboardData";
+import {
+  areaChartOptions,
+  areaChartSeries,
+  barChartOptions,
+  barChartSeries,
+  dataBoxes,
+  donutChartOptions,
+  pieChart1Data,
+  pieChart2Data,
+  pieChart3Data,
+} from "../../data/DashboardData";
 
 const DashboardOverview = (props) => {
   // Meta title
   document.title = "Dashboard | Raise";
-
 
   return (
     <React.Fragment>
@@ -37,8 +46,8 @@ const DashboardOverview = (props) => {
         <Container fluid>
           {/* Render Breadcrumb */}
           <Breadcrumbs
-            title={props.t("Client Dashboard")}
-            breadcrumbItem={props.t("Client Dashboard")}
+            title={props.t("Brand Dashboard")}
+            breadcrumbItem={props.t("Brand Dashboard")}
           />
           <Row className="mt-4">
             {dataBoxes.map((box, index) => (
