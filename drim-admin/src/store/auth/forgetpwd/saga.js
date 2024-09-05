@@ -9,22 +9,37 @@ import {
   setNewPasswordError,
 } from "./actions";
 import { ForgetPasswordApi, OTPVerificationApi, SetNewPasswordApi } from "../../../services";
+import STATUS from "../../../constants/status";
+import { toast } from "react-toastify";
 
 // API call for forget password
 function* forgetUser({ payload: { user, history } }) {
+
+  const id = toast.loading("Sending Email...");
+
   try {
     const response = yield call(ForgetPasswordApi, { email: user.email });
 
-    if (response.status === "Success") {
-      yield put(userForgetPasswordSuccess("OTP sent to your mailbox."));
+    if (response?.status === STATUS.SUCCESS) {
+      toast.update(id, {
+        render: response?.result?.message,
+        type: "success",
+        isLoading: false,
+        autoClose: true,
+      });
+      yield put(userForgetPasswordSuccess(response?.result?.message));
       history('/verify-otp');
-    } else if (response.status === "Fail") {
-      yield put(userForgetPasswordError("Invalid email address. Please try again."));
     } else {
-      yield put(userForgetPasswordError("Please try again later."));
+      throw new Error(response?.result?.message || "Failed to send OTP. Try again.");
     }
   } catch (error) {
-    yield put(userForgetPasswordError(error.message || "Please try again later."));
+    toast.update(id, {
+      render: error.message ? error.message : error,
+      type: "error",
+      isLoading: false,
+      autoClose: true,
+    });
+    yield put(userForgetPasswordError(error.message || "Failed to send OTP. Try again."));
   }
 }
 
@@ -32,19 +47,17 @@ function* forgetUser({ payload: { user, history } }) {
 function* verifyOtp({ payload: { data, history } }) {
   try {
     const response = yield call(OTPVerificationApi,data);
-
-    if (response.status === "Success") {
-      yield put(verifyOtpSuccess("OTP verified successfully."));
+    
+    if (response?.status === STATUS.SUCCESS) {
+      yield put(verifyOtpSuccess(response?.result?.message));
       localStorage.removeItem('email')
-      localStorage.setItem('usertoken',response.result.token);
+      localStorage.setItem('usertoken',response?.result?.token);
       history('/set-new-password');
-    } else if (response.status === "Fail") {
-      yield put(verifyOtpError("Invalid OTP. Please try again."));
     } else {
-      yield put(verifyOtpError("Please try again later."));
+      throw new Error(response?.result?.message || "Invalid OTP. Try again.");
     }
   } catch (error) {
-    yield put(verifyOtpError(error.message || "Please try again later."));
+    yield put(verifyOtpError(error.message || "Invalid OTP. Try again."));
   }
 }
 
@@ -52,17 +65,15 @@ function* setNewPassword({ payload: { data, history } }) {
   try {
     const response = yield call(SetNewPasswordApi, data);
 
-    if (response.status === "Success") {
-      yield put(setNewPasswordSuccess("Password has been set successfully."));
+    if (response?.status === STATUS.SUCCESS) {
+      yield put(setNewPasswordSuccess(response?.result?.message));
       localStorage.removeItem('usertoken');
       history('/login');
-    } else if (response.status === "Fail") {
-      yield put(setNewPasswordError("Failed to set password. Please try again."));
-    } else {
-      yield put(setNewPasswordError("Please try again later."));
+      } else {
+      throw new Error(response?.result?.message || "Password update failed. Try again.");
     }
   } catch (error) {
-    yield put(setNewPasswordError(error.message || "Please try again later."));
+    yield put(setNewPasswordError(error.message || "Password update failed. Try again."));
   }
 }
 

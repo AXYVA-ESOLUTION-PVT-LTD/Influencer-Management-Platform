@@ -22,75 +22,75 @@ function* fetchClient(action) {
   try {
     const token = localStorage.getItem("authUser");
     const response = yield call(getClientUrl, token, action.payload);
-    yield put(getClientSuccess(response.result.data));  // TODO: Error handling
-  } catch (error) {
-    yield put(getClientFail(error));
-  }
-}
-// Add a new influencer
-function* onAddNewClient(action) {
-  try {
-    const token = localStorage.getItem("authUser");
-    const id = toast.loading("Creating Client...");
-    const response = yield call(createClientUrl, token, action.payload);
-
-    if (response?.status === STATUS.FAIL) {
-      toast.update(id, {
-        render: response?.result?.error,
-        type: "error",
-        isLoading: false,
-        autoClose: true,
-      });
-      yield put(addClientFail(response?.result?.error));
+    
+    if (response?.status === STATUS.SUCCESS) {
+      yield put(getClientSuccess(response.result.data));
     } else {
-      toast.update(id, {
-        render: response?.result?.message,
-        type: "success",
-        isLoading: false,
-        autoClose: true,
-      });
-
-      yield put(addClientSuccess(response.result.data.client));
+      throw new Error(response?.result?.error || 'Failed to fetch client data. Please try again later');
     }
   } catch (error) {
-    yield put(addClientFail(error));
-    toast.error("fail to create client");
+    yield put(getClientFail(error.message || 'Failed to fetch client data. Please try again later'));
   }
 }
 
-// Update an influencer
-function* onUpdateClient(action) {
+// Add a new influencer
+function* onAddNewClient(action) {
   const id = toast.loading("Creating Client...");
   try {
     const token = localStorage.getItem("authUser");
-    const response = yield call(updateClientUrl, token, action.payload);
+    const response = yield call(createClientUrl, token, action.payload);
+
     if (response?.status === STATUS.SUCCESS) {
       toast.update(id, {
-        render: response?.result?.message,
+        render: response?.result?.message || 'Client created successfully',
         type: "success",
         isLoading: false,
         autoClose: true,
       });
-      yield put(updateClientSuccess(response?.result?.data?.client));
+      yield put(addClientSuccess(response.result.data.client));
     } else {
-      toast.update(id, {
-        render: response?.result?.error,
-        type: "error",
-        isLoading: false,
-        autoClose: true,
-      });
-      yield put(updateClientFail(response?.result?.error));
+      throw new Error(response?.result?.error || 'Failed to create client. Please try again later.');
     }
   } catch (error) {
-    yield put(updateClientFail(error));
+    yield put(addClientFail(error.message || 'Failed to create client. Please try again later.'));
     toast.update(id, {
-      render: "Fail to Update Client",
+      render: error.message || 'Failed to create client',
       type: "error",
       isLoading: false,
       autoClose: true,
     });
   }
 }
+
+// Update an influencer
+function* onUpdateClient(action) {
+  const id = toast.loading("Updating Client...");
+  try {
+    const token = localStorage.getItem("authUser");
+    const response = yield call(updateClientUrl, token, action.payload);
+
+    if (response?.status === STATUS.SUCCESS) {
+      toast.update(id, {
+        render: response?.result?.message || 'Client updated successfully',
+        type: "success",
+        isLoading: false,
+        autoClose: true,
+      });
+      yield put(updateClientSuccess(response?.result?.data?.client));
+    } else {
+      throw new Error(response?.result?.error || 'Failed to update client. Please try again later.');
+    }
+  } catch (error) {
+    yield put(updateClientFail(error.message || 'Failed to update client. Please try again later.'));
+    toast.update(id, {
+      render: error.message || 'Failed to update client',
+      type: "error",
+      isLoading: false,
+      autoClose: true,
+    });
+  }
+}
+
 
 function* clientsSaga() {
   yield takeEvery(ADD_CLIENT, onAddNewClient);

@@ -5,21 +5,21 @@ import { REGISTER_USER } from "./actionTypes"
 import { registerUserSuccessful, registerUserFailed } from "./actions"
 
 import { SignupApi } from "../../../services/index"
+import STATUS from "../../../constants/status";
 
 function* registerUser({ payload: { user, history } }) {
   try {
     const response = yield call(SignupApi, user);
     
-    if (response.status === 'Success') {
-      yield put(registerUserSuccessful(response));
+    if (response?.status === STATUS.SUCCESS) {
+      yield put(registerUserSuccessful(response?.result?.message));
       history('/login');
-    } else if (response.status === 'Fail') {
-      yield put(registerUserFailed(response.result.error)); 
-    } else {
-      yield put(registerUserFailed('Please try again later.'));
+    } 
+    else {
+      throw new Error(response?.result?.message || "Failed to send OTP. Try again.");
     }
   } catch (error) {
-    yield put(registerUserFailed('Please try again later.'));
+    yield put(registerUserFailed(error.message || 'Please try again later.'));
   }
 }
 
