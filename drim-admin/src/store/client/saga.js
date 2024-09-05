@@ -26,6 +26,7 @@ function* fetchClient(action) {
     if (response?.status === STATUS.SUCCESS) {
       yield put(getClientSuccess(response.result.data));
     } else {
+
       throw new Error(response?.result?.error || 'Failed to fetch brand data. Please try again later');
     }
   } catch (error) {
@@ -49,6 +50,7 @@ function* onAddNewClient(action) {
       });
       yield put(addClientSuccess(response.result.data.client));
     } else {
+
       throw new Error(response?.result?.error || 'Failed to create brand. Please try again later.');
     }
   } catch (error) {
