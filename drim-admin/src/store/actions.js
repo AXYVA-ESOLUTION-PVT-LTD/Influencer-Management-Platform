@@ -9,6 +9,6 @@ export * from "./role/actions";
 export * from "./opportunity/actions";
 export * from "./user/actions";
 export * from "./influencers/actions";
-export * from "./client/actions";
+export * from "./brand/actions";
 export * from "./notification/actions";
 export * from "./chats/actions";

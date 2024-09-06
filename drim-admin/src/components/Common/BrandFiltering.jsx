@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, Col, FormGroup, Input, Label, Row } from "reactstrap";
 
-function ClientFiltering({ filterFields, setFilterFields, setIsSearching }) {
+function BrandFiltering({ filterFields, setFilterFields, setIsSearching }) {
   const handleFilter = (e) => {
     const { name, value } = e.target;
     if (name === "status") {
@@ -103,4 +103,4 @@ function ClientFiltering({ filterFields, setFilterFields, setIsSearching }) {
   );
 }
 
-export default ClientFiltering;
+export default BrandFiltering;

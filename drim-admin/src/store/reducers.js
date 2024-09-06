@@ -2,17 +2,17 @@ import { combineReducers } from "redux";
 
 import Layout from "./layout/reducer";
 
+import ForgetPassword from "./auth/forgetpwd/reducer";
 import Login from "./auth/login/reducer";
 import Account from "./auth/register/reducer";
-import ForgetPassword from "./auth/forgetpwd/reducer";
 import resetPassword from "./auth/reset-pwd/reducer";
-import Role from "./role/reducer";
-import opportunity from "./opportunity/reducer";
-import user from "./user/reducer";
-import influencer from "./influencers/reducer";
-import client from "./client/reducer";
-import notification from "./notification/reducers";
 import chats from "./chats/reducers";
+import brand from "./brand/reducer";
+import influencer from "./influencers/reducer";
+import notification from "./notification/reducers";
+import opportunity from "./opportunity/reducer";
+import Role from "./role/reducer";
+import user from "./user/reducer";
 
 const rootReducer = combineReducers({
   Layout,
@@ -24,7 +24,7 @@ const rootReducer = combineReducers({
   opportunity,
   user,
   influencer,
-  client,
+  brand,
   notification,
   chats,
 });

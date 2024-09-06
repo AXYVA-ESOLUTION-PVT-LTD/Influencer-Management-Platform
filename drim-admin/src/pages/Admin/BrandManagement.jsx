@@ -14,30 +14,26 @@ import {
   Spinner,
 } from "reactstrap";
 import * as Yup from "yup";
+import BrandFiltering from "../../components/Common/BrandFiltering";
+import Pagination from "../../components/Common/Pagination";
 import TableContainer from "../../components/Common/TableContainer"; // Adjust import path if necessary
 import ROLES from "../../constants/role";
-import {
-  addNewClient,
-  getClient,
-  updateClient,
-} from "../../store/client/actions";
-import Pagination from "../../components/Common/Pagination";
-import ClientFiltering from "../../components/Common/ClientFiltering";
+import { addNewBrand, getBrand, updateBrand } from "../../store/brand/actions";
 
-const ClientManagement = (props) => {
+const BrandManagement = (props) => {
   // State for modals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [selectedClient, setSelectedClient] = useState(null);
+  const [selectedBrand, setSelectedBrand] = useState(null);
 
   // Meta title
   document.title = "Brand | Raise ";
 
   const dispatch = useDispatch();
 
-  const { clients, loading, error, totalClients } = useSelector(
-    (state) => state.client
+  const { brands, loading, error, totalBrands } = useSelector(
+    (state) => state.brand
   );
 
   const [limit, setLimit] = useState(10);
@@ -54,7 +50,7 @@ const ClientManagement = (props) => {
   const [sortBy, setSortBy] = useState("");
   const [sortOrder, setSortOrder] = useState("");
 
-  const createClientValidation = useFormik({
+  const createBrandValidation = useFormik({
     enableReinitialize: true,
     initialValues: {
       firstName: "",
@@ -75,12 +71,12 @@ const ClientManagement = (props) => {
         email: values.email,
         roleName: ROLES.BRAND,
       };
-      dispatch(addNewClient(payload));
+      dispatch(addNewBrand(payload));
       resetForm();
       toggleCreateModal();
     },
   });
-  const updateClientValidation = useFormik({
+  const updateBrandValidation = useFormik({
     enableReinitialize: true,
     initialValues: {
       status: "Active",
@@ -90,11 +86,11 @@ const ClientManagement = (props) => {
     }),
     onSubmit: (values, { resetForm }) => {
       const payload = {
-        id: selectedClient._id,
+        id: selectedBrand._id,
         status: values.status === "Inactive" ? false : true,
         roleName: ROLES.BRAND,
       };
-      dispatch(updateClient(payload));
+      dispatch(updateBrand(payload));
       resetForm();
       toggleUpdateModal();
     },
@@ -103,7 +99,7 @@ const ClientManagement = (props) => {
   // Get Influencer when Mount
   useEffect(() => {
     dispatch(
-      getClient({
+      getBrand({
         roleName: ROLES.BRAND,
         limit,
         pageCount,
@@ -126,14 +122,14 @@ const ClientManagement = (props) => {
     setIsDetailsModalOpen(!isDetailsModalOpen);
   };
   // Handle update
-  const handleUpdateClient = (client) => {
-    setSelectedClient(client);
+  const handleUpdateBrand = (brand) => {
+    setSelectedBrand(brand);
     toggleUpdateModal();
   };
 
   // Handle view details
-  const handleViewDetails = (client) => {
-    setSelectedClient(client);
+  const handleViewDetails = (brand) => {
+    setSelectedBrand(brand);
     toggleDetailsModal();
   };
 
@@ -177,7 +173,7 @@ const ClientManagement = (props) => {
               color="link"
               size="lg"
               className="p-0 me-2"
-              onClick={() => handleUpdateClient(original)}
+              onClick={() => handleUpdateBrand(original)}
             >
               <i className="bx bx-edit" style={{ color: "orange" }}></i>
             </Button>
@@ -185,7 +181,7 @@ const ClientManagement = (props) => {
         ),
       },
     ],
-    [handleUpdateClient, handleViewDetails]
+    [handleUpdateBrand, handleViewDetails]
   );
 
   return (
@@ -199,7 +195,7 @@ const ClientManagement = (props) => {
             </Button>
           </div>
 
-          <ClientFiltering
+          <BrandFiltering
             filterFields={filterFields}
             setFilterFields={setFilterFields}
             setIsSearching={setIsSearching}
@@ -211,12 +207,12 @@ const ClientManagement = (props) => {
             </div>
           ) : (
             <>
-              {/* Client Table */}
-              {clients.length ? (
+              {/* Brand Table */}
+              {brands.length ? (
                 <>
                   <TableContainer
                     columns={columns}
-                    data={clients}
+                    data={brands}
                     isGlobalFilter={false}
                     isAddOptions={false}
                     customPageSize={10}
@@ -230,7 +226,7 @@ const ClientManagement = (props) => {
 
                   {/* Pagination */}
                   <Pagination
-                    totalData={totalClients}
+                    totalData={totalBrands}
                     setLimit={setLimit}
                     setPageCount={setPageCount}
                     limit={limit}
@@ -252,16 +248,16 @@ const ClientManagement = (props) => {
       <Modal isOpen={isDetailsModalOpen} toggle={toggleDetailsModal}>
         <ModalHeader toggle={toggleDetailsModal}>Brand Details</ModalHeader>
         <ModalBody>
-          {selectedClient && (
+          {selectedBrand && (
             <>
               <p>
-                <strong>First Name:</strong> {selectedClient.firstName}
+                <strong>First Name:</strong> {selectedBrand.firstName}
               </p>
               <p>
-                <strong>Last Name:</strong> {selectedClient.lastName}
+                <strong>Last Name:</strong> {selectedBrand.lastName}
               </p>
               <p>
-                <strong>Email:</strong> {selectedClient.email}
+                <strong>Email:</strong> {selectedBrand.email}
               </p>
             </>
           )}
@@ -276,7 +272,7 @@ const ClientManagement = (props) => {
       {/* Create Modal */}
       <Modal isOpen={isCreateModalOpen} toggle={toggleCreateModal}>
         <ModalHeader toggle={toggleCreateModal}>Add Brand</ModalHeader>
-        <form onSubmit={createClientValidation.handleSubmit}>
+        <form onSubmit={createBrandValidation.handleSubmit}>
           <ModalBody>
             <div className="mb-2">
               <Label htmlFor="firstName" className="block mb-1">
@@ -286,20 +282,20 @@ const ClientManagement = (props) => {
                 id="firstName"
                 name="firstName"
                 type="text"
-                onChange={createClientValidation.handleChange}
-                onBlur={createClientValidation.handleBlur}
-                value={createClientValidation.values.firstName}
+                onChange={createBrandValidation.handleChange}
+                onBlur={createBrandValidation.handleBlur}
+                value={createBrandValidation.values.firstName}
                 invalid={
-                  createClientValidation.touched.firstName &&
-                  createClientValidation.errors.firstName
+                  createBrandValidation.touched.firstName &&
+                  createBrandValidation.errors.firstName
                     ? true
                     : false
                 }
               />
-              {createClientValidation.touched.firstName &&
-              createClientValidation.errors.firstName ? (
+              {createBrandValidation.touched.firstName &&
+              createBrandValidation.errors.firstName ? (
                 <div className="invalid-feedback">
-                  {createClientValidation.errors.firstName}
+                  {createBrandValidation.errors.firstName}
                 </div>
               ) : null}
             </div>
@@ -311,20 +307,20 @@ const ClientManagement = (props) => {
                 id="lastName"
                 name="lastName"
                 type="text"
-                onChange={createClientValidation.handleChange}
-                onBlur={createClientValidation.handleBlur}
-                value={createClientValidation.values.lastName}
+                onChange={createBrandValidation.handleChange}
+                onBlur={createBrandValidation.handleBlur}
+                value={createBrandValidation.values.lastName}
                 invalid={
-                  createClientValidation.touched.lastName &&
-                  createClientValidation.errors.lastName
+                  createBrandValidation.touched.lastName &&
+                  createBrandValidation.errors.lastName
                     ? true
                     : false
                 }
               />
-              {createClientValidation.touched.lastName &&
-              createClientValidation.errors.lastName ? (
+              {createBrandValidation.touched.lastName &&
+              createBrandValidation.errors.lastName ? (
                 <div className="invalid-feedback">
-                  {createClientValidation.errors.lastName}
+                  {createBrandValidation.errors.lastName}
                 </div>
               ) : null}
             </div>
@@ -336,20 +332,20 @@ const ClientManagement = (props) => {
                 id="email"
                 name="email"
                 type="email"
-                onChange={createClientValidation.handleChange}
-                onBlur={createClientValidation.handleBlur}
-                value={createClientValidation.values.email}
+                onChange={createBrandValidation.handleChange}
+                onBlur={createBrandValidation.handleBlur}
+                value={createBrandValidation.values.email}
                 invalid={
-                  createClientValidation.touched.email &&
-                  createClientValidation.errors.email
+                  createBrandValidation.touched.email &&
+                  createBrandValidation.errors.email
                     ? true
                     : false
                 }
               />
-              {createClientValidation.touched.email &&
-              createClientValidation.errors.email ? (
+              {createBrandValidation.touched.email &&
+              createBrandValidation.errors.email ? (
                 <div className="invalid-feedback">
-                  {createClientValidation.errors.email}
+                  {createBrandValidation.errors.email}
                 </div>
               ) : null}
             </div>
@@ -368,7 +364,7 @@ const ClientManagement = (props) => {
       {/* Update Modal */}
       <Modal isOpen={isUpdateModalOpen} toggle={toggleUpdateModal}>
         <ModalHeader toggle={toggleUpdateModal}>Update Brand</ModalHeader>
-        <form onSubmit={updateClientValidation.handleSubmit}>
+        <form onSubmit={updateBrandValidation.handleSubmit}>
           <ModalBody>
             <div className="mb-2">
               <Label htmlFor="status" className="block mb-1">
@@ -377,12 +373,12 @@ const ClientManagement = (props) => {
               <Input
                 name="status"
                 type="select"
-                onChange={updateClientValidation.handleChange}
-                onBlur={updateClientValidation.handleBlur}
-                value={updateClientValidation.values.status}
+                onChange={updateBrandValidation.handleChange}
+                onBlur={updateBrandValidation.handleBlur}
+                value={updateBrandValidation.values.status}
                 invalid={
-                  updateClientValidation.touched.status &&
-                  updateClientValidation.errors.status
+                  updateBrandValidation.touched.status &&
+                  updateBrandValidation.errors.status
                     ? true
                     : false
                 }
@@ -390,10 +386,10 @@ const ClientManagement = (props) => {
                 <option>Active</option>
                 <option>Inactive</option>
               </Input>
-              {updateClientValidation.touched.status &&
-              updateClientValidation.errors.status ? (
+              {updateBrandValidation.touched.status &&
+              updateBrandValidation.errors.status ? (
                 <div className="invalid-feedback">
-                  {updateClientValidation.errors.status}
+                  {updateBrandValidation.errors.status}
                 </div>
               ) : null}
             </div>
@@ -412,4 +408,4 @@ const ClientManagement = (props) => {
   );
 };
 
-export default withTranslation()(ClientManagement);
+export default withTranslation()(BrandManagement);

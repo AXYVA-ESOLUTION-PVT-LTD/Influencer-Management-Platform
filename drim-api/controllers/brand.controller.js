@@ -10,15 +10,15 @@ const {
 
 const json = {};
 
-exports.addClient = _addClient;
-exports.getClient = _getClient;
-exports.updateClientById = _updateClientById;
+exports.addBrand = _addBrand;
+exports.getBrand = _getBrand;
+exports.updateBrandById = _updateBrandById;
 
 /*
 TYPE: Post
 TODO: Get All Influencer
 */
-async function _getClient(req, res) {
+async function _getBrand(req, res) {
   try {
     const errors = validationResult(req).array();
     if (errors && errors.length > 0) {
@@ -71,7 +71,7 @@ async function _getClient(req, res) {
     }
 
     query.roleId = role._id;
-    const clients = await USER_COLLECTION.find(query, {
+    const brands = await USER_COLLECTION.find(query, {
       password: 0,
       roleId: 0,
     })
@@ -81,33 +81,33 @@ async function _getClient(req, res) {
       .limit(limit)
       .lean();
 
-    if (clients.length === 0) {
+    if (brands.length === 0) {
       json.status = CONSTANT.SUCCESS;
       json.result = {
         message: "No Brands found",
         data: {
-          clients,
+          brands,
         },
       };
       return res.send(json);
     }
 
-    const totalClients = await USER_COLLECTION.countDocuments(query);
+    const totalBrands = await USER_COLLECTION.countDocuments(query);
 
     json.status = CONSTANT.SUCCESS;
     json.result = {
       message: "Brands fetched successfully",
       data: {
-        clients,
-        totalClients,
+        brands,
+        totalBrands,
       },
     };
     return res.send(json);
   } catch (e) {
-    console.error("Controller: client | Method: _getClient | Error: ", e);
+    console.error("Controller: brand | Method: _getBrand | Error: ", e);
     json.status = CONSTANT.FAIL;
     json.result = {
-      message: "An error occurred while getting Client",
+      message: "An error occurred while getting Brand",
       error: e,
     };
     return res.send(json);
@@ -118,7 +118,7 @@ async function _getClient(req, res) {
 TYPE: Post
 TODO: Add new Influencer
 */
-async function _addClient(req, res) {
+async function _addBrand(req, res) {
   try {
     const errors = validationResult(req).array();
     if (errors && errors.length > 0) {
@@ -174,15 +174,15 @@ async function _addClient(req, res) {
     json.result = {
       message: "Brand created successfully",
       data: {
-        client: sanitizeUser,
+        brand: sanitizeUser,
       },
     };
     return res.send(json);
   } catch (e) {
-    console.error("Controller: client | Method: _addClient | Error: ", e);
+    console.error("Controller: brand | Method: _addBrand | Error: ", e);
     json.status = CONSTANT.FAIL;
     json.result = {
-      message: "An error occurred while adding new Client",
+      message: "An error occurred while adding new Brand",
       error: e,
     };
     return res.send(json);
@@ -193,7 +193,7 @@ async function _addClient(req, res) {
 TYPE: Update
 TODO: Update Influencer
 */
-async function _updateClientById(req, res) {
+async function _updateBrandById(req, res) {
   try {
     const errors = validationResult(req).array();
     if (errors && errors.length > 0) {
@@ -219,32 +219,32 @@ async function _updateClientById(req, res) {
       return res.send(json);
     }
 
-    const client = await USER_COLLECTION.findOneAndUpdate(
+    const brand = await USER_COLLECTION.findOneAndUpdate(
       { _id: id },
       { status },
       { new: true, runValidators: true }
     );
-    if (!client) {
+    if (!brand) {
       json.status = CONSTANT.FAIL;
       json.result = {
         message: "Fail to update Brand",
       };
       return res.send(json);
     }
-    const { password, ...sanitizeClient } = client.toObject();
+    const { password, ...sanitizeBrand } = brand.toObject();
     json.status = CONSTANT.SUCCESS;
     json.result = {
       message: "Brand Updated successfully",
       data: {
-        client: sanitizeClient,
+        brand: sanitizeBrand,
       },
     };
     return res.send(json);
   } catch (e) {
-    console.error("Controller: client | Method: _updateClient | Error: ", e);
+    console.error("Controller: brand | Method: _updateBrand | Error: ", e);
     json.status = CONSTANT.FAIL;
     json.result = {
-      message: "An error occurred while updating Client",
+      message: "An error occurred while updating Brand",
       error: e,
     };
     return res.send(json);
