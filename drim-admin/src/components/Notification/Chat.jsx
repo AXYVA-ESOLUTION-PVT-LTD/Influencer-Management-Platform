@@ -76,7 +76,6 @@ const Chat = ({ ticket, onClose }) => {
   };
 
   const groupedChats = groupMessagesByDate(chats);
-  console.log({ groupedChats });
 
   return (
     <div className={`chat-modal ${isVisible ? "show" : ""}`}>

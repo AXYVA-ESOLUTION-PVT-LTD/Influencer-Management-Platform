@@ -42,7 +42,6 @@ const chats = (state = INIT_STATE, action) => {
         error: null,
       };
     case CREATE_CHAT_SUCCESS:
-      console.log({ DATA: action.payload.chat });
       return {
         ...state,
         chats: [...state.chats, action.payload.chat],
