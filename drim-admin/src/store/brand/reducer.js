@@ -1,80 +1,80 @@
 import {
-  ADD_CLIENT,
-  ADD_CLIENT_FAIL,
-  ADD_CLIENT_SUCCESS,
-  GET_CLIENT,
-  GET_CLIENT_FAIL,
-  GET_CLIENT_SUCCESS,
-  UPDATE_CLIENT,
-  UPDATE_CLIENT_FAIL,
-  UPDATE_CLIENT_SUCCESS,
+  ADD_BRAND,
+  ADD_BRAND_FAIL,
+  ADD_BRAND_SUCCESS,
+  GET_BRAND,
+  GET_BRAND_FAIL,
+  GET_BRAND_SUCCESS,
+  UPDATE_BRAND,
+  UPDATE_BRAND_FAIL,
+  UPDATE_BRAND_SUCCESS,
 } from "./actionTypes";
 
 const INIT_STATE = {
-  clients: [],
-  totalClients: null,
+  brands: [],
+  totalBrands: null,
   loading: false,
   error: {},
 };
 
-const client = (state = INIT_STATE, action) => {
+const brand = (state = INIT_STATE, action) => {
   switch (action.type) {
-    case GET_CLIENT:
+    case GET_BRAND:
       return {
         ...state,
         loading: true,
         error: null,
       };
-    case GET_CLIENT_SUCCESS:
+    case GET_BRAND_SUCCESS:
       return {
         ...state,
-        clients: [...action.payload.clients],
-        totalClients: action.payload.totalClients,
+        brands: [...action.payload.brands],
+        totalBrands: action.payload.totalBrands,
         loading: false,
         error: null,
       };
-    case GET_CLIENT_FAIL:
+    case GET_BRAND_FAIL:
       return {
         ...state,
         loading: false,
         error: action.payload,
       };
 
-    case ADD_CLIENT:
+    case ADD_BRAND:
       return {
         ...state,
         loading: true,
         error: null,
       };
-    case ADD_CLIENT_SUCCESS:
+    case ADD_BRAND_SUCCESS:
       return {
         ...state,
-        clients: [...state.clients, action.payload],
+        brands: [...state.brands, action.payload],
         loading: false,
       };
-    case ADD_CLIENT_FAIL:
+    case ADD_BRAND_FAIL:
       return {
         ...state,
         error: action.payload,
         loading: false,
       };
 
-    case UPDATE_CLIENT:
+    case UPDATE_BRAND:
       return {
         ...state,
         loading: true,
         error: null,
       };
-    case UPDATE_CLIENT_SUCCESS:
-      const { _id: updatedClientId } = action.payload;
+    case UPDATE_BRAND_SUCCESS:
+      const { _id: updatedBrandId } = action.payload;
       return {
         ...state,
-        clients: state.clients.map((client) =>
-          client._id === updatedClientId ? { ...action.payload } : client
+        brands: state.brands.map((brand) =>
+          brand._id === updatedBrandId ? { ...action.payload } : brand
         ),
         loading: false,
       };
-    case UPDATE_CLIENT_FAIL:
+    case UPDATE_BRAND_FAIL:
       return {
         ...state,
         error: action.payload,
@@ -86,4 +86,4 @@ const client = (state = INIT_STATE, action) => {
   }
 };
 
-export default client;
+export default brand;

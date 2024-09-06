@@ -2,7 +2,7 @@ const { check } = require("express-validator");
 const USER_COLLECTION = require("../module/user.module");
 const CONSTANT = require("../config/constant");
 
-const validateCreateClient = [
+const validateCreateBrand = [
   check("firstName")
     .exists()
     .withMessage("First name is required!")
@@ -31,7 +31,7 @@ const validateCreateClient = [
     .withMessage("Please enter valid Email"),
 ];
 
-const validateGetClient = [
+const validateGetBrand = [
   check("roleName")
     .exists()
     .withMessage("Role name is required!")
@@ -42,7 +42,7 @@ const validateGetClient = [
     .withMessage("Role name cannot be empty!"),
 ];
 
-const validateUpdateClient = [
+const validateUpdateBrand = [
   check("roleName")
     .exists()
     .withMessage("Role name is required!")
@@ -87,8 +87,8 @@ async function validateAdmin(req, res, next) {
 }
 
 module.exports = {
-  validateCreateClient,
+  validateCreateBrand,
   validateAdmin,
-  validateGetClient,
-  validateUpdateClient,
+  validateGetBrand,
+  validateUpdateBrand,
 };

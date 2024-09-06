@@ -41,7 +41,7 @@ async function validatePostRole(req, res, next) {
     });
   }
   if (
-    user.roleId.name === "Client" ||
+    user.roleId.name === "Brand" ||
     user.roleId.name === "Influencer" ||
     user.roleId.name === "Admin"
   ) {

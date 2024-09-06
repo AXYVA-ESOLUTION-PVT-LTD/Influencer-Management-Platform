@@ -14,17 +14,17 @@ import ChangePassword from "../pages/Authentication/ChangePassword";
 import VerifyOTP from "../pages/Authentication/VerifyOTP";
 import {
   AdminDashboardOverview,
-  ClientManagement,
+  BrandManagement,
   InfluencerManagement,
   OpportunitiesPage,
   PublicationsPage,
 } from "../pages/Admin";
 import {
-  ClientDashboardOverview,
+  BrandDashboardOverview,
   InfluencerDetailsPage,
   InfluencerListPage,
   PublicationsListPage,
-} from "../pages/Client";
+} from "../pages/Brand";
 import {
   InfluencerDashboardOverview,
   OpportunitiesListPage,
@@ -46,7 +46,7 @@ const authProtectedRoutes = [
   },
   {
     path: "/brand",
-    component: <ClientManagement />,
+    component: <BrandManagement />,
     allowedRoles: [ROLES.ADMIN],
   },
   {
@@ -62,7 +62,7 @@ const authProtectedRoutes = [
 
   {
     path: "/overview/brand",
-    component: <ClientDashboardOverview />,
+    component: <BrandDashboardOverview />,
     allowedRoles: [ROLES.ADMIN, ROLES.BRAND],
   },
   {

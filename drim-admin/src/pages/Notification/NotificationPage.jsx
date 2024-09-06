@@ -259,7 +259,7 @@ const TicketPage = () => {
             </div>
           ) : (
             <>
-              {/* Client Table */}
+              {/* notifications Table */}
               {notifications.length ? (
                 <>
                   <TableContainer
