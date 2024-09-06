@@ -5,7 +5,7 @@ const PublicationSearching = ({
   filterFields,
   setFilterFields,
   setIsSearching,
-  closeModal
+  closeModal,
 }) => {
   const handleFilter = (e) => {
     const { name, value } = e.target;
@@ -122,11 +122,11 @@ const PublicationSearching = ({
         </Col>
       </Row>
       <Row className="align-items-center">
-      <Col md="4">
+        <Col md="4">
           <FormGroup>
             <Label for="price">Price</Label>
             <Input
-              type="text"
+              type="number"
               placeholder="Enter Price"
               className="form-control"
               name="price"
@@ -152,7 +152,7 @@ const PublicationSearching = ({
           <FormGroup>
             <Label for="follower">Follower</Label>
             <Input
-              type="text"
+              type="number"
               placeholder="Enter Follower"
               className="form-control"
               name="follower"
@@ -167,7 +167,7 @@ const PublicationSearching = ({
           <FormGroup>
             <Label for="views">Views</Label>
             <Input
-              type="text"
+              type="number"
               placeholder="Enter Views"
               className="form-control"
               name="views"
@@ -180,7 +180,7 @@ const PublicationSearching = ({
           <FormGroup>
             <Label for="videoViews">Video Views</Label>
             <Input
-              type="text"
+              type="number"
               placeholder="Enter Video Views"
               className="form-control"
               name="videoViews"
@@ -221,7 +221,7 @@ const PublicationSearching = ({
           <FormGroup>
             <Label for="likes">Likes</Label>
             <Input
-              type="text"
+              type="number"
               placeholder="Enter Likes"
               className="form-control"
               name="likes"
@@ -244,9 +244,7 @@ const PublicationSearching = ({
           </FormGroup>
         </Col>
       </Row>
-      <Row className="align-items-center">
-        
-      </Row>
+      <Row className="align-items-center"></Row>
       <Row className="align-items-center justify-content-center">
         <Col md="3">
           <Button color="primary" className="w-100" onClick={handleSearch}>
