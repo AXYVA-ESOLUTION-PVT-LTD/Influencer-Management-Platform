@@ -167,17 +167,22 @@ const OpportunitiesPage = (props) => {
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          {/* Render Breadcrumb */}
           {/* <Breadcrumbs
             title={props.t("Opportunity")}
             breadcrumbItem={props.t("Opportunity")}
           /> */}
 
           {/* Button to Add New Opportunity */}
-          <div className="d-flex justify-content-end mb-3">
-            <Button color="primary" onClick={() => toggleUpdateModal()}>
-              Add Opportunity
-            </Button>
+
+          <div className="d-flex justify-content-between align-items-center">
+            <h4 className="font-size-18" style={{ textTransform: "uppercase" }}>
+              Opportunity
+            </h4>
+            <div>
+              <Button color="primary" onClick={() => toggleUpdateModal()}>
+                Add Opportunity
+              </Button>
+            </div>
           </div>
           <Filtering
             setFilterFields={setFilterFields}

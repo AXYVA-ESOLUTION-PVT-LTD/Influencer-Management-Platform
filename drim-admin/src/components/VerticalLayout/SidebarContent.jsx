@@ -164,8 +164,8 @@ const SidebarContent = (props) => {
                     to="/overview/admin"
                     className={({ isActive }) => (isActive ? "mm-active" : "")}
                   >
-                    <i className="bx bx-home-circle"></i>
-                    <span>Overview</span>
+                    <i className="bx bxs-dashboard"></i>
+                    <span>Dashboard</span>
                   </NavLink>
                 </li>
                 {/* <li>
@@ -188,7 +188,7 @@ const SidebarContent = (props) => {
                     to="/brand"
                     className={({ isActive }) => (isActive ? "mm-active" : "")}
                   >
-                    <i className="bx bxs-user"></i>
+                    <i className="bx bx-store"></i>
                     <span>Brands</span>
                   </NavLink>
                 </li>
@@ -196,6 +196,7 @@ const SidebarContent = (props) => {
                 <li>
                   <NavLink
                     to="/publications"
+                    end
                     className={({ isActive }) => (isActive ? "mm-active" : "")}
                   >
                     <i className="bx bxs-book-bookmark"></i>
@@ -206,6 +207,7 @@ const SidebarContent = (props) => {
                   <NavLink
                     to="/opportunities"
                     className={({ isActive }) => (isActive ? "mm-active" : "")}
+                    end
                   >
                     <i className="bx bx-star"></i>
                     <span>Opportunities</span>
@@ -227,7 +229,6 @@ const SidebarContent = (props) => {
               </>
             )}
 
-            {/* User Menu Item */}
             {(roleName === ROLES.ADMIN || roleName === ROLES.BRAND) && (
               <>
                 <li className="menu-title">Brands Menu</li>
@@ -237,25 +238,26 @@ const SidebarContent = (props) => {
                     className={({ isActive }) => (isActive ? "mm-active" : "")}
                   >
                     <i className="bx bx-home-circle"></i>
-                    <span>Overview</span>
+                    <span>Dashboard</span>
                   </NavLink>
                 </li>
 
                 <li>
                   <NavLink
-                    to="/influencers/brand"
+                    to="/influencers"
                     className={({ isActive }) => (isActive ? "mm-active" : "")}
                   >
-                    <i className="bx bxs-group"></i>
+                    <i className="bx bxs-user-badge"></i>
                     <span>Influencers</span>
                   </NavLink>
                 </li>
                 <li>
                   <NavLink
                     to="/publications/brand"
+                    end
                     className={({ isActive }) => (isActive ? "mm-active" : "")}
                   >
-                    <i className="bx bxs-book-open"></i>
+                    <i className="bx bx-book"></i>
                     <span>Publications</span>
                   </NavLink>
                 </li>
@@ -272,8 +274,8 @@ const SidebarContent = (props) => {
                     to="/overview/influencer"
                     className={({ isActive }) => (isActive ? "mm-active" : "")}
                   >
-                    <i className="bx bx-home-circle"></i>
-                    <span>Overview</span>
+                    <i class='bx bx-bar-chart-alt'></i>
+                    <span>Dashboard</span>
                   </NavLink>
                 </li>
                 {/* <li>
@@ -286,8 +288,9 @@ const SidebarContent = (props) => {
                   <NavLink
                     to="/opportunities/influencer"
                     className={({ isActive }) => (isActive ? "mm-active" : "")}
+                
                   >
-                    <i className="bx bx-rocket"></i>
+                     <i className="bx bx-rocket"></i>
                     <span>Opportunities</span>
                   </NavLink>
                 </li>
@@ -299,7 +302,7 @@ const SidebarContent = (props) => {
                         isActive ? "mm-active" : ""
                       }
                     >
-                      <i className="bx bxs-credit-card"></i>
+                       <i className="bx bx-wallet"></i>
                       <span>Payment</span>
                     </NavLink>
                   </li>

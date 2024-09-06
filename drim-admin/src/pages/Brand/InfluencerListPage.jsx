@@ -185,7 +185,7 @@ const InfluencerListPage = (props) => {
   };
 
   const handleViewProfile = (id) => {
-    navigate(`/brand/influencer-details`);
+    navigate(`/influencers/${id}`);
   };
 
   return (
