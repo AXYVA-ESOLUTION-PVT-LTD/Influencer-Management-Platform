@@ -81,7 +81,7 @@ async function _getChat(req, res) {
 
     const chats = await CHAT_COLLECTION.find({
       ticketId,
-    });
+    }).sort({ createdAt: 1 });
     if (!chats) {
       json.status = CONSTANT.FAIL;
       json.result = {
