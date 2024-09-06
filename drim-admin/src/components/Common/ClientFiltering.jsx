@@ -26,7 +26,7 @@ function ClientFiltering({ filterFields, setFilterFields, setIsSearching }) {
   return (
     <div>
       <Row className="align-items-center">
-        <Col md="3">
+        <Col  xs="12" sm="6" md="2">
           <FormGroup>
             <Label for="firstName">First Name</Label>
             <Input
@@ -39,7 +39,7 @@ function ClientFiltering({ filterFields, setFilterFields, setIsSearching }) {
             />
           </FormGroup>
         </Col>
-        <Col md="3">
+        <Col  xs="12" sm="6" md="2">
           <FormGroup>
             <Label for="lastName">Last Name</Label>
             <Input
@@ -52,7 +52,7 @@ function ClientFiltering({ filterFields, setFilterFields, setIsSearching }) {
             />
           </FormGroup>
         </Col>
-        <Col md="3">
+        <Col  xs="12" sm="6" md="2">
           <FormGroup>
             <Label for="email">Email</Label>
             <Input
@@ -65,7 +65,7 @@ function ClientFiltering({ filterFields, setFilterFields, setIsSearching }) {
             />
           </FormGroup>
         </Col>
-        <Col md="3">
+        <Col  xs="12" sm="6"  md="2">
           <FormGroup>
             <Label for="status">Status</Label>
             <Input
@@ -88,16 +88,14 @@ function ClientFiltering({ filterFields, setFilterFields, setIsSearching }) {
             </Input>
           </FormGroup>
         </Col>
-      </Row>
-      <Row className="align-item-center justify-content-center">
-        <Col md="2">
+        <Col xs="3" sm="2" md="auto" className="d-flex align-items-center mt-2">
           <Button color="primary" className="w-100" onClick={handleSearch}>
-            Search
+            <i className="bx bx-search-alt-2"></i>
           </Button>
         </Col>
-        <Col md="2">
+        <Col xs="3" sm="2" md="auto" className="d-flex align-items-center mt-2">
           <Button color="danger" className="w-100" onClick={handleClear}>
-            Clear Filter
+            <i className="bx bx-x"></i>
           </Button>
         </Col>
       </Row>

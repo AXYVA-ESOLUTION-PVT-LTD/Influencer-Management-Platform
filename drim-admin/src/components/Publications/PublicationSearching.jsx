@@ -5,6 +5,7 @@ const PublicationSearching = ({
   filterFields,
   setFilterFields,
   setIsSearching,
+  closeModal,
 }) => {
   const handleFilter = (e) => {
     const { name, value } = e.target;
@@ -13,6 +14,7 @@ const PublicationSearching = ({
 
   const handleSearch = () => {
     setIsSearching((prev) => !prev);
+    closeModal();
   };
 
   const handleClear = () => {
@@ -25,7 +27,7 @@ const PublicationSearching = ({
   return (
     <div>
       <Row className="align-items-center">
-        <Col md="3">
+        <Col md="4">
           <FormGroup>
             <Label for="project">Project</Label>
             <Input
@@ -38,7 +40,7 @@ const PublicationSearching = ({
             />
           </FormGroup>
         </Col>
-        <Col md="3">
+        <Col md="4">
           <FormGroup>
             <Label for="postDate">Post Date</Label>
             <Input
@@ -50,7 +52,7 @@ const PublicationSearching = ({
             />
           </FormGroup>
         </Col>
-        <Col md="3">
+        <Col md="4">
           <FormGroup>
             <Label for="influencer">Influencer</Label>
             <Input
@@ -63,7 +65,7 @@ const PublicationSearching = ({
             />
           </FormGroup>
         </Col>
-        <Col md="3">
+        <Col md="4">
           <FormGroup>
             <Label for="socialNetwork">Social Network</Label>
             <Input
@@ -82,9 +84,7 @@ const PublicationSearching = ({
             </Input>
           </FormGroup>
         </Col>
-      </Row>
-      <Row className="align-items-center">
-       <Col md="3">
+        <Col md="4">
           <FormGroup>
             <Label for="status">Status</Label>
             <Input
@@ -101,7 +101,7 @@ const PublicationSearching = ({
             </Input>
           </FormGroup>
         </Col>
-        <Col md="3">
+        <Col md="4">
           <FormGroup>
             <Label for="type">Type</Label>
             <Input
@@ -120,11 +120,13 @@ const PublicationSearching = ({
             </Input>
           </FormGroup>
         </Col>
-        <Col md="3">
+      </Row>
+      <Row className="align-items-center">
+        <Col md="4">
           <FormGroup>
             <Label for="price">Price</Label>
             <Input
-              type="text"
+              type="number"
               placeholder="Enter Price"
               className="form-control"
               name="price"
@@ -133,9 +135,9 @@ const PublicationSearching = ({
             />
           </FormGroup>
         </Col>
-        <Col md="3">
+        <Col md="4">
           <FormGroup>
-            <Label for="ER">Engagement Rate (ER)</Label>
+            <Label for="ER">Engagement Rate</Label>
             <Input
               type="text"
               placeholder="Enter ER"
@@ -146,13 +148,11 @@ const PublicationSearching = ({
             />
           </FormGroup>
         </Col>
-      </Row>
-      <Row className="align-items-center">
-        <Col md="3">
+        <Col md="4">
           <FormGroup>
             <Label for="follower">Follower</Label>
             <Input
-              type="text"
+              type="number"
               placeholder="Enter Follower"
               className="form-control"
               name="follower"
@@ -161,11 +161,13 @@ const PublicationSearching = ({
             />
           </FormGroup>
         </Col>
-        <Col md="3">
+      </Row>
+      <Row className="align-items-center">
+        <Col md="4">
           <FormGroup>
             <Label for="views">Views</Label>
             <Input
-              type="text"
+              type="number"
               placeholder="Enter Views"
               className="form-control"
               name="views"
@@ -174,11 +176,11 @@ const PublicationSearching = ({
             />
           </FormGroup>
         </Col>
-        <Col md="3">
+        <Col md="4">
           <FormGroup>
             <Label for="videoViews">Video Views</Label>
             <Input
-              type="text"
+              type="number"
               placeholder="Enter Video Views"
               className="form-control"
               name="videoViews"
@@ -187,7 +189,7 @@ const PublicationSearching = ({
             />
           </FormGroup>
         </Col>
-        <Col md="3">
+        <Col md="4">
           <FormGroup>
             <Label for="country">Country</Label>
             <Input
@@ -202,7 +204,7 @@ const PublicationSearching = ({
         </Col>
       </Row>
       <Row className="align-items-center">
-        <Col md="3">
+        <Col md="4">
           <FormGroup>
             <Label for="approximateReach">Approximate Reach</Label>
             <Input
@@ -215,11 +217,11 @@ const PublicationSearching = ({
             />
           </FormGroup>
         </Col>
-        <Col md="3">
+        <Col md="4">
           <FormGroup>
             <Label for="likes">Likes</Label>
             <Input
-              type="text"
+              type="number"
               placeholder="Enter Likes"
               className="form-control"
               name="likes"
@@ -228,7 +230,7 @@ const PublicationSearching = ({
             />
           </FormGroup>
         </Col>
-        <Col md="3">
+        <Col md="4">
           <FormGroup>
             <Label for="comments">Comments</Label>
             <Input
@@ -242,18 +244,16 @@ const PublicationSearching = ({
           </FormGroup>
         </Col>
       </Row>
-      <Row className="align-items-center">
-        
-      </Row>
+      <Row className="align-items-center"></Row>
       <Row className="align-items-center justify-content-center">
-        <Col md="2">
+        <Col md="3">
           <Button color="primary" className="w-100" onClick={handleSearch}>
-            Search
+            Apply
           </Button>
         </Col>
-        <Col md="2">
+        <Col md="3">
           <Button color="danger" className="w-100" onClick={handleClear}>
-            Clear Filter
+            Clear
           </Button>
         </Col>
       </Row>

@@ -20,7 +20,7 @@ const Filtering = ({ setFilterFields, filterFields, setIsSearching }) => {
   return (
     <div>
       <Row className="align-items-center">
-        <Col md="6">
+        <Col  xs="12" sm="6"  md="2">
           <FormGroup>
             <Label for="title">Title</Label>
             <Input
@@ -34,7 +34,7 @@ const Filtering = ({ setFilterFields, filterFields, setIsSearching }) => {
             />
           </FormGroup>
         </Col>
-        <Col md="6">
+        <Col  xs="12" sm="6"  md="2">
           <FormGroup>
             <Label for="type">Type</Label>
             <Input
@@ -48,16 +48,14 @@ const Filtering = ({ setFilterFields, filterFields, setIsSearching }) => {
             />
           </FormGroup>
         </Col>
-      </Row>
-      <Row className="align-item-center justify-content-center">
-        <Col md="2">
+        <Col xs="3" sm="2" md="auto" className="d-flex align-items-center mt-2">
           <Button color="primary" className="w-100" onClick={handleSearch}>
-            Search
+          <i className="bx bx-search-alt-2"></i>
           </Button>
         </Col>
-        <Col md="2">
+        <Col xs="3" sm="2" md="auto" className="d-flex align-items-center mt-2">
           <Button color="danger" className="w-100" onClick={handleClear}>
-            Clear Filter
+          <i className="bx bx-x"></i>
           </Button>
         </Col>
       </Row>
