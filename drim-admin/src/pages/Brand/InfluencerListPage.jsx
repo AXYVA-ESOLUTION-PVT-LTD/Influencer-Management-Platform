@@ -185,7 +185,7 @@ const InfluencerListPage = (props) => {
   };
 
   const handleViewProfile = (id) => {
-    navigate(`/brand/influencer-details`);
+    navigate(`/influencers/${id}`);
   };
 
   return (
@@ -199,7 +199,14 @@ const InfluencerListPage = (props) => {
           /> */}
 
           {/* Filters */}
-          <FormGroup className="d-flex mb-3">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h4
+              className="font-size-18"
+              style={{ textTransform: "uppercase" }}
+            >
+              Influencers
+            </h4>
+            <FormGroup className="d-flex mb-3">
             <Input
               type="select"
               value={filter}
@@ -220,6 +227,8 @@ const InfluencerListPage = (props) => {
               Sort by Name {sortOrder === "asc" ? "↑" : "↓"}
             </Button>
           </FormGroup>
+          </div>
+          
 
           {/* Influencers Grid */}
           <Row>

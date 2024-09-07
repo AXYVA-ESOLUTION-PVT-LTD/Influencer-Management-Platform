@@ -1,20 +1,31 @@
 import React, { useEffect, useState } from "react";
-import { Badge, Button, Container, Spinner } from "reactstrap";
+import { Badge, Button, Container, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from "reactstrap";
 import Breadcrumb from "../../components/Common/Breadcrumb";
 import TableContainer from "../../components/Common/TableContainer";
 import ROLES from "../../constants/role";
 import { staticPayments } from "../../data/PaymentData";
 
 
-// Column definitions inside the same file
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}-${String(date.getDate()).padStart(2, "0")}`;
-};
 
+
+const PaymentPage = () => {
+  document.title = "Payments | Management";
+
+  const [role, setRole] = useState("");
+  const [loading, setLoading] = useState(false); 
+  const [selectedPayment, setSelectedPayment] = useState(null); 
+  const [modalOpen, setModalOpen] = useState(false); 
+  const [status, setStatus] = useState(""); 
+
+  const toggleModal = () => setModalOpen(!modalOpen);
+
+   const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(date.getDate()).padStart(2, "0")}`;
+  };
 const columns = (role) =>
   [
     {
@@ -61,42 +72,54 @@ const columns = (role) =>
       accessor: "actions",
       Cell: ({ row: { original } }) => (
         <>
-          <Button color="link" size="lg" onClick={() => handleEdit(original)}>
+        <Button color="link" size="lg" onClick={() => handleEdit(original)}>
             <i className="bx bx-edit" style={{ color: "orange" }}></i>
           </Button>
-          {/* <Button color="link" size="sm" onClick={() => handleDelete(original)}>
-          <i className="bx bx-trash" style={{ color: "red" }}></i>
-        </Button> */}
         </>
       ),
     },
-  ].filter(Boolean); // Filter out null/undefined columns for non-admin roles
+  ].filter(Boolean); 
 
-const PaymentPage = () => {
-  document.title = "Payments | Management";
+   const handleEdit = (payment) => {
+     setSelectedPayment(payment); 
+     setStatus(payment.status); 
+     toggleModal(); 
+   };
+ 
+   const handleStatusChange = (e) => {
+     setStatus(e.target.value);
+   };
+ 
+   const handleSave = () => {
+     const updatedPayments = staticPayments.map(payment =>
+       payment.id === selectedPayment.id ? { ...payment, status } : payment
+     );
+     toggleModal(); 
+   };
 
-  const [role, setRole] = useState("");
-  const [loading, setLoading] = useState(false); // Control loading state manually
-
-  // Get the role from local storage or set a default
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("user"));
-    setRole(data?.roleId?.name || "User"); // Set role, default to "User" if not found
+    setRole(data?.roleId?.name || "User"); 
   }, []);
 
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumb title="Payments" breadcrumbItem="Payment Management" />
+          {/* <Breadcrumb title="Payments" breadcrumbItem="Payment Management" /> */}
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h4 className="font-size-18" style={{ textTransform: "uppercase" }}>
+            Payments
+            </h4>
+          </div>
           {loading ? (
             <div className="text-center" style={{ marginTop: 50 }}>
               <Spinner color="primary" />
             </div>
           ) : (
             <TableContainer
-              columns={columns(role)} // Pass role to the column generator
-              data={staticPayments} // Use static payments data
+              columns={columns(role)} 
+              data={staticPayments} 
               isGlobalFilter={true}
               isAddOptions={false}
               customPageSize={10}
@@ -106,6 +129,30 @@ const PaymentPage = () => {
           )}
         </Container>
       </div>
+
+      <Modal isOpen={modalOpen} toggle={toggleModal}>
+          <ModalHeader toggle={toggleModal}>Edit Payment Status</ModalHeader>
+          <ModalBody>
+            <FormGroup>
+              <Label for="paymentStatus">Status</Label>
+              <Input
+                type="select"
+                name="status"
+                id="paymentStatus"
+                value={status}
+                onChange={handleStatusChange}
+              >
+                <option value="Pending">Pending</option>
+                <option value="Completed">Completed</option>
+                <option value="Failed">Failed</option>
+              </Input>
+            </FormGroup>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={handleSave}>Save</Button>
+            <Button color="secondary" onClick={toggleModal}>Cancel</Button>
+          </ModalFooter>
+        </Modal>
     </React.Fragment>
   );
 };

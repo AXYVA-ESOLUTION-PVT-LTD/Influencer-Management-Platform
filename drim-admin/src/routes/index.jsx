@@ -66,12 +66,12 @@ const authProtectedRoutes = [
     allowedRoles: [ROLES.ADMIN, ROLES.BRAND],
   },
   {
-    path: "/influencers/brand",
+    path: "/influencers",
     component: <InfluencerListPage />,
     allowedRoles: [ROLES.ADMIN, ROLES.BRAND],
   },
   {
-    path: "/brand/influencer-details",
+    path: "/influencers/:id",
     component: <InfluencerDetailsPage />,
     allowedRoles: [ROLES.ADMIN, ROLES.BRAND],
   },

@@ -14,7 +14,7 @@ import { withTranslation } from "react-i18next";
 import { opportunitiesData } from "../../data/opportunitiesData";
 
 const OpportunitiesPage = (props) => {
-  document.title = "Dashboard | Raise ";
+  document.title = "Opportunity | Raise ";
 
   const handleCreateTicket = (opportunity) => {
     alert(`Creating a request for ${opportunity.name}`);
@@ -29,7 +29,11 @@ const OpportunitiesPage = (props) => {
             title={props.t("Influencer Opportunities")}
             breadcrumbItem={props.t("Opportunities")}
           /> */}
-
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h4 className="font-size-18" style={{ textTransform: "uppercase" }}>
+            Opportunities
+            </h4>
+          </div>
           {/* Opportunities Grid */}
           <Row>
             {opportunitiesData.map((opportunity) => (
