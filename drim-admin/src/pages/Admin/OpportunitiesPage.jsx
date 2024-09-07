@@ -174,9 +174,9 @@ const OpportunitiesPage = (props) => {
 
           {/* Button to Add New Opportunity */}
 
-          <div className="d-flex justify-content-between align-items-center">
+          <div className="d-flex justify-content-between align-items-center mb-3">
             <h4 className="font-size-18" style={{ textTransform: "uppercase" }}>
-              Opportunity
+              Opportunities
             </h4>
             <div>
               <Button color="primary" onClick={() => toggleUpdateModal()}>

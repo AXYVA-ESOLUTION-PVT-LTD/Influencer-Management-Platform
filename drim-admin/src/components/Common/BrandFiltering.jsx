@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Col, FormGroup, Input, Label, Row } from "reactstrap";
-
+import '../../components/UI/ButtonStyles.css'
 function BrandFiltering({ filterFields, setFilterFields, setIsSearching }) {
   const handleFilter = (e) => {
     const { name, value } = e.target;
@@ -89,15 +89,22 @@ function BrandFiltering({ filterFields, setFilterFields, setIsSearching }) {
           </FormGroup>
         </Col>
         <Col xs="3" sm="2" md="auto" className="d-flex align-items-center mt-2">
-          <Button color="primary" className="w-100" onClick={handleSearch}>
-            <i className="bx bx-search-alt-2"></i>
-          </Button>
-        </Col>
-        <Col xs="3" sm="2" md="auto" className="d-flex align-items-center mt-2">
-          <Button color="danger" className="w-100" onClick={handleClear}>
-            <i className="bx bx-x"></i>
-          </Button>
-        </Col>
+        <Button
+          className="w-100 custom-button custom-button-primary"
+          onClick={handleSearch}
+        >
+          <i className="bx bx-search-alt-2"></i>
+        </Button>
+      </Col>
+
+      <Col xs="3" sm="2" md="auto" className="d-flex align-items-center mt-2">
+        <Button
+          className="w-100 custom-button custom-button-danger"
+          onClick={handleClear}
+        >
+          <i className="bx bx-x"></i>
+        </Button>
+      </Col>
       </Row>
     </div>
   );

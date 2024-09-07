@@ -78,8 +78,7 @@ function PublicationsPage() {
   });
 
   // Meta title
-  document.title =
-    "Publications | Raise ";
+  document.title = "Publications | Raise ";
 
   // Toggle modals
   const toggleUpdateModal = () => setIsUpdateModalOpen(!isUpdateModalOpen);
@@ -244,22 +243,29 @@ function PublicationsPage() {
     () => columns.filter((column) => column.isVisible),
     [columns, filterHeader]
   );
-  
+
   const toggleFilterModal = () => setIsShowFilter(!isShowFilter);
 
   return (
     <div className="page-content">
       <div className="container-fluid">
         {/* <Breadcrumbs title="Publications" breadcrumbItem="Publications" /> */}
-        <div className="d-flex justify-content-end mb-3 gap-2 position-relative">
-          <Button
-            color="primary"
-            onClick={() => setIsShowFilter(!isShowFilter)}
-          >
-            {isShowFilter ? "Hide " : "Show "}Filters
-          </Button>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h4
+              className="header-title font-size-18"
+              style={{ textTransform: "uppercase" }}
+            >
+              Publications
+            </h4>
+          <div className="d-flex gap-2">
+            <Button
+              color="primary"
+              onClick={() => setIsShowFilter(!isShowFilter)}
+            >
+              {isShowFilter ? "Hide " : "Show "}Filters
+            </Button>
 
-          {/* <Button
+            {/* <Button
             color="primary"
             onClick={() =>
               handleUpdateRecord({
@@ -273,34 +279,35 @@ function PublicationsPage() {
             Add Publication
           </Button> */}
 
-          <Dropdown
-            isOpen={isHeaderDropDown}
-            toggle={() => setIsHeaderDropDown(!isHeaderDropDown)}
-            className="d-inline-block"
-          >
-            <DropdownToggle>
-              <i className="bx bx-filter" style={{ fontSize: 18 }}></i>
-            </DropdownToggle>
-            <DropdownMenu
-              className="dropdown-menu-end"
-              style={{
-                maxHeight: 300,
-                width: 200,
-                overflowY: "scroll",
-                zIndex: 1000,
-                padding: "5px 15px",
-                marginTop: "12px",
-              }}
+            <Dropdown
+              isOpen={isHeaderDropDown}
+              toggle={() => setIsHeaderDropDown(!isHeaderDropDown)}
+              className="d-inline-block"
             >
-              <ColumnSelector
-                columns={columns}
-                filterHeader={filterHeader}
-                setFilterHeader={setFilterHeader}
-              />
-            </DropdownMenu>
-          </Dropdown>
+              <DropdownToggle>
+                <i className="bx bx-filter" style={{ fontSize: 18 }}></i>
+              </DropdownToggle>
+              <DropdownMenu
+                className="dropdown-menu-end"
+                style={{
+                  maxHeight: 300,
+                  width: 200,
+                  overflowY: "scroll",
+                  zIndex: 1000,
+                  padding: "5px 15px",
+                  marginTop: "12px",
+                }}
+              >
+                <ColumnSelector
+                  columns={columns}
+                  filterHeader={filterHeader}
+                  setFilterHeader={setFilterHeader}
+                />
+              </DropdownMenu>
+            </Dropdown>
+          </div>
         </div>
-{/* 
+        {/* 
         {isShowFilter && (
           <PublicationSearching
             filterFields={filterFields}
@@ -310,16 +317,16 @@ function PublicationsPage() {
         )} */}
 
         <Modal isOpen={isShowFilter} toggle={toggleFilterModal}>
-        <ModalHeader toggle={toggleFilterModal}>Filter Options</ModalHeader>
-        <ModalBody>
-          <PublicationSearching
-            filterFields={filterFields}
-            setFilterFields={setFilterFields}
-            setIsSearching={setIsSearching}
-            closeModal={toggleFilterModal}
-          />
-        </ModalBody>
-      </Modal>
+          <ModalHeader toggle={toggleFilterModal}>Filter Options</ModalHeader>
+          <ModalBody>
+            <PublicationSearching
+              filterFields={filterFields}
+              setFilterFields={setFilterFields}
+              setIsSearching={setIsSearching}
+              closeModal={toggleFilterModal}
+            />
+          </ModalBody>
+        </Modal>
 
         <TableContainer
           columns={visibleColumns}

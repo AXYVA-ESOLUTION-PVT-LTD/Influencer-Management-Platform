@@ -165,7 +165,7 @@ const SidebarContent = (props) => {
                     className={({ isActive }) => (isActive ? "mm-active" : "")}
                   >
                     <i className="bx bxs-dashboard"></i>
-                    <span>Dashboard</span>
+                    <span>overview</span>
                   </NavLink>
                 </li>
                 {/* <li>
@@ -238,7 +238,7 @@ const SidebarContent = (props) => {
                     className={({ isActive }) => (isActive ? "mm-active" : "")}
                   >
                     <i className="bx bx-home-circle"></i>
-                    <span>Dashboard</span>
+                    <span>Brands Dashboard</span>
                   </NavLink>
                 </li>
 
@@ -275,7 +275,7 @@ const SidebarContent = (props) => {
                     className={({ isActive }) => (isActive ? "mm-active" : "")}
                   >
                     <i class='bx bx-bar-chart-alt'></i>
-                    <span>Dashboard</span>
+                    <span>Influencer Dashboard</span>
                   </NavLink>
                 </li>
                 {/* <li>

@@ -192,13 +192,16 @@ const InfluencerManagement = (props) => {
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          {/* Button to Add New Influencer */}
-          <div className="d-flex justify-content-end mb-3">
-            <Button color="primary" onClick={toggleCreateModal}>
-              Add Influencer
-            </Button>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h4 className="font-size-18" style={{ textTransform: "uppercase" }}>
+              Influencers
+            </h4>
+            <div>
+              <Button color="primary" onClick={toggleCreateModal}>
+                Add Influencer
+              </Button>
+            </div>
           </div>
-
           {/* filtering */}
           <InfluencerFiltering
             filterFields={filterFields}

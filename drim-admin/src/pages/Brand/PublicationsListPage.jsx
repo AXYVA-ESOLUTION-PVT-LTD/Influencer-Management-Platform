@@ -100,10 +100,14 @@ function PublicationsListPage() {
     <div className="page-content">
       <div className="container-fluid">
         {/* <Breadcrumbs title="Publications" breadcrumbItem="Publications" /> */}
-
+        <div className="d-flex justify-content-between align-items-center mb-3">
+            <h4 className="font-size-18" style={{ textTransform: "uppercase" }}>
+            Publications
+            </h4>
+          </div>
         {/* Search and Filter */}
-        <Row className="mb-4">
-          <Col md={6}>
+        <Row>
+          <Col md={6} className="mb-3 mb-md-0">
             <Input
               type="text"
               placeholder="Search by title, author, or journal..."
@@ -111,7 +115,7 @@ function PublicationsListPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </Col>
-          <Col md={3}>
+          <Col md={3} className="mb-3 mb-md-0">
             <FormGroup>
               <Input
                 type="select"

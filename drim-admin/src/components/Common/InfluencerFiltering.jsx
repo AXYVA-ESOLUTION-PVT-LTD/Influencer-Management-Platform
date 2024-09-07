@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Col, FormGroup, Input, Label, Row } from "reactstrap";
-
+import '../../components/UI/ButtonStyles.css'
 function InfluencerFiltering({
   filterFields,
   setFilterFields,
@@ -96,7 +96,7 @@ function InfluencerFiltering({
         <Col xs="3" sm="2" md="auto" className="d-flex align-items-center mt-2">
           <Button
             color="primary"
-            className="w-100"
+            className="w-100 custom-button custom-button-primary"
             onClick={handleSearch}
           >
             <i className='bx bx-search-alt-2'></i>
@@ -105,7 +105,7 @@ function InfluencerFiltering({
         <Col xs="3" sm="2" md="auto" className="d-flex align-items-center mt-2">
           <Button
             color="danger"
-            className="w-100"
+            className="w-100 custom-button custom-button-danger"
             onClick={handleClear}
           >
             <i className='bx bx-x'></i> 

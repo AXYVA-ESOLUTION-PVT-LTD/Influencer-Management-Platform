@@ -45,10 +45,15 @@ const DashboardOverview = (props) => {
       <div className="page-content">
         <Container fluid>
           {/* Render Breadcrumb */}
-          <Breadcrumbs
+          {/* <Breadcrumbs
             title={props.t("Brand Dashboard")}
             breadcrumbItem={props.t("Brand Dashboard")}
-          />
+          /> */}
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h4 className="font-size-18" style={{ textTransform: "uppercase" }}>
+            Brand Dashboard
+            </h4>
+          </div>
           <Row className="mt-4">
             {dataBoxes.map((box, index) => (
               <StatisticsBox key={index} box={box} />
