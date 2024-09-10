@@ -7,7 +7,7 @@ import error from "../../assets/images/error-img.png";
 
 const Pages404 = () => {
   // Meta title
-  document.title = "404 Error Page | Skote - Vite React Admin & Dashboard Template";
+  document.title = "404 Error Page";
   
   const navigate = useNavigate();
 
