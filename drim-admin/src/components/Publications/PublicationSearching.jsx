@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Col, FormGroup, Input, Label, Row } from "reactstrap";
-
+import '../../assets/themes/colors.scss';
 const PublicationSearching = ({
   filterFields,
   setFilterFields,
@@ -247,12 +247,12 @@ const PublicationSearching = ({
       <Row className="align-items-center"></Row>
       <Row className="align-items-center justify-content-center">
         <Col md="3">
-          <Button color="primary" className="w-100" onClick={handleSearch}>
+          <Button style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}  className="w-100" onClick={handleSearch}>
             Apply
           </Button>
         </Col>
         <Col md="3">
-          <Button color="danger" className="w-100" onClick={handleClear}>
+          <Button style={{ backgroundColor: "var(--secondary-red)", color: "var(--primary-white)" }} className="w-100" onClick={handleClear}>
             Clear
           </Button>
         </Col>

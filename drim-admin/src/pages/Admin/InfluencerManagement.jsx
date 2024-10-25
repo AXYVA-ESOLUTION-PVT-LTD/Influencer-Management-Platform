@@ -24,7 +24,7 @@ import {
 import ROLES from "../../constants/role";
 import Pagination from "../../components/Common/Pagination";
 import InfluencerFiltering from "../../components/Common/InfluencerFiltering";
-
+import '../../assets/themes/colors.scss'
 const InfluencerManagement = (props) => {
   // State for modals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -155,7 +155,7 @@ const InfluencerManagement = (props) => {
         Header: "Status",
         accessor: "status",
         Cell: ({ value }) => (
-          <span style={{ color: value ? "green" : "red" }}>
+          <span style={{ color: value ? "var(--status-green-dark)" : "var(--secondary-red)" }}>
             {value ? "Active" : "Inactive"}
           </span>
         ),
@@ -171,7 +171,7 @@ const InfluencerManagement = (props) => {
               className="p-0 me-2"
               onClick={() => handleViewDetails(original)}
             >
-              <i className="bx bx-show" style={{ color: "blue" }}></i>
+              <i className="bx bx-show" style={{ color: "var(--secondary-blue)" }}></i>
             </Button>
             <Button
               color="link"
@@ -179,7 +179,7 @@ const InfluencerManagement = (props) => {
               className="p-0 me-2"
               onClick={() => handleUpdateInfluencer(original)}
             >
-              <i className="bx bx-edit" style={{ color: "orange" }}></i>
+              <i className="bx bx-edit" style={{ color:"var(--secondary-yellow)" }}></i>
             </Button>
           </>
         ),
@@ -197,7 +197,7 @@ const InfluencerManagement = (props) => {
               Influencers
             </h4>
             <div>
-              <Button color="primary" onClick={toggleCreateModal}>
+              <Button onClick={toggleCreateModal} style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}>
                 Add Influencer
               </Button>
             </div>
@@ -211,7 +211,7 @@ const InfluencerManagement = (props) => {
 
           {loading ? (
             <div className="text-center" style={{ marginTop: 50 }}>
-              <Spinner color="primary" />{" "}
+              <Spinner style={{ color: "var(--primary-purple)" }}  />{" "}
             </div>
           ) : (
             <>
@@ -359,7 +359,7 @@ const InfluencerManagement = (props) => {
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button color="primary" type="submit">
+            <Button style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }} type="submit">
               Save
             </Button>
             <Button color="secondary" onClick={toggleCreateModal}>
@@ -403,7 +403,7 @@ const InfluencerManagement = (props) => {
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button color="primary" type="submit">
+            <Button style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }} type="submit">
               Save
             </Button>
             <Button color="secondary" onClick={toggleUpdateModal}>

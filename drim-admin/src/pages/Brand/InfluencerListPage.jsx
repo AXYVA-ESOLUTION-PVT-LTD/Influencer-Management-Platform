@@ -21,7 +21,7 @@ import Breadcrumbs from "../../components/Common/Breadcrumb";
 // i18n
 import { withTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-
+import '../../assets/themes/colors.scss';
 const InfluencerListPage = (props) => {
   // Meta title
   document.title = "Influencers | Raise ";
@@ -218,6 +218,7 @@ const InfluencerListPage = (props) => {
               <option value="pending">Pending</option>
             </Input>
             <Button
+              style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}
               onClick={() =>
                 setSortOrder((prevSortOrder) =>
                   prevSortOrder === "asc" ? "desc" : "asc"
@@ -258,7 +259,7 @@ const InfluencerListPage = (props) => {
                           Followers: {influencer.followers.toLocaleString()}
                         </CardText>
                         <Button
-                          color="primary"
+                          style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}
                           onClick={() => handleViewProfile(influencer.id)}
                         >
                           View Profile
@@ -274,11 +275,11 @@ const InfluencerListPage = (props) => {
           {/* Pagination */}
           <Pagination aria-label="Page navigation example">
             {[...Array(totalPages).keys()].map((page) => (
-              <PaginationItem key={page + 1} active={page + 1 === currentPage}>
-                <PaginationLink onClick={() => handlePageChange(page + 1)}>
+              <PaginationItem key={page + 1} active={page + 1 === currentPage} >
+                <PaginationLink onClick={() => handlePageChange(page + 1)} style={page + 1 === currentPage ? { backgroundColor  : "var(--primary-purple)" ,color  :  "var(--primary-white)"}:{}}>
                   {page + 1}
                 </PaginationLink>
-              </PaginationItem>
+              </PaginationItem> 
             ))}
           </Pagination>
         </Container>

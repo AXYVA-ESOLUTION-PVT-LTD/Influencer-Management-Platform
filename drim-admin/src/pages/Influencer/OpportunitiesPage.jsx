@@ -12,7 +12,7 @@ import {
 
 import { withTranslation } from "react-i18next";
 import { opportunitiesData } from "../../data/opportunitiesData";
-
+import '../../assets/themes/colors.scss';
 const OpportunitiesPage = (props) => {
   document.title = "Opportunity | Raise ";
 
@@ -39,13 +39,13 @@ const OpportunitiesPage = (props) => {
             {opportunitiesData.map((opportunity) => (
               <Col sm="6" md="4" lg="3" key={opportunity.id} className="mb-4">
                 <Card className="overflow-hidden">
-                  <div className="bg-primary bg-soft">
+                  <div style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}>
                     <Row>
                       <Col xs="12" className="p-3">
-                        <h5 className="text-primary ps-3">
+                        <h5 className="ps-3">
                           {opportunity.name}
                         </h5>
-                        <p className="text-primary ps-3">
+                        <p className="ps-3">
                           Company: {opportunity.company}
                         </p>
                       </Col>
@@ -73,7 +73,7 @@ const OpportunitiesPage = (props) => {
                       </Col>
                     </Row>
                     <Button
-                      color="primary"
+                      style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}
                       className="mt-3"
                       // onClick={() => handleCreateTicket(opportunity)}
                     >

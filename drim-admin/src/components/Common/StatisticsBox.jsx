@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardBody, Col } from "reactstrap";
-
+import '../../assets/themes/colors.scss';
 const StatisticsBox = ({ box }) => {
   return (
     <Col xs={6} sm={4} md={3} lg={2}>
@@ -13,7 +13,7 @@ const StatisticsBox = ({ box }) => {
             <p
               style={{
                 fontSize: "0.85rem",
-                color: box.isIncrease ? "green" : "red",
+                color: box.isIncrease ? "var(--status-green-dark)" : "var(--secondary-red)",
                 margin: 0,
                 display: "flex",
                 alignItems: "center",

@@ -4,7 +4,7 @@ import Breadcrumb from "../../components/Common/Breadcrumb";
 import TableContainer from "../../components/Common/TableContainer";
 import ROLES from "../../constants/role";
 import { staticPayments } from "../../data/PaymentData";
-
+import '../../assets/themes/colors.scss';
 
 
 
@@ -50,8 +50,8 @@ const columns = (role) =>
       Cell: ({ value }) => (
         <span
           style={{
-            backgroundColor: value === "Completed" ? "#d4edda" : "#f5cd8c",
-            color: value === "Completed" ? "#155724" : "#8a4500",
+            backgroundColor: value === "Completed" ? "var(--status-green-light)" : "var(--status-yellow-light)",
+            color: value === "Completed" ? "var(--status-green-dark)" : "var(--status-yellow-dark)",
             borderRadius: "8px",
             padding: "5px 10px",
             fontSize: "0.7rem",
@@ -73,7 +73,7 @@ const columns = (role) =>
       Cell: ({ row: { original } }) => (
         <>
         <Button color="link" size="lg" onClick={() => handleEdit(original)}>
-            <i className="bx bx-edit" style={{ color: "orange" }}></i>
+            <i className="bx bx-edit" style={{ color: "var(--secondary-yellow)" }}></i>
           </Button>
         </>
       ),
@@ -149,7 +149,7 @@ const columns = (role) =>
             </FormGroup>
           </ModalBody>
           <ModalFooter>
-            <Button color="primary" onClick={handleSave}>Save</Button>
+            <Button  style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }} onClick={handleSave}>Save</Button>
             <Button color="secondary" onClick={toggleModal}>Cancel</Button>
           </ModalFooter>
         </Modal>

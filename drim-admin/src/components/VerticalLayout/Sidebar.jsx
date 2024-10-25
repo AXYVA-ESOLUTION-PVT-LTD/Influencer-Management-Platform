@@ -2,13 +2,13 @@ import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import withRouter from "../Common/withRouter";
-
+import "../../assets/themes/colors.scss";
 //i18n
 import { withTranslation } from "react-i18next";
 import SidebarContent from "./SidebarContent";
 
 import { Link } from "react-router-dom";
-
+// import colors from "../../assets/themes/colors";
 // import logo from "../../assets/images/logo.svg";
 // import logo from "../../assets/images/favicon/logo-sm.png";
 // import logoLightPng from "../../assets/images/favicon/logo-lg.png";
@@ -26,8 +26,8 @@ const Sidebar = (props) => {
   }, []);
   return (
     <React.Fragment>
-      <div className="vertical-menu">
-        <div className="navbar-brand-box">
+      <div className="vertical-menu" style={{ backgroundColor : "var(--primary-black)" }}>
+        <div className="navbar-brand-box" style={{ backgroundColor : "var(--primary-black)"}}>
           <Link to="/" className="logo logo-dark">
             <span className="logo-sm">
               {/* <img src={logo} alt="" height="22" /> */}
@@ -43,11 +43,11 @@ const Sidebar = (props) => {
           >
             <span className="logo-sm">
               {/* <img src={logoLightSvg} alt="" height="22" /> */}
-              <h1 className="mt-3">R</h1>
+              <h1 className="mt-3" style={{ color: "var(--primary-off-white)" }}>R</h1>
             </span>
             <span className="logo-lg">
               {/* <img src={logoLightPng} alt="" height="19" /> */}
-              <h1 className="mt-3">RAISE</h1>
+              <h1 className="mt-3" style={{ color: "var(--primary-off-white)" }}>RAISE</h1>
             </span>
           </Link>
         </div>

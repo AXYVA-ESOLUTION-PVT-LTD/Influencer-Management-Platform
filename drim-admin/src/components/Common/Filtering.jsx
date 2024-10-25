@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Col, FormGroup, Input, Label, Row } from "reactstrap";
-import '../../components/UI/ButtonStyles.css'
+import '../../components/UI/ButtonStyles.css';
+import '../../assets/themes/colors.scss'
 const Filtering = ({ setFilterFields, filterFields, setIsSearching }) => {
   const handleFilter = (e) => {
     const { name, value } = e.target;
@@ -49,12 +50,12 @@ const Filtering = ({ setFilterFields, filterFields, setIsSearching }) => {
           </FormGroup>
         </Col>
         <Col xs="3" sm="2" md="auto" className="d-flex align-items-center mt-2">
-          <Button  className="w-100 custom-button custom-button-primary" onClick={handleSearch}>
+          <Button  className="w-100 custom-button"  style={{ backgroundColor  : "var(--primary-purple)"}} onClick={handleSearch}>
           <i className="bx bx-search-alt-2"></i>
           </Button>
         </Col>
         <Col xs="3" sm="2" md="auto" className="d-flex align-items-center mt-2">
-          <Button  className="w-100 custom-button custom-button-danger" onClick={handleClear}>
+          <Button  className="w-100 custom-button" style={{ backgroundColor  : "var(--secondary-red)"}} onClick={handleClear}>
           <i className="bx bx-x"></i>
           </Button>
         </Col>

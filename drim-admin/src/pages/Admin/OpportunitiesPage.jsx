@@ -14,7 +14,8 @@ import {
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 import Filtering from "../../components/Common/Filtering";
 import Pagination from "../../components/Common/Pagination";
-import TableContainer from "../../components/Common/TableContainer"; // Adjust import path if necessary
+import TableContainer from "../../components/Common/TableContainer"; 
+import '../../assets/themes/colors.scss';
 import {
   createOpportunity,
   deleteOpportunity,
@@ -135,7 +136,7 @@ const OpportunitiesPage = (props) => {
               className="p-0 me-2"
               onClick={() => handleViewOpportunity(original)}
             >
-              <i className="bx bx-show" style={{ color: "blue" }}></i>
+              <i className="bx bx-show" style={{ color: "var(--secondary-blue)" }}></i>
             </Button>
             <Button
               color="link"
@@ -143,7 +144,7 @@ const OpportunitiesPage = (props) => {
               className="p-0 me-2"
               onClick={() => handleUpdateOpportunity(original)}
             >
-              <i className="bx bx-edit" style={{ color: "orange" }}></i>
+              <i className="bx bx-edit" style={{ color:"var(--secondary-yellow)" }}></i>
             </Button>
             <Button
               color="link"
@@ -151,7 +152,7 @@ const OpportunitiesPage = (props) => {
               className="p-0"
               onClick={() => handleDeleteOpportunity(original)}
             >
-              <i className="bx bx-trash" style={{ color: "red" }}></i>
+              <i className="bx bx-trash" style={{ color:"var(--secondary-red)" }}></i>
             </Button>
           </>
         ),
@@ -179,7 +180,7 @@ const OpportunitiesPage = (props) => {
               Opportunities
             </h4>
             <div>
-              <Button color="primary" onClick={() => toggleUpdateModal()}>
+              <Button style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }} onClick={() => toggleUpdateModal()}>
                 Add Opportunity
               </Button>
             </div>
@@ -192,7 +193,7 @@ const OpportunitiesPage = (props) => {
 
           {loading ? (
             <div className="text-center" style={{ marginTop: 50 }}>
-              <Spinner color="primary" />
+              <Spinner  style={{ color: "var(--primary-purple)" }}/>
             </div>
           ) : (
             <>
@@ -260,7 +261,7 @@ const OpportunitiesPage = (props) => {
         </ModalBody>
         <ModalFooter>
           <Button
-            color="primary"
+           style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}
             onClick={confirmUpdateOpportunity}
             disabled={!canSubmit}
           >
@@ -283,7 +284,8 @@ const OpportunitiesPage = (props) => {
           ?
         </ModalBody>
         <ModalFooter>
-          <Button color="danger" onClick={confirmDeleteOpportunity}>
+          <Button  style={{ backgroundColor: "var(--secondary-red)", color: "var(--primary-white)" }}
+          onClick={confirmDeleteOpportunity}>
             Delete
           </Button>
           <Button color="secondary" onClick={toggleDeleteModal}>

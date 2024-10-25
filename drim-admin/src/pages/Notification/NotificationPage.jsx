@@ -23,7 +23,7 @@ import {
   getNotification,
   updateNotification,
 } from "../../store/notification/actions";
-
+import '../../assets/themes/colors.scss';
 const TicketPage = () => {
   document.title = "Tickets | Raise";
   const dispatch = useDispatch();
@@ -136,7 +136,7 @@ const TicketPage = () => {
                 className="p-0 me-2"
                 onClick={() => handleViewTicket(original)}
               >
-                <i className="bx bx-show" style={{ color: "blue" }}></i>
+                <i className="bx bx-show" style={{ color: "var(--secondary-blue)" }}></i>
               </Button>
               <Button
                 color="link"
@@ -144,7 +144,7 @@ const TicketPage = () => {
                 className="p-0 me-2"
                 onClick={() => handleEditTicket(original)}
               >
-                <i className="bx bx-edit" style={{ color: "orange" }}></i>
+                <i className="bx bx-edit" style={{ color:"var(--secondary-yellow)" }}></i>
               </Button>
               {/* <Button
                 color="link"
@@ -160,7 +160,7 @@ const TicketPage = () => {
                 className="p-0"
                 onClick={() => handleOpenChat(original)}
               >
-                <i className="bx bx-message" style={{ color: "blue" }}></i>
+                <i className="bx bx-message" style={{ color: "var(--primary-purple)" }}></i>
               </Button>
             </>
           )}
@@ -334,7 +334,7 @@ const TicketPage = () => {
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button color="primary" onClick={handleSaveEdit}>
+          <Button style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }} onClick={handleSaveEdit}>
             Save
           </Button>
           <Button color="secondary" onClick={handleCloseEditModal}>

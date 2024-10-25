@@ -21,7 +21,7 @@ import {
 
 // Import components
 import Breadcrumbs from "../../components/Common/Breadcrumb";
-
+import '../../assets/themes/colors.scss';
 function PublicationsListPage() {
   document.title =
   "Publications | Raise";
@@ -161,7 +161,7 @@ function PublicationsListPage() {
                       <CardText>
                         <strong>Pages:</strong> {publication.pages}
                       </CardText>
-                      <Button color="primary" onClick={() => handleViewMore(publication)}>
+                      <Button style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }} onClick={() => handleViewMore(publication)}>
                         View More Details
                       </Button>
                     </CardBody>
@@ -176,7 +176,7 @@ function PublicationsListPage() {
         <Pagination aria-label="Page navigation example">
           {[...Array(totalPages).keys()].map((page) => (
             <PaginationItem key={page + 1} active={page + 1 === currentPage}>
-              <PaginationLink onClick={() => handlePageChange(page + 1)}>
+              <PaginationLink onClick={() => handlePageChange(page + 1)} style={page + 1 === currentPage ? { backgroundColor: "var(--primary-purple)", color: "var(--primary-white)"}:{}}>
                 {page + 1}
               </PaginationLink>
             </PaginationItem>
