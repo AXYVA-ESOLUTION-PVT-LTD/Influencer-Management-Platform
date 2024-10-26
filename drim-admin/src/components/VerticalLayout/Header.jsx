@@ -16,7 +16,7 @@ import megamenuImg from "../../assets/images/megamenu-img.png";
 
 // import logo from "../../assets/images/favicon/logo-sm.png";
 // import logoLightSvg from "../../assets/images/favicon/logo-lg.svg";
-
+import '../../assets/themes/colors.scss'
 //i18n
 import { withTranslation } from "react-i18next";
 
@@ -71,19 +71,21 @@ const Header = (props) => {
 
   return (
     <React.Fragment>
-      <header id="page-topbar">
+      <header id="page-topbar" style={{ backgroundColor : "var(--primary-white)" }}>
         <div className="navbar-header">
           <div className="d-flex">
-            <div className="navbar-brand-box d-lg-none d-md-block">
+            <div className="navbar-brand-box d-lg-none d-md-block" style={{ backgroundColor : "var(--primary-black)" }}>
               <Link to="/" className="logo logo-dark">
                 <span className="logo-sm">
                   {/* <img src={logo} alt="" height="22" /> */}
+                  <h1 className="mt-3" style={{ color  : "var(--primary-off-white)"}}>R</h1>
                 </span>
               </Link>
 
               <Link to="/" className="logo logo-light">
                 <span className="logo-sm">
                   {/* <img src={logoLightSvg} alt="" height="22" /> */}
+                  <h1 className="mt-3" style={{ color  : "var(--primary-off-white)"}}>R</h1>
                 </span>
               </Link>
             </div>

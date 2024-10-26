@@ -19,7 +19,7 @@ import Pagination from "../../components/Common/Pagination";
 import TableContainer from "../../components/Common/TableContainer"; // Adjust import path if necessary
 import ROLES from "../../constants/role";
 import { addNewBrand, getBrand, updateBrand } from "../../store/brand/actions";
-
+import '../../assets/themes/colors.scss';
 const BrandManagement = (props) => {
   // State for modals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -151,7 +151,7 @@ const BrandManagement = (props) => {
         Header: "Status",
         accessor: "status",
         Cell: ({ value }) => (
-          <span style={{ color: value ? "green" : "red" }}>
+          <span style={{ color: value ? "var(--status-green-dark)" : "var(--secondary-red)" }}>
             {value ? "Active" : "Inactive"}
           </span>
         ),
@@ -167,7 +167,7 @@ const BrandManagement = (props) => {
               className="p-0 me-2"
               onClick={() => handleViewDetails(original)}
             >
-              <i className="bx bx-show" style={{ color: "blue" }}></i>
+              <i className="bx bx-show" style={{ color: "var(--secondary-blue)" }}></i>
             </Button>
             <Button
               color="link"
@@ -175,7 +175,7 @@ const BrandManagement = (props) => {
               className="p-0 me-2"
               onClick={() => handleUpdateBrand(original)}
             >
-              <i className="bx bx-edit" style={{ color: "orange" }}></i>
+              <i className="bx bx-edit" style={{ color:"var(--secondary-yellow)" }}></i>
             </Button>
           </>
         ),
@@ -194,7 +194,7 @@ const BrandManagement = (props) => {
               Brands
             </h4>
             <div>
-              <Button color="primary" onClick={toggleCreateModal}>
+              <Button  onClick={toggleCreateModal} style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}>
                 Add Brand
               </Button>
             </div>
@@ -207,7 +207,7 @@ const BrandManagement = (props) => {
 
           {loading ? (
             <div className="text-center" style={{ marginTop: 50 }}>
-              <Spinner color="primary" />
+              <Spinner style={{ color: "var(--primary-purple)" }} />
             </div>
           ) : (
             <>
@@ -355,7 +355,7 @@ const BrandManagement = (props) => {
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button color="primary" type="submit">
+            <Button style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }} type="submit">
               Save
             </Button>
             <Button color="secondary" onClick={toggleCreateModal}>
@@ -399,7 +399,7 @@ const BrandManagement = (props) => {
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button color="primary" type="submit">
+            <Button style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }} type="submit">
               Save
             </Button>
             <Button color="secondary" onClick={toggleUpdateModal}>

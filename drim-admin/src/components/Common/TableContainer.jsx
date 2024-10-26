@@ -11,7 +11,7 @@ import {
 } from "react-table";
 import { Table, Row, Col, Button, Input } from "reactstrap";
 import { Filter, DefaultColumnFilter } from "./filters";
-
+import '../../assets/themes/colors.scss';
 // Define a default UI for filtering
 function GlobalFilter({
   preGlobalFilteredRows,
@@ -284,14 +284,14 @@ const TableContainer = ({
           <Col className="col-md-auto">
             <div className="d-flex gap-1">
               <Button
-                color="primary"
+                style={{ backgroundColor  :  "var(--primary-purple)" ,color  : "var(--primary-white)"}}
                 onClick={() => gotoPage(0)}
                 disabled={!canPreviousPage}
               >
                 {"<<"}
               </Button>
               <Button
-                color="primary"
+                style={{ backgroundColor  : "var(--primary-purple)",color  : "var(--primary-white)"}}
                 onClick={previousPage}
                 disabled={!canPreviousPage}
               >
@@ -319,14 +319,14 @@ const TableContainer = ({
           <Col className="col-md-auto">
             <div className="d-flex gap-1">
               <Button
-                color="primary"
+                style={{ backgroundColor  : "var(--primary-purple)" ,color  : "var(--primary-white)"}}
                 onClick={nextPage}
                 disabled={!canNextPage}
               >
                 {">"}
               </Button>
               <Button
-                color="primary"
+                style={{ backgroundColor  : "var(--primary-purple)" ,color  : "var(--primary-white)"}}
                 onClick={() => gotoPage(pageCount - 1)}
                 disabled={!canNextPage}
               >

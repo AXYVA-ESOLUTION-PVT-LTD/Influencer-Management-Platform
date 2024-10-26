@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Col, Input, Row } from "reactstrap";
-
+import '../../assets/themes/colors.scss'
 const Pagination = ({
   setLimit,
   setPageCount,
@@ -47,14 +47,14 @@ const Pagination = ({
           <Col className="col-md-auto">
             <div className="d-flex gap-1">
               <Button
-                color="primary"
+                style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)"}}
                 onClick={handleFirstPage}
                 disabled={!canPreviousPage}
               >
                 {"<<"}
               </Button>
               <Button
-                color="primary"
+                style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}
                 onClick={handlePrev}
                 disabled={!canPreviousPage}
               >
@@ -86,14 +86,14 @@ const Pagination = ({
           <Col className="col-md-auto">
             <div className="d-flex gap-1">
               <Button
-                color="primary"
+                style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}
                 onClick={handleNext}
                 disabled={!canNextPage}
               >
                 {">"}
               </Button>
               <Button
-                color="primary"
+                style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }} 
                 onClick={handleLastPage}
                 disabled={!canNextPage}
               >

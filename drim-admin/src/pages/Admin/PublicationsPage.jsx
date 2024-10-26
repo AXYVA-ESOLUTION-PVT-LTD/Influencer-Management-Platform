@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Button,
+  Col,
   Dropdown,
   DropdownMenu,
   DropdownToggle,
@@ -9,6 +10,7 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
+  Row,
 } from "reactstrap";
 
 // Import components
@@ -17,7 +19,7 @@ import TableContainer from "../../components/Common/TableContainer";
 import publicationData from "../../data/publicationData";
 import PublicationSearching from "../../components/Publications/PublicationSearching";
 import ColumnSelector from "../../components/Common/ColumnSelector";
-
+import '../../assets/themes/colors.scss';
 function PublicationsPage() {
   // State for managing data
   const [data, setData] = useState(publicationData);
@@ -208,7 +210,7 @@ function PublicationsPage() {
                 toggleViewModal();
               }}
             >
-              <i className="bx bx-show" style={{ color: "blue" }}></i>
+              <i className="bx bx-show" style={{ color: "var(--secondary-blue)" }}></i>
             </Button>
             <Button
               color="link"
@@ -216,7 +218,7 @@ function PublicationsPage() {
               className="p-0 me-2"
               onClick={() => handleUpdateRecord(row.original)}
             >
-              <i className="bx bx-edit" style={{ color: "orange" }}></i>
+              <i className="bx bx-edit" style={{ color:"var(--secondary-yellow)" }}></i>
             </Button>
             <Button
               color="link"
@@ -224,7 +226,7 @@ function PublicationsPage() {
               className="p-0"
               onClick={() => handleDeleteRecord(row.original)}
             >
-              <i className="bx bx-trash" style={{ color: "red" }}></i>
+              <i className="bx bx-trash" style={{ color:"var(--secondary-red)" }}></i>
             </Button>
           </>
         ),
@@ -259,7 +261,7 @@ function PublicationsPage() {
             </h4>
           <div className="d-flex gap-2">
             <Button
-              color="primary"
+              style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}
               onClick={() => setIsShowFilter(!isShowFilter)}
             >
               {isShowFilter ? "Hide " : "Show "}Filters
@@ -340,46 +342,132 @@ function PublicationsPage() {
 
         {/* Update Modal */}
         <Modal isOpen={isUpdateModalOpen} toggle={toggleUpdateModal}>
-          <ModalHeader toggle={toggleUpdateModal}>Update Record</ModalHeader>
-          <ModalBody>
-            <Input
-              name="firstName"
-              value={selectedRecord?.firstName || ""}
-              onChange={handleInputChange}
-              placeholder="First Name"
-              className="mb-3"
-            />
-            <Input
-              name="lastName"
-              value={selectedRecord?.lastName || ""}
-              onChange={handleInputChange}
-              placeholder="Last Name"
-              className="mb-3"
-            />
-            <Input
-              name="email"
-              value={selectedRecord?.email || ""}
-              onChange={handleInputChange}
-              placeholder="Email"
-              className="mb-3"
-            />
-          </ModalBody>
-          <ModalFooter>
-            <Button color="primary" onClick={confirmUpdateRecord}>
-              Save
-            </Button>
-            <Button color="secondary" onClick={toggleUpdateModal}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </Modal>
+        <ModalHeader toggle={toggleUpdateModal}>Update Record</ModalHeader>
+        <ModalBody>
+    <Row>
+      <Col md={6}>
+        <Input
+          name="project"
+          value={selectedRecord?.project || ""}
+          onChange={handleInputChange}
+          placeholder="Project"
+          className="mb-3"
+        />
+      </Col>
+      <Col md={6}>
+        <Input
+          name="postDate"
+          type="date"
+          value={selectedRecord?.postDate || ""}
+          onChange={handleInputChange}
+          placeholder="Post Date"
+          className="mb-3"
+        />
+      </Col>
+    </Row>
+    <Row>
+      <Col md={6}>
+        <Input
+          name="internalModeration"
+          value={selectedRecord?.internalModeration || ""}
+          onChange={handleInputChange}
+          placeholder="Internal Moderation"
+          className="mb-3"
+        />
+      </Col>
+      <Col md={6}>
+        <Input
+          name="influencer"
+          value={selectedRecord?.influencer || ""}
+          onChange={handleInputChange}
+          placeholder="Influencer"
+          className="mb-3"
+        />
+      </Col>
+    </Row>
+    <Row>
+      <Col md={6}>
+        <Input
+          name="socialNetwork"
+          value={selectedRecord?.socialNetwork || ""}
+          onChange={handleInputChange}
+          placeholder="Social Network"
+          className="mb-3"
+        />
+      </Col>
+      <Col md={6}>
+        <Input
+          name="status"
+          value={selectedRecord?.status || ""}
+          onChange={handleInputChange}
+          placeholder="Status"
+          className="mb-3"
+        />
+      </Col>
+      </Row>
+      <Row>
+        <Col md={6}>
+          <Input
+            name="type"
+            value={selectedRecord?.type || ""}
+            onChange={handleInputChange}
+            placeholder="Type"
+            className="mb-3"
+          />
+        </Col>
+        <Col md={6}>
+          <Input
+            name="publicationLink"
+            value={selectedRecord?.publicationLink || ""}
+            onChange={handleInputChange}
+            placeholder="Publication Link"
+            className="mb-3"
+          />
+        </Col>
+      </Row>
+      <Row>
+        <Col md={6}>
+          <Input
+            name="screenShots"
+            value={selectedRecord?.screenShots || ""}
+            onChange={handleInputChange}
+            placeholder="Screenshots Link"
+            className="mb-3"
+          />
+        </Col>
+        <Col md={6}>
+          <Input
+            name="price"
+            type="number"
+            value={selectedRecord?.price || ""}
+            onChange={handleInputChange}
+            placeholder="Price"
+            className="mb-3"
+          />
+        </Col>
+      </Row>
+      {/* Additional rows as necessary */}
+    </ModalBody>
+    <ModalFooter>
+      <Button
+        style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}
+        onClick={confirmUpdateRecord}
+      >
+        Save
+      </Button>
+      <Button color="secondary" onClick={toggleUpdateModal}>
+        Cancel
+      </Button>
+    </ModalFooter>
+  </Modal>
+
 
         {/* Delete Modal */}
         <Modal isOpen={isDeleteModalOpen} toggle={toggleDeleteModal}>
           <ModalHeader toggle={toggleDeleteModal}>Delete Record</ModalHeader>
           <ModalBody>Are you sure you want to delete this record?</ModalBody>
           <ModalFooter>
-            <Button color="danger" onClick={confirmDeleteRecord}>
+            <Button style={{ backgroundColor: "var(--secondary-red)", color: "var(--primary-white)" }} onClick={confirmDeleteRecord}>
               Delete
             </Button>
             <Button color="secondary" onClick={toggleDeleteModal}>

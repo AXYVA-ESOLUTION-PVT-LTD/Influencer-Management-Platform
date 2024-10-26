@@ -1,10 +1,11 @@
+import '../assets/themes/colors.scss'
 export const dataBoxes = [
   { title: "Views", value: 15, rate: 2, isIncrease: true },
-  { title: "Clicks", value: 70, rate: 55, isIncrease: true },
+  { title: "Clicks", value: 70, rate: 55, isIncrease: false },
   { title: "Approximate reach", value: 40, rate: 8, isIncrease: true },
   { title: "Approximate views", value: 8, rate: -1, isIncrease: false },
   { title: "Likes", value: 100, rate: 12, isIncrease: true },
-  { title: "Comments", value: 100, rate: 12, isIncrease: true },
+  { title: "Comments", value: 100, rate: 12, isIncrease: false },
 ];
 
 export const areaChartOptions = {
@@ -42,8 +43,15 @@ export const areaChartOptions = {
   },
   markers: {
     size: 6, // Size of the markers
-    colors: ["#003f5c", "#2f4b7c", "#665191", "#6a4c93", "#4a4e69", "#6c757d"], // Updated marker colors
-    strokeColors: "#fff", // Border color for markers
+    colors:  [
+      "var(--primary-black)", 
+      "var(--primary-purple)", 
+      "var(--primary-pink)", 
+      "var(--secondary-yellow)", 
+      "var(--secondary-red)", 
+      "var(--secondary-blue)"
+    ], 
+    strokeColors: "var(--primary-white)", // Border color for markers
     strokeWidth: 2, // Border width for markers
     hover: {
       size: 8, // Size of markers on hover
@@ -79,7 +87,7 @@ export const areaChartOptions = {
     },
     labels: {
       style: {
-        colors: "#9E9E9E", // Label color
+        colors: "var(--primary-black)",
         fontSize: "12px", // Font size
       },
     },
@@ -90,7 +98,7 @@ export const areaChartOptions = {
     },
     labels: {
       style: {
-        colors: "#9E9E9E", // Label color
+        colors: "var(--primary-black)",
         fontSize: "12px", // Font size
       },
     },
@@ -108,8 +116,15 @@ export const areaChartOptions = {
       },
     },
   },
-  colors: ["#003f5c", "#2f4b7c", "#665191", "#6a4c93", "#4a4e69", "#6c757d"], // Updated colors for each series
-};
+  colors: [
+    "var(--primary-black)", 
+    "var(--primary-purple)", 
+    "var(--primary-pink)", 
+    "var(--secondary-yellow)", 
+    "var(--secondary-red)", 
+    "var(--secondary-blue)"
+  ],
+};  
 
 export const areaChartSeries = [
   {
@@ -153,7 +168,7 @@ export const barChartOptions = {
     categories: ["Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"],
     labels: {
       style: {
-        colors: "#9E9E9E", // Label color
+        colors: "var(--primary-black)",
         fontSize: "12px", // Font size
       },
     },
@@ -164,7 +179,7 @@ export const barChartOptions = {
     },
     labels: {
       style: {
-        colors: "#9E9E9E", // Label color
+        colors: "var(--primary-black)",
         fontSize: "12px", // Font size
       },
     },
@@ -179,7 +194,11 @@ export const barChartOptions = {
       },
     },
   },
-  colors: ["#003f5c", "#2f4b7c", "#665191"],
+  colors:[
+    "var(--primary-black)", 
+    "var(--primary-purple)", 
+    "var(--secondary-blue)"
+  ],
 };
 
 export const barChartSeries = [
@@ -218,19 +237,19 @@ export const donutChartOptions = {
       innerSize: "50%",
       depth: 45,
       colors: [
-        "#003f5c",
-        "#2f4b7c",
-        "#665191",
-        "#d45087",
-        "#f95d6a",
-        "#ffa600",
-        "#b3b3b3",
+        "var(--primary-black)", 
+        "var(--primary-purple)", 
+        "var(--primary-pink)", 
+        "var(--secondary-yellow)", 
+        "var(--secondary-red)", 
+        "var(--secondary-blue)",
+        "var(--secondary-yellow)", 
       ],
       dataLabels: {
         enabled: true,
         format: "{point.name}: {point.percentage:.1f} %",
         style: {
-          color: "#333", // Color for data labels
+          colors: "var(--primary-black)",
           fontSize: "14px",
           fontFamily: "Arial, sans-serif",
         },

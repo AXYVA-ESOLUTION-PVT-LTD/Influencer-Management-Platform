@@ -1,5 +1,20 @@
 // Variables
+@import '../themes/colors';
 
+:root {
+  --primary-black: #{$primary-black};
+  --primary-purple: #{$primary-purple};
+  --primary-pink: #{$primary-pink};
+  --primary-off-white: #{$primary-off-white};
+  --primary-white: #{$primary-white};
+  --secondary-yellow: #{$secondary-yellow};
+  --secondary-red: #{$secondary-red};
+  --secondary-blue: #{$secondary-blue};
+  --status-green-light: #{$status-green-light};
+  --status-green-dark: #{$status-green-dark};
+  --status-yellow-light: #{$status-yellow-light};
+  --status-yellow-dark: #{$status-yellow-dark};
+}
 //
 // custom-variables
 //
@@ -111,16 +126,16 @@ $grays: (
 // fusv-enable
 
 // scss-docs-start color-variables
-$blue:    #556ee6;
-$indigo:  #564ab1;
-$purple:  #6f42c1;
-$pink:    #e83e8c;
-$red:     #f46a6a;
-$orange:  #f1734f;
-$yellow:  #f1b44c;
-$green:   #34c38f;
-$teal:    #050505;
-$cyan:    #50a5f1;
+$blue:    $secondary-blue;
+$indigo:  $primary-purple;
+$purple:  $primary-purple;
+$pink:    $primary-pink;
+$red:     $secondary-red;
+$orange:  $status-yellow-dark;;
+$yellow:  $secondary-yellow;
+$green:   $status-green-dark;
+$teal:    $primary-black;
+$cyan:    $secondary-blue;
 // scss-docs-end color-variables
 
 // scss-docs-start colors-map
@@ -143,27 +158,27 @@ $colors: (
 // scss-docs-end colors-map
 
 // scss-docs-start theme-color-variables
-$primary:       $blue;
-$secondary:     $gray-600;
-$success:       $green;
-$info:          $cyan;
-$warning:       $yellow;
-$danger:        $red;
-$light:         $gray-200;
-$dark:          $gray-800;
+$primary:       $primary-purple;
+$secondary:     $primary-gray;
+$success:       $status-green-dark;
+$info:          $secondary-blue;
+$warning:       $status-yellow-dark;
+$danger:        $secondary-red;
+$light:         $secondary-gray;
+$dark:          $primary-black;
 // scss-docs-end theme-color-variables
 
 // scss-docs-start theme-colors-map
 $theme-colors: (
-    "primary":    $primary,
-    "secondary":  $secondary,
-    "success":    $success,
-    "info":       $info,
-    "warning":    $warning,
-    "danger":     $danger,
-    "pink":       $pink,
-    "light":      $light,
-    "dark":       $dark
+    "primary":    $primary-purple,
+    "secondary":  $secondary-blue,
+    "success":    $status-green-dark,
+    "info":       $secondary-blue,
+    "warning":    $status-yellow-dark,
+    "danger":     $secondary-red,
+    "pink":       $primary-pink,
+    "light":      $primary-gray,
+    "dark":       $primary-black
 );
 // scss-docs-end theme-colors-map
 
@@ -440,7 +455,7 @@ $prefix:                      $variable-prefix;
 // The gradient which is added to components if `$enable-gradients` is `true`
 // This gradient is also added to elements with `.bg-gradient`
 // scss-docs-start variable-gradient
-$gradient: linear-gradient(180deg, rgba($white, .15), rgba($white, 0));
+$gradient: linear-gradient(180deg, rgba($primary-white, .15), rgba($primary-white, 0));
 // scss-docs-end variable-gradient
 
 // Spacing
@@ -480,15 +495,16 @@ $position-values: (
 //
 // Settings for the `<body>` element.
 
-$body-bg:                   #f8f8fb;
-$body-color:                $gray-700;
+$body-bg: $primary-gray;
+$body-color: $primary-black;
+
 $body-text-align:           null;
 
 // Links
 //
 // Style anchor elements.
 
-$link-color:                              $primary;
+$link-color: $primary-purple;
 $link-decoration:                         none;
 $link-shade-percentage:                   20%;
 $link-hover-color:                        shift-color($link-color, $link-shade-percentage);
@@ -588,8 +604,8 @@ $box-shadow-lg:               0 1rem 3rem rgba($black, .175);
 $box-shadow-inset:            inset 0 1px 2px rgba($black, .075);
 // scss-docs-end box-shadow-variables
 
-$component-active-color:      $white;
-$component-active-bg:         $primary;
+$component-active-color:      $primary-white;
+$component-active-bg:         $primary-purple;
 
 // scss-docs-start caret-variables
 $caret-width:                 .3em;
@@ -778,7 +794,7 @@ $table-bg-scale:              -80%;
 
 // scss-docs-start table-loop
 $table-variants: (
-  "primary":    shift-color($primary, $table-bg-scale),
+  "primary":    shift-color($primary-purple, $table-bg-scale),
   "secondary":  shift-color($secondary, $table-bg-scale),
   "success":    shift-color($success, $table-bg-scale),
   "info":       shift-color($info, $table-bg-scale),
@@ -842,7 +858,7 @@ $btn-font-size-lg:            $input-btn-font-size-lg;
 $btn-border-width:            $input-btn-border-width;
 
 $btn-font-weight:             $font-weight-normal;
-$btn-box-shadow:              inset 0 1px 0 rgba($white, .15), 0 1px 1px rgba($black, .075);
+$btn-box-shadow:              inset 0 1px 0 rgba($primary-white, .15), 0 1px 1px rgba($primary-black, .075);
 $btn-focus-width:             $input-btn-focus-width;
 $btn-focus-box-shadow:        $input-btn-focus-box-shadow;
 $btn-disabled-opacity:        .65;
@@ -1182,12 +1198,12 @@ $navbar-toggler-transition:         box-shadow .15s ease-in-out;
 // scss-docs-end navbar-variables
 
 // scss-docs-start navbar-theme-variables
-$navbar-dark-color:                 rgba($white, .55);
-$navbar-dark-hover-color:           rgba($white, .75);
-$navbar-dark-active-color:          $white;
-$navbar-dark-disabled-color:        rgba($white, .25);
+$navbar-dark-color:                 rgba($primary-white, .55);
+$navbar-dark-hover-color:           rgba($primary-white, .75);
+$navbar-dark-active-color:          $primary-white;
+$navbar-dark-disabled-color:        rgba($primary-white, .25);
 $navbar-dark-toggler-icon-bg:       url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='#{$navbar-dark-color}' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
-$navbar-dark-toggler-border-color:  rgba($white, .1);
+$navbar-dark-toggler-border-color:  rgba($primary-white, .1);
 
 $navbar-light-color:                rgba($black, .55);
 $navbar-light-hover-color:          rgba($black, .7);
@@ -1214,7 +1230,7 @@ $dropdown-padding-y:                .5rem;
 $dropdown-spacer:                   .125rem;
 $dropdown-font-size:                $font-size-base;
 $dropdown-color:                    $body-color;
-$dropdown-bg:                       $white;
+$dropdown-bg:                       $primary-white;
 $dropdown-border-color:             rgba($black, .15);
 $dropdown-border-radius:            $border-radius;
 $dropdown-border-width:             0;
@@ -1250,8 +1266,8 @@ $dropdown-dark-border-color:        $dropdown-border-color;
 $dropdown-dark-divider-bg:          $dropdown-divider-bg;
 $dropdown-dark-box-shadow:          null;
 $dropdown-dark-link-color:          $dropdown-dark-color;
-$dropdown-dark-link-hover-color:    $white;
-$dropdown-dark-link-hover-bg:       rgba($white, .15);
+$dropdown-dark-link-hover-color:    $primary-white;
+$dropdown-dark-link-hover-bg:       rgba($primary-white, .15);
 $dropdown-dark-link-active-color:   $dropdown-link-active-color;
 $dropdown-dark-link-active-bg:      $dropdown-link-active-bg;
 $dropdown-dark-link-disabled-color: $gray-500;
@@ -1325,7 +1341,7 @@ $card-cap-bg:                       rgba($black, .03);
 $card-cap-color:                    null;
 $card-height:                       null;
 $card-color:                        null;
-$card-bg:                           $white;
+$card-bg:                           $primary-white;
 $card-img-overlay-padding:          $spacer;
 
 $card-title-desc:                   var(--#{$prefix}gray-600);
@@ -1374,7 +1390,7 @@ $accordion-button-active-icon:            url("data:image/svg+xml,<svg xmlns='ht
 // scss-docs-start tooltip-variables
 $tooltip-font-size:                 $font-size-sm;
 $tooltip-max-width:                 200px;
-$tooltip-color:                     $white;
+$tooltip-color:                     $primary-white;
 $tooltip-bg:                        $black;
 $tooltip-border-radius:             $border-radius;
 $tooltip-opacity:                   .9;
@@ -1402,7 +1418,7 @@ $form-feedback-tooltip-border-radius: $tooltip-border-radius;
 
 // scss-docs-start popover-variables
 $popover-font-size:                 $font-size-sm;
-$popover-bg:                        $white;
+$popover-bg:                        $primary-white;
 $popover-max-width:                 276px;
 $popover-border-width:              $border-width;
 $popover-border-color:              $gray-300;
@@ -1436,7 +1452,7 @@ $toast-padding-x:                   .75rem;
 $toast-padding-y:                   .25rem;
 $toast-font-size:                   .875rem;
 $toast-color:                       null;
-$toast-background-color:            rgba($white, .85);
+$toast-background-color:            rgba($primary-white, .85);
 $toast-border-width:                1px;
 $toast-border-color:                var(--#{$variable-prefix}border-color);
 $toast-border-radius:               .25rem;
@@ -1444,7 +1460,7 @@ $toast-box-shadow:                  $box-shadow-lg;
 $toast-spacing:                     $container-padding-x;
 
 $toast-header-color:                var(--#{$variable-prefix}gray-600);
-$toast-header-background-color:     rgba($white, .85);
+$toast-header-background-color:     rgba($primary-white, .85);
 $toast-header-border-color:         var(--#{$variable-prefix}border-color);
 // scss-docs-end toast-variables
 
@@ -1454,7 +1470,7 @@ $toast-header-border-color:         var(--#{$variable-prefix}border-color);
 // scss-docs-start badge-variables
 $badge-font-size:                   75%;
 $badge-font-weight:                 $fw-medium;
-$badge-color:                       $white;
+$badge-color:                       $primary-white;
 $badge-padding-y:                   .25em;
 $badge-padding-x:                   .4em;
 $badge-border-radius:               $border-radius;
@@ -1474,7 +1490,7 @@ $modal-dialog-margin-y-sm-up:       1.75rem;
 $modal-title-line-height:           $line-height-base;
 
 $modal-content-color:               null;
-$modal-content-bg:                  $white;
+$modal-content-bg:                  $primary-white;
 $modal-content-border-color:        var(--#{$prefix}gray-300);
 $modal-content-border-width:        $border-width;
 $modal-content-border-radius:       $border-radius-lg;
@@ -1534,8 +1550,8 @@ $progress-font-size:                $font-size-base * .75;
 $progress-bg:                       var(--#{$prefix}gray-300);
 $progress-border-radius:            $border-radius;
 $progress-box-shadow:               $box-shadow-inset;
-$progress-bar-color:                $white;
-$progress-bar-bg:                   $primary;
+$progress-bar-color:                $primary-white;
+$progress-bar-bg:                   $primary-purple;
 $progress-bar-animation-timing:     1s linear infinite;
 $progress-bar-transition:           width .6s ease;
 // scss-docs-end progress-variables
@@ -1545,7 +1561,7 @@ $progress-bar-transition:           width .6s ease;
 
 // scss-docs-start list-group-variables
 $list-group-color:                  null;
-$list-group-bg:                     $white;
+$list-group-bg:                     $primary-white;
 $list-group-border-color:           $border-color;
 $list-group-border-width:           $border-width;
 $list-group-border-radius:          $border-radius;
@@ -1610,7 +1626,7 @@ $breadcrumb-border-radius:          null;
 // Carousel
 
 // scss-docs-start carousel-variables
-$carousel-control-color:             $white;
+$carousel-control-color:             $primary-white;
 $carousel-control-width:             15%;
 $carousel-control-opacity:           .5;
 $carousel-control-hover-opacity:     .9;
@@ -1621,12 +1637,12 @@ $carousel-indicator-height:          3px;
 $carousel-indicator-hit-area-height: 10px;
 $carousel-indicator-spacer:          3px;
 $carousel-indicator-opacity:         .5;
-$carousel-indicator-active-bg:       $white;
+$carousel-indicator-active-bg:       $primary-white;
 $carousel-indicator-active-opacity:  1;
 $carousel-indicator-transition:      opacity .6s ease;
 
 $carousel-caption-width:             70%;
-$carousel-caption-color:             $white;
+$carousel-caption-color:             $primary-white;
 $carousel-caption-padding-y:         1.25rem;
 $carousel-caption-spacer:            1.25rem;
 
@@ -1704,7 +1720,7 @@ $code-color:                        $pink;
 $kbd-padding-y:                     .2rem;
 $kbd-padding-x:                     .4rem;
 $kbd-font-size:                     $code-font-size;
-$kbd-color:                         $white;
+$kbd-color:                         $primary-white;
 $kbd-bg:                            $gray-900;
 $nested-kbd-font-weight:            null; // Deprecated in v5.2.0, removing in v6
 

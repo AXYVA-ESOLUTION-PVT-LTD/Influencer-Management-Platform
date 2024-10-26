@@ -1,4 +1,4 @@
-
+import '../assets/themes/colors.scss';
 // Chart options and series
 export const areaChartOptions = {
     chart: {
@@ -181,7 +181,11 @@ export const areaChartOptions = {
   // Individual series and color options for each chart
   export const genderChartOptions = {
     ...chartOptions,
-    colors: ["#003f5c", "#2f4b7c", "#665191"], // Colors for Audience Gender
+    colors: [
+      "var(--primary-black)", 
+      "var(--primary-purple)", 
+      "var(--secondary-blue)"
+    ], // Colors for Audience Gender
     title: {
       text: "Audience Gender",
     },
@@ -189,7 +193,11 @@ export const areaChartOptions = {
   
   export const ageChartOptions = {
     ...chartOptions,
-    colors: ["#6a4c93", "#4a4e69", "#6c757d"], // Colors for Age by Category
+    colors: [
+      "var(--primary-black)", 
+      "var(--primary-purple)", 
+      "var(--secondary-blue)"
+    ],// Colors for Age by Category
     title: {
       text: "Age by Category",
     },
@@ -197,7 +205,14 @@ export const areaChartOptions = {
   
   export const languageChartOptions = {
     ...chartOptions,
-    colors: ["#003f5c", "#2f4b7c", "#665191", "#6a4c93", "#4a4e69", "#6c757d"], // Colors for Audience Language
+    colors: [
+      "var(--primary-black)", 
+      "var(--primary-purple)", 
+      "var(--primary-off-white)", 
+      "var(--secondary-yellow)", 
+      "var(--secondary-red)", 
+      "var(--secondary-blue)"
+    ],
     title: {
       text: "Audience Language",
     },
