@@ -78,14 +78,14 @@ const Header = (props) => {
               <Link to="/" className="logo logo-dark">
                 <span className="logo-sm">
                   {/* <img src={logo} alt="" height="22" /> */}
-                  <h1 className="mt-3" style={{ color  : "var(--primary-off-white)"}}>R</h1>
+                  <h2 className="mt-3" style={{ color  : "var(--primary-off-white)"}}>B</h2>
                 </span>
               </Link>
 
               <Link to="/" className="logo logo-light">
                 <span className="logo-sm">
                   {/* <img src={logoLightSvg} alt="" height="22" /> */}
-                  <h1 className="mt-3" style={{ color  : "var(--primary-off-white)"}}>R</h1>
+                  <h2 className="mt-3" style={{ color  : "var(--primary-off-white)"}}>B</h2>
                 </span>
               </Link>
             </div>

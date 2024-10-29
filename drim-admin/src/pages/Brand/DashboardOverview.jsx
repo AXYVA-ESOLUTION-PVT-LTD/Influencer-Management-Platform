@@ -38,7 +38,7 @@ import {
 
 const DashboardOverview = (props) => {
   // Meta title
-  document.title = "Dashboard | Raise";
+  document.title = "Dashboard | Brandraise";
 
   return (
     <React.Fragment>

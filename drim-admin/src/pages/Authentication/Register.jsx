@@ -19,7 +19,7 @@ import profileImg from "../../assets/images/profile-img.png";
 import withRouter from "../../components/Common/withRouter";
 
 const Register = (props) => {
-  document.title = "Register | Raise";
+  document.title = "Register | Brandraise";
   
   const dispatch = useDispatch();
   const history = useNavigate();
@@ -68,7 +68,7 @@ const Register = (props) => {
                     <Col className="col-7">
                       <div className="text-primary p-4">
                         <h5 className="text-primary">Free Register</h5>
-                        <p>Get your free Raise account now.</p>
+                        <p>Get your free Brandraise account now.</p>
                       </div>
                     </Col>
                     <Col className="col-5 align-self-end">
@@ -177,7 +177,7 @@ const Register = (props) => {
 
                       <div className="mt-4 text-center">
                         <p className="mb-0">
-                          By registering you agree to the Raise{" "}
+                          By registering you agree to the Brandraise{" "}
                           <Link to="#" className="text-primary">
                             Terms of Use
                           </Link>

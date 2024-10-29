@@ -15,7 +15,7 @@ Highcharts3d(Highcharts);
 
 const DashboardOverview = (props) => {
   // Meta title
-  document.title = "Overview | Raise";
+  document.title = "Overview | Brandraise";
 
   // State for filters
   const [filters, setFilters] = useState({

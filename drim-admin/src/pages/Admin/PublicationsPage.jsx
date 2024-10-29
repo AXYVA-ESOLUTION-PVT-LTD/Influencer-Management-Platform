@@ -80,7 +80,7 @@ function PublicationsPage() {
   });
 
   // Meta title
-  document.title = "Publications | Raise ";
+  document.title = "Publications | Brandraise ";
 
   // Toggle modals
   const toggleUpdateModal = () => setIsUpdateModalOpen(!isUpdateModalOpen);

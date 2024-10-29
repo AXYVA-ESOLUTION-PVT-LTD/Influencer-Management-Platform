@@ -24,7 +24,7 @@ import Breadcrumbs from "../../components/Common/Breadcrumb";
 import '../../assets/themes/colors.scss';
 function PublicationsListPage() {
   document.title =
-  "Publications | Raise";
+  "Publications | Brandraise";
 
   const data = [
     { id: 1, title: "Research on AI", author: "Jennifer Chang", publicationDate: "2023/01/15", journal: "AI Journal", volume: "15", pages: "45-67" },

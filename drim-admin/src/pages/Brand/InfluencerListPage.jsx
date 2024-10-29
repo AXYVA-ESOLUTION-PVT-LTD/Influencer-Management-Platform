@@ -24,7 +24,7 @@ import { useNavigate } from "react-router-dom";
 import '../../assets/themes/colors.scss';
 const InfluencerListPage = (props) => {
   // Meta title
-  document.title = "Influencers | Raise ";
+  document.title = "Influencers | Brandraise ";
 
   const sampleInfluencers = [
     {

@@ -14,7 +14,7 @@ import { withTranslation } from "react-i18next";
 import { opportunitiesData } from "../../data/opportunitiesData";
 import '../../assets/themes/colors.scss';
 const OpportunitiesPage = (props) => {
-  document.title = "Opportunity | Raise ";
+  document.title = "Opportunity | Brandraise ";
 
   const handleCreateTicket = (opportunity) => {
     alert(`Creating a request for ${opportunity.name}`);

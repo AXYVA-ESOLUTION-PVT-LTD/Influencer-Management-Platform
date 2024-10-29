@@ -25,7 +25,7 @@ Highcharts3d(Highcharts);
 
 const DashboardOverview = (props) => {
   // Meta title
-  document.title = "Influencer Dashboard | Raise";
+  document.title = "Influencer Dashboard | Brandraise";
 
   return (
     <React.Fragment>

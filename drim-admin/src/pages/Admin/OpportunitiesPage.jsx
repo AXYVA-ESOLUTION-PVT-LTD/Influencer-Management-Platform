@@ -50,7 +50,7 @@ const OpportunitiesPage = (props) => {
   const [pageCount, setPageCount] = useState(0);
 
   // Meta title`
-  document.title = "Opportunity | Raise ";
+  document.title = "Opportunity | Brandraise ";
 
   // Toggle modals
   const toggleUpdateModal = () => setIsUpdateModalOpen(!isUpdateModalOpen);

@@ -49,7 +49,7 @@ const ProfilePage = () => {
   const dispatch = useDispatch();
 
   //meta title
-  document.title = "Profile | Raise";
+  document.title = "Profile | Brandraise";
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -108,7 +108,7 @@ const ProfilePage = () => {
       <div className="page-content">
         <Container fluid>
           {/* Render Breadcrumb */}
-          <Breadcrumb title="Raise" breadcrumbItem="Personal account" />
+          <Breadcrumb title="Brandraise" breadcrumbItem="Personal account" />
           <Row>
             <Col sm="12">
               <Nav tabs>
