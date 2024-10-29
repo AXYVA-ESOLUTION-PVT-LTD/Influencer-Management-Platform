@@ -9,7 +9,7 @@ import '../../assets/themes/colors.scss';
 
 
 const PaymentPage = () => {
-  document.title = "Payments | Management";
+  document.title = "Payments | Brandraise";
 
   const [role, setRole] = useState("");
   const [loading, setLoading] = useState(false); 

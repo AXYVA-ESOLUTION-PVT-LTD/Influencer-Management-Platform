@@ -28,7 +28,7 @@ const BrandManagement = (props) => {
   const [selectedBrand, setSelectedBrand] = useState(null);
 
   // Meta title
-  document.title = "Brand | Raise ";
+  document.title = "Brand | Brandraise ";
 
   const dispatch = useDispatch();
 

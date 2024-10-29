@@ -43,11 +43,11 @@ const Sidebar = (props) => {
           >
             <span className="logo-sm">
               {/* <img src={logoLightSvg} alt="" height="22" /> */}
-              <h1 className="mt-3" style={{ color: "var(--primary-off-white)" }}>R</h1>
+              <h2 className="mt-3" style={{ color: "var(--primary-off-white)" }}>B</h2>
             </span>
             <span className="logo-lg">
               {/* <img src={logoLightPng} alt="" height="19" /> */}
-              <h1 className="mt-3" style={{ color: "var(--primary-off-white)" }}>RAISE</h1>
+              <h2 className="mt-3" style={{ color: "var(--primary-off-white)" }}>BRANDRAISE</h2>
             </span>
           </Link>
         </div>

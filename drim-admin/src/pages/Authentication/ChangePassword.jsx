@@ -24,7 +24,7 @@ import profile from "../../assets/images/profile-img.png";
 
 const ChangePassword = (props) => {
 
-  document.title = "Set New Password | Raise";
+  document.title = "Set New Password | Brandraise";
   const dispatch = useDispatch();
 
   const validation = useFormik({

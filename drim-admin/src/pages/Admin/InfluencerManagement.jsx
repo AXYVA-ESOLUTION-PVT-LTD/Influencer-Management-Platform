@@ -47,7 +47,7 @@ const InfluencerManagement = (props) => {
   const [sortOrder, setSortOrder] = useState("");
 
   // Meta title
-  document.title = "Influencer | Raise ";
+  document.title = "Influencer | Brandraise ";
 
   const dispatch = useDispatch();
 

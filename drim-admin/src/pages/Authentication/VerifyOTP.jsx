@@ -21,7 +21,7 @@ import withRouter from "../../components/Common/withRouter";
 
 const VerifyOTP = (props) => {
 
-  document.title = "Verify OTP | Raise";
+  document.title = "Verify OTP | Brandraise";
 
   const dispatch = useDispatch();
   const [otp, setOtp] = useState("");

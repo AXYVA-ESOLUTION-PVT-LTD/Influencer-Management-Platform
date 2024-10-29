@@ -41,7 +41,7 @@ const Layout = (props) => {
     let currentage = title.charAt(1).toUpperCase() + title.slice(2);
 
     document.title =
-      currentage + " | Raise Dashboard ";
+      currentage + " | Brandraise Dashboard ";
   }, [pathName.pathname]);
 
   useEffect(() => {

@@ -26,7 +26,7 @@ import { useFormik } from "formik";
 import { userForgetPassword } from "../../store/actions";
 
 const ForgotPassword = (props) => {
-  document.title = "Forget Password | Raise";
+  document.title = "Forget Password | Brandraise";
 
   const dispatch = useDispatch();
 

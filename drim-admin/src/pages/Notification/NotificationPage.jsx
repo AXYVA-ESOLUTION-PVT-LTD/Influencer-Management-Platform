@@ -25,7 +25,7 @@ import {
 } from "../../store/notification/actions";
 import '../../assets/themes/colors.scss';
 const TicketPage = () => {
-  document.title = "Tickets | Raise";
+  document.title = "Tickets | Brandraise";
   const dispatch = useDispatch();
   const { notifications, error, loading, totalNotifications } = useSelector(
     (state) => state.notification

@@ -31,7 +31,7 @@ import ProgressBox from "../../components/Influencer/ProgressBox/ProgressBox";
 import TableContainer from "../../components/Common/TableContainer";
 
 function InfluencerDetailsPage() {
-  document.title = "Influencers | Raise ";
+  document.title = "Influencers | Brandraise ";
 
   const toggleModal = () => setModalOpen(!modalOpen);
 
