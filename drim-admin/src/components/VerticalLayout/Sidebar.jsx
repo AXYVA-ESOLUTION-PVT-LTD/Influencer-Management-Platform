@@ -26,8 +26,8 @@ const Sidebar = (props) => {
   }, []);
   return (
     <React.Fragment>
-      <div className="vertical-menu" style={{ backgroundColor : "var(--primary-black)" }}>
-        <div className="navbar-brand-box" style={{ backgroundColor : "var(--primary-black)"}}>
+      <div className="vertical-menu" style={{ backgroundColor : "var(--primary-white)" }}>
+        <div className="navbar-brand-box" style={{ backgroundColor : "var(--primary-white)"}}>
           <Link to="/" className="logo logo-dark">
             <span className="logo-sm">
               {/* <img src={logo} alt="" height="22" /> */}
@@ -43,11 +43,11 @@ const Sidebar = (props) => {
           >
             <span className="logo-sm">
               {/* <img src={logoLightSvg} alt="" height="22" /> */}
-              <h2 className="mt-3" style={{ color: "var(--primary-off-white)" }}>B</h2>
+              <h2 className="mt-3" style={{ color: "var(--primary-purple)" }}>B</h2>
             </span>
             <span className="logo-lg">
               {/* <img src={logoLightPng} alt="" height="19" /> */}
-              <h2 className="mt-3" style={{ color: "var(--primary-off-white)" }}>BRANDRAISE</h2>
+              <h2 className="mt-3" style={{ color: "var(--primary-purple)" }}>BRANDRAISE</h2>
             </span>
           </Link>
         </div>

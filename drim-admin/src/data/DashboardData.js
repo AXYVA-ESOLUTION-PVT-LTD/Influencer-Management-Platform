@@ -1,4 +1,4 @@
-import '../assets/themes/colors.scss'
+import '../assets/themes/colors.scss';
 export const dataBoxes = [
   { title: "Views", value: 15, rate: 2, isIncrease: true },
   { title: "Clicks", value: 70, rate: 55, isIncrease: false },
@@ -44,11 +44,10 @@ export const areaChartOptions = {
   markers: {
     size: 6, // Size of the markers
     colors:  [
-      "var(--primary-black)", 
       "var(--primary-purple)", 
+      "var(--secondary-purple-light)", 
+      "var(--secondary-red)",  
       "var(--primary-pink)", 
-      "var(--secondary-yellow)", 
-      "var(--secondary-red)", 
       "var(--secondary-blue)"
     ], 
     strokeColors: "var(--primary-white)", // Border color for markers
@@ -117,11 +116,10 @@ export const areaChartOptions = {
     },
   },
   colors: [
-    "var(--primary-black)", 
     "var(--primary-purple)", 
-    "var(--primary-pink)", 
-    "var(--secondary-yellow)", 
+    "var(--secondary-purple-light)", 
     "var(--secondary-red)", 
+    "var(--primary-pink)", 
     "var(--secondary-blue)"
   ],
 };  
@@ -195,7 +193,7 @@ export const barChartOptions = {
     },
   },
   colors:[
-    "var(--primary-black)", 
+    "var(--secondary-purple-light)", 
     "var(--primary-purple)", 
     "var(--secondary-blue)"
   ],
@@ -237,7 +235,7 @@ export const donutChartOptions = {
       innerSize: "50%",
       depth: 45,
       colors: [
-        "var(--primary-black)", 
+        "var(--secondary-purple-light)", 
         "var(--primary-purple)", 
         "var(--primary-pink)", 
         "var(--secondary-yellow)", 
