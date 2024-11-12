@@ -8,6 +8,7 @@
   --primary-off-white: #{$primary-off-white};
   --primary-white: #{$primary-white};
   --secondary-yellow: #{$secondary-yellow};
+  --secondary-purple-light: #{$secondary-purple-light};
   --secondary-red: #{$secondary-red};
   --secondary-blue: #{$secondary-blue};
   --status-green-light: #{$status-green-light};
@@ -36,7 +37,7 @@ $sidebar-dark-bg: #2a3042; //2c313a
 $sidebar-dark-menu-item-color: #a6b0cf;
 $sidebar-dark-menu-sub-item-color: #79829c;
 $sidebar-dark-menu-item-icon-color: #6a7187;
-$sidebar-dark-menu-item-hover-color: #ffffff;
+$sidebar-dark-menu-item-hover-color: $primary-purple;
 $sidebar-dark-menu-item-active-color: #ffffff;
 
 // Topbar - Deafult Light
