@@ -11,3 +11,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.kep-login-facebook.metro{
+  padding: 10px 25px !important;
+  font-size: .7rem !important;
+  letter-spacing: 1px !important;
+  border-radius: 5px !important;
+}

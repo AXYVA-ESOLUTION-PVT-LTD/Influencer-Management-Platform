@@ -17,10 +17,7 @@ import ROLES from "../../../constants/role";
 
 function* loginUser({ payload: { user, history } }) {
   try {
-    const response = yield call(LoginApi, {
-      email: user.email,
-      password: user.password,
-    });
+    const response = yield call(LoginApi, user);
     
     if (response?.status === STATUS.SUCCESS) {
       localStorage.setItem("authUser", response.result.data.token);

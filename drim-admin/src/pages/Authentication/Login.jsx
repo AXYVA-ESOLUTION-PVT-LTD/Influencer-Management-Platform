@@ -22,6 +22,17 @@ import {
   FormFeedback,
   Label,
 } from "reactstrap";
+// Google Login
+import { GoogleLogin } from "@react-oauth/google";
+
+// Facebook Login
+import FacebookLogin from 'react-facebook-login';
+
+// Role code
+import ROLECODE from "../../constants/rolecode";
+
+// Auth Mode
+import AUTH_MODE from "../../constants/authmode";
 
 // actions
 import { loginUser } from "../../store/actions";
@@ -45,9 +56,61 @@ const Login = (props) => {
     }
   }, []);
 
+  const handleGoogleLoginSuccess = (credentialResponse) => {
+    const token = credentialResponse.credential;
+    const payload = {
+      token,
+      mode: AUTH_MODE.GOOGLE,
+      roleCode: ROLECODE["Brand"],
+      email: "",
+      password: "",
+    };
+    console.log("google ",payload);
+    
+    dispatch(loginUser(payload, props.router.navigate));
+  };
+
+  const handleGoogleLoginFailure = (error) => {
+    console.error("Google login failed", error);
+  };
+
+  // Handle Facebook Login
+  // const handleFacebookLoginSuccess = (response) => {
+  //   if (response.accessToken) {
+  //     const payload = {
+  //       token: response.accessToken,
+  //       mode: AUTH_MODE.FACEBOOK,
+  //       roleCode: ROLECODE["Brand"],
+  //       email: response.email,
+  //       password: "",
+  //     };
+  //     dispatch(loginUser(payload, navigate)); // Dispatch the login action to send data to server
+  //   } else {
+  //     console.error("Facebook login failed", response);
+  //   }
+  // };
+
+  // const handleFacebookLoginFailure = (error) => {
+  //   console.error("Facebook login failed", error);
+  // };
+
+  // const handleTikTokLogin = (response) => {
+  //   if (response.access_token) {
+  //     const payload = {
+  //       token: response.access_token,
+  //       mode: AUTH_MODE.TIKTOK,
+  //       roleCode: ROLECODE["Brand"],
+  //       email: response.email,
+  //       password: "",
+  //     };
+  //     dispatch(loginUser(payload, props.router.navigate));
+  //   } else {
+  //     console.error("TikTok login failed");
+  //   }
+  // };
+
   const validation = useFormik({
     enableReinitialize: true,
-
     initialValues: {
       email: "",
       password: "",
@@ -61,7 +124,16 @@ const Login = (props) => {
         .required("Please Enter Your Password"),
     }),
     onSubmit: (values) => {
-      dispatch(loginUser(values, props.router.navigate));
+      const payload = {
+        token: "",
+        mode: "",
+        roleCode: "",
+        email: values.email,
+        password: values.password,
+      };
+      console.log("manual login",payload);
+      
+      dispatch(loginUser(payload, props.router.navigate));
     },
   });
 
@@ -184,7 +256,21 @@ const Login = (props) => {
                           Log In
                         </button>
                       </div>
-
+                      <div className="mt-4 text-center">
+                          <p className="me-2">Or login with:</p>
+                          <div className="d-flex flex-column justify-content-center align-items-center gap-3">
+                              <GoogleLogin
+                                onSuccess={handleGoogleLoginSuccess}
+                                onError={handleGoogleLoginFailure}
+                              />
+                            {/* <FacebookLogin
+                              appId="946726573608245"
+                              fields="name,email,picture"
+                              callback={handleFacebookLoginSuccess}
+                              onFailure={handleFacebookLoginFailure} 
+                            /> */}
+                          </div>
+                      </div>
                       <div className="mt-4 text-center">
                         <Link to="/forgot-password" className="text-muted">
                           <i className="mdi mdi-lock me-1" />
