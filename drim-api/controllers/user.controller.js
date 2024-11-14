@@ -5,10 +5,14 @@ const COMMON = require("../config/common.js");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const ForgotPassword = require("../module/forgotPassword.module.js");
+const Role = require("../module/role.module.js");
 const fs = require("fs");
 const path = require("path");
 const uploadsDir = path.join(__dirname, "..", "uploads");
-
+const { OAuth2Client } = require("google-auth-library");
+const ROLES = require("../config/role.js");
+require("dotenv").config();
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const json = {};
 
 exports.login = _login;
@@ -43,7 +47,7 @@ async function _signUp(req, res) {
       };
       return res.send(json);
     }
-    const { firstName, lastName, email, password, roleId } = req.body;
+    const { firstName, lastName, email, password, roleCode } = req.body;
     const existUser = await USER_COLLECTION.findOne({
       email: email,
       isDeleted: false,
@@ -57,12 +61,15 @@ async function _signUp(req, res) {
       return res.send(json);
     }
     const encPassword = await COMMON.encryptPassword(password);
+    const roleName = ROLES[roleCode];
+    const role = await Role.findOne({ name: roleName });
+    
     const user = new USER_COLLECTION({
       firstName: firstName,
       lastName: lastName,
       email: email,
       password: encPassword,
-      roleId: roleId,
+      roleId: role._id,
     });
     user
       .save()
@@ -106,72 +113,170 @@ async function _login(req, res) {
       };
       return res.send(json);
     }
-    const { email, password } = req.body;
+    const { email, password, mode, token, roleCode } = req.body;
+    const roleName = ROLES[roleCode];
+    const role = await Role.findOne({ name: roleName });
+    
+    if(mode == "google"){
+      const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+  
+      const payload = ticket.getPayload();
 
-    const existUser = await USER_COLLECTION.findOne({
-      email: email,
-      isDeleted: false,
-    }).populate({
-      path: "roleId",
-      model: "Role",
-      select: ["name"],
-    });
-
-    if (!existUser) {
-      json.status = CONSTANT.FAIL;
-      json.result = {
-        message: "User not found with this email!",
-        error: "User not found with this email!",
-      };
-      return res.send(json);
-    }
-
-    if (!existUser.status) {
-      json.status = CONSTANT.FAIL;
-      json.result = {
-        message: "User is being Inactive, Please contact Admin",
-        error: "User is being Inactive, Please contact Admin",
-      };
-      return res.send(json);
-    }
-
-    const decryptedPassword = await COMMON.decryptPassword(existUser.password);
-
-    if (password == decryptedPassword) {
-      let userObj = {
-        email: existUser.email,
-        firstName: existUser.firstName,
-        lastName: existUser.lastName,
-        roleId: existUser.roleId,
-      };
-
-      let token = jwt.sign(userObj, process.env.superSecret, {
-        expiresIn: 86400,
+      const existUser = await USER_COLLECTION.findOne({
+        email: payload.email,
+        isDeleted: false,
+      }).populate({
+        path: "roleId",
+        model: "Role",
+        select: ["name"],
       });
 
-      existUser.status = true;
-      existUser.save();
+      if(existUser) {
+        let userObj = {
+          email: existUser.email,
+          firstName: existUser.firstName,
+          lastName: existUser.lastName,
+          roleId: existUser.roleId,
+        };
+  
+        let token = jwt.sign(userObj, process.env.superSecret, {
+          expiresIn: 86400,
+        });
+  
+        const {
+          password: _,
+          createdAt,
+          updatedAt,
+          ...userWithoutSensitiveInfo
+        } = existUser.toObject();
+        json.status = CONSTANT.SUCCESS;
+        json.result = {
+          message: "User login successfully!",
+          data: { token: token, user: userWithoutSensitiveInfo },
+        };
+        return res.send(json);
+      } else {
+        const user = new USER_COLLECTION({
+          firstName: payload.given_name,
+          lastName: payload.family_name,
+          email: payload.email,
+          password: "",
+          roleId: role._id
+        });
+        user
+          .save()
+          .then(async (result) => {
 
-      const {
-        password: _,
-        createdAt,
-        updatedAt,
-        ...userWithoutSensitiveInfo
-      } = existUser.toObject();
-      json.status = CONSTANT.SUCCESS;
-      json.result = {
-        message: "User login successfully!",
-        data: { token: token, user: userWithoutSensitiveInfo },
-      };
-      return res.send(json);
+            let userObj = {
+              email: result.email,
+              firstName: result.firstName,
+              lastName: result.lastName,
+              roleId: result.roleId,
+            };
+      
+            let token = jwt.sign(userObj, process.env.superSecret, {
+              expiresIn: 86400,
+            });
+      
+            const createdUser = await USER_COLLECTION.findById(result._id).populate({
+              path: "roleId",
+              model: "Role",
+              select: ["name"],
+            }); 
+            const {
+              password: _,
+              createdAt,
+              updatedAt,
+              ...userWithoutSensitiveInfo
+            } = createdUser.toObject();
+            json.status = CONSTANT.SUCCESS;
+            json.result = {
+              message: "User login successfully!",
+              data: { token: token, user: userWithoutSensitiveInfo },
+            };
+            return res.send(json);
+          }).catch((error) => {
+            console.log(error);
+            
+            json.status = CONSTANT.FAIL;
+            json.result = {
+              message: "An error occurred while add new user!",
+              error: error,
+            };
+            return res.send(json);
+          });
+      }
+
     } else {
-      json.status = CONSTANT.FAIL;
-      json.result = {
-        message: "Invalid email or password!",
-        error: "Invalid email or password",
-      };
-      return res.send(json);
+      const existUser = await USER_COLLECTION.findOne({
+        email: email,
+        isDeleted: false,
+      }).populate({
+        path: "roleId",
+        model: "Role",
+        select: ["name"],
+      });
+  
+      if (!existUser) {
+        json.status = CONSTANT.FAIL;
+        json.result = {
+          message: "User not found with this email!",
+          error: "User not found with this email!",
+        };
+        return res.send(json);
+      }
+  
+      if (!existUser.status) {
+        json.status = CONSTANT.FAIL;
+        json.result = {
+          message: "User is being Inactive, Please contact Admin",
+          error: "User is being Inactive, Please contact Admin",
+        };
+        return res.send(json);
+      }
+  
+      const decryptedPassword = await COMMON.decryptPassword(existUser.password);
+  
+      if (password == decryptedPassword) {
+        let userObj = {
+          email: existUser.email,
+          firstName: existUser.firstName,
+          lastName: existUser.lastName,
+          roleId: existUser.roleId,
+        };
+  
+        let token = jwt.sign(userObj, process.env.superSecret, {
+          expiresIn: 86400,
+        });
+  
+        existUser.status = true;
+        existUser.save();
+  
+        const {
+          password: _,
+          createdAt,
+          updatedAt,
+          ...userWithoutSensitiveInfo
+        } = existUser.toObject();
+        json.status = CONSTANT.SUCCESS;
+        json.result = {
+          message: "User login successfully!",
+          data: { token: token, user: userWithoutSensitiveInfo },
+        };
+        return res.send(json);
+      } else {
+        json.status = CONSTANT.FAIL;
+        json.result = {
+          message: "Invalid email or password!",
+          error: "Invalid email or password",
+        };
+        return res.send(json);
+      }
     }
+
   } catch (e) {
     console.error("Controller: user | Method: _login | Error: ", e);
     json.status = CONSTANT.FAIL;
@@ -746,3 +851,4 @@ async function _updateProfile(req, res) {
     return res.send(json);
   }
 }
+
