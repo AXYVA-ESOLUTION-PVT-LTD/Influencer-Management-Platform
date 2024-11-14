@@ -9,9 +9,11 @@ import store from "./store";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.Fragment>
+  <GoogleOAuthProvider clientId="411122439301-18omq5664rj431u6n8aqarttmfrrlael.apps.googleusercontent.com">
     <Provider store={store}>
       <BrowserRouter>
         <App />
@@ -28,6 +30,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         />
       </BrowserRouter>
     </Provider>
+    </GoogleOAuthProvider>
   </React.Fragment>
 );
 

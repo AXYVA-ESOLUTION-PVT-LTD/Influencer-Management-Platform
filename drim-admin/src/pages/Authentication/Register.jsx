@@ -18,6 +18,8 @@ import profileImg from "../../assets/images/profile-img.png";
 // import logoImg from "../../assets/images/favicon/logo-sm.png";
 import withRouter from "../../components/Common/withRouter";
 
+import ROLECODE from "../../constants/rolecode";
+
 const Register = (props) => {
   document.title = "Register | Brandraise";
   
@@ -32,7 +34,7 @@ const Register = (props) => {
       lastName: '',
       email: '',
       password: '',
-      roleId  : '66c6c3f8380499ba2b85f317'
+      roleCode  : ROLECODE["Brand"]
     },
     validationSchema: Yup.object({
       firstName: Yup.string().required("Please Enter Your First Name"),
