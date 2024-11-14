@@ -9,9 +9,16 @@ const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
+
+const dotenv = require('dotenv');
+
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+dotenv.config({ path: envFile });
+
 const PORT = process.env.PORT;
 
 const IS_PRODUCTION = process.env.IS_PRODUCTION;
+
 const DB_URL =
   IS_PRODUCTION == true ? process.env.SERVER_DB_URL : process.env.LOCAL_DB_URL;
 
@@ -28,11 +35,12 @@ const path = require("path");
 let server;
 
 if (IS_PRODUCTION == "true") {
-  const privateKey = fs.readFileSync("secret-keys/private.key", "utf8");
-  const certificate = fs.readFileSync("secret-keys/certificate.crt", "utf8");
+  // const privateKey = fs.readFileSync("secret-keys/private.key", "utf8");
+  // const certificate = fs.readFileSync("secret-keys/certificate.crt", "utf8");
   // const ca = fs.readFileSync("secret-keys/server.csr", "utf8");
 
-  server = https.createServer({ key: privateKey, cert: certificate }, app);
+  // server = https.createServer({ key: privateKey, cert: certificate }, app);
+  server = http.createServer(app); 
 } else {
   server = http.createServer(app);
 }
@@ -41,7 +49,7 @@ app.set("port", PORT);
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 const corsOptions = {
-  origin: ["http://localhost:5173", "http://192.168.29.159:5173", "*"],
+  origin: ["http://localhost:5173", "http://192.168.29.159:5173","http://localhost:3000", "http://192.168.29.159:3000", "*"],
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
