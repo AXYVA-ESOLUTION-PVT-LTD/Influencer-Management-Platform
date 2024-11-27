@@ -22,6 +22,17 @@ const validateOpportunity = [
     .withMessage("type cannot be empty!"),
 ];
 
+const validateOpportunityFileName = [
+  check("fileName")
+    .exists()
+    .withMessage("file name is required!")
+    .bail()
+    .trim()
+    .isString()
+    .notEmpty()
+    .withMessage("file name cannot be empty!")
+];
+
 async function validateAdmin(req, res, next) {
   const { email } = req.decoded;
   const user = await USER_COLLECTION.findOne(
@@ -47,4 +58,4 @@ async function validateAdmin(req, res, next) {
   }
 }
 
-module.exports = { validateOpportunity, validateAdmin };
+module.exports = { validateOpportunity, validateOpportunityFileName, validateAdmin };

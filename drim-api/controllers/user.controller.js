@@ -136,6 +136,7 @@ async function _login(req, res) {
 
       if(existUser) {
         let userObj = {
+          id: existUser._id,
           email: existUser.email,
           firstName: existUser.firstName,
           lastName: existUser.lastName,
@@ -171,6 +172,7 @@ async function _login(req, res) {
           .then(async (result) => {
 
             let userObj = {
+              id: result._id,
               email: result.email,
               firstName: result.firstName,
               lastName: result.lastName,
@@ -242,6 +244,7 @@ async function _login(req, res) {
   
       if (password == decryptedPassword) {
         let userObj = {
+          id: existUser._id,
           email: existUser.email,
           firstName: existUser.firstName,
           lastName: existUser.lastName,

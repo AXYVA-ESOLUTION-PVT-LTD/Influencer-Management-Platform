@@ -3,13 +3,16 @@ const CONSTANT = require("../config/constant");
 const OPPORTUNITY_COLLECTION = require("../module/opportunity.module");
 const COMMON = require("../config/common");
 const { getSortOption } = require("../helper/getSortOption");
-
+const path = require("path");
+const fs = require("fs");
 const json = {};
 
 exports.addOpportunity = _addOpportunity;
 exports.getOpportunity = _getOpportunity;
 exports.deleteOpportunity = _deleteOpportunity;
 exports.updateOpportunity = _updateOpportunity;
+exports.uploadOpportunityImage = _uploadOpportunityImage;
+exports.removeOpportunityImage = _removeOpportunityImage;
 
 /*
 TYPE: Get
@@ -99,14 +102,16 @@ async function _addOpportunity(req, res) {
       return res.send(json);
     }
 
-    const { title, description, type, location, requirements, status } =
+    const { title, description, type, imageUrl ,location, status ,brand, endDate } =
       req.body;
     const opportunity = await OPPORTUNITY_COLLECTION.create({
       title,
-      description,
       type,
+      description,
       location,
-      requirements,
+      imageUrl,
+      brand,
+      endDate,
       status,
     });
     if (!opportunity) {
@@ -243,7 +248,8 @@ async function _updateOpportunity(req, res) {
       message: "Opportunity updated successfully",
       data: {
         opportunity: updatedOpportunity,
-      },
+
+            },
     };
     return res.send(json);
   } catch (e) {
@@ -254,6 +260,199 @@ async function _updateOpportunity(req, res) {
     json.status = CONSTANT.FAIL;
     json.result = {
       message: "An error occurred while Updating Opportunity",
+      error: e,
+    };
+    return res.send(json);
+  }
+}
+
+/*
+TYPE: Post
+TODO: Upload Opportunity Image
+*/
+async function _uploadOpportunityImage(req, res) {
+  try {
+    let filePath = path.join(__dirname, '../uploads/opportunityImage');
+    COMMON.uploadSingleFile(filePath, req, res, async (err, file) => {
+      
+      if (err) {
+        json.status = CONSTANT.FAIL;
+        json.result = {
+          message: "An error occurred while uploading opportunity",
+          error: err,
+        };
+        return res.send(json);
+      } else {
+
+        json.status = CONSTANT.SUCCESS;
+        json.result = {
+          message: "Opportunity image uploaded successfully",
+          data: {
+            fileName: file.filename, 
+          },
+        };
+        return res.send(json);
+      }
+    })
+  } catch (e) {
+    console.error(
+      "Controller: opportunity | Method: _uploadOpportunityImage | Error: ",
+      e
+    );
+    json.status = CONSTANT.FAIL;
+    json.result = {
+      message: "An error occurred while uploading opportunity image",
+      error: e,
+    };
+    return res.send(json);
+  }
+}
+
+/*
+TYPE: Post
+TODO: Remove Opportunity Image
+*/
+async function _removeOpportunityImage(req, res) {
+  try {
+    const errors = validationResult(req).array();
+    if (errors && errors.length > 0) {
+      let messArr = errors.map((a) => a.msg);
+      json.status = CONSTANT.FAIL;
+      json.result = {
+        message: "Required fields are missing!",
+        error: messArr.join(", "),
+      };
+      return res.send(json);
+    }
+    const { fileName } = req.body;
+    let filePath = path.join(__dirname, `../uploads/opportunityImage/${fileName}`);
+    if (fs.existsSync(filePath)) {
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          json.status = CONSTANT.FAIL;
+          json.result = {
+            message: "An error occurred while removing opportunity image",
+            error: err,
+          };
+          return res.send(json);
+        } else {
+          json.status = CONSTANT.SUCCESS;
+          json.result = {
+            message: "Opportunity image removed successfully",
+            data: {},
+          };
+          return res.send(json);
+        }
+      })
+    } else {
+      json.status = CONSTANT.FAIL;
+      json.result = {
+        message: "Opportunity image not found",
+        error: "Opportunity image not found",
+      };
+      return res.send(json);
+    }
+  } catch (e) {
+    console.error(
+      "Controller: opportunity | Method: _removeOpportunityImage | Error: ",
+      e
+    );
+    json.status = CONSTANT.FAIL;
+    json.result = {
+      message: "An error occurred while removing opportunity image",
+      error: e,
+    };
+    return res.send(json);
+  }
+}
+
+async function _importOpportunity(req, res) {
+  try {
+    var notSavedCount = 0;
+    var notSavedArray = [];
+    var totalSavedCount = 0;
+    var file = req.files.file.path;
+    var ext = req.body.ext;
+    var count = 0;
+
+    COMMON.excelCSVToJson(file, ext, function (err, results) {
+      if (err) {
+        json.status = CONSTANT.FAIL;
+        json.result = {
+          message: "An error occurred while importing opportunity",
+          error: err,
+        };
+        return res.send(json);
+      } else {
+        var outputData = results.map(Object.values);
+        var columnPositionErrors = checkImportFileFormat(outputData[0]);
+        outputData.shift();
+        if (columnPositionErrors !== '') {
+          json.status = '0';
+          json.result = { 'message': columnPositionErrors, 'errorType': "COLUMN_POSITION" };
+          res.send(json);
+          return;
+        }
+        if (!outputData || COMMON_ROUTE.isArrayEmpty(outputData)) {
+          json.status = '0';
+          json.result = { 'message': 'File does not contain more data', 'notSavedCount': notSavedCount, 'notSaved': notSavedArray, 'totalSavedCount': totalSavedCount };
+          return res.send(json);
+        } else {
+          removeDuplicate(outputData, function (data) {
+            var results = data;
+            results.forEach(element => {
+              var propertyObject = {
+                name: element[0],
+                address1: "",
+                address2: "",
+                city: "",
+                country: element[2],
+                landmark: "",
+                zip: "",
+                rating: "",
+                lowRate: "",
+                highRate: "",
+                resortTypeId: "",
+                websiteTemplateUrl: "",
+                brochureTemplateUrl: element[1],
+                htmlContent: "",
+                propertyImages: [],
+                propertyAmenities: []
+              }
+              insertPropertyFromImport(propertyObject, function (err, insertResult) {
+                if (err || !insertResult) {
+                  notSavedArray.push(propertyObject);
+                  notSavedCount++;
+                  count++;
+                  if (count == results.length) {
+                    json.status = '1';
+                    json.result = { 'message': totalSavedCount + ' Clients Imported Successfully', 'totalSavedCount': totalSavedCount, 'notSavedCount': notSavedCount, 'notSaved': notSavedArray };
+                    return res.send(json);
+                  }
+                } else {
+                  totalSavedCount++;
+                  count++;
+                  if (count == results.length) {
+                    json.status = '1';
+                    json.result = { 'message': totalSavedCount + ' Clients Imported Successfully', 'totalSavedCount': totalSavedCount, 'notSavedCount': notSavedCount, 'notSaved': notSavedArray };
+                    return res.send(json);
+                  }
+                }
+
+              })
+            });
+          });
+        }
+      }
+    })
+  } catch (e) {
+    console.error(
+      "Controller: opportunity | Method: _importOpportunity | Error: ",
+      e
+    );
+    json.status = CONSTANT.FAIL;
+    json.result = {
+      message: "An error occurred while importing opportunity",
       error: e,
     };
     return res.send(json);
