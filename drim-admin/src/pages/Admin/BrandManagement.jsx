@@ -194,7 +194,7 @@ const BrandManagement = (props) => {
               Brands
             </h4>
             <div>
-              <Button  onClick={toggleCreateModal} style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}>
+              <Button className="border-none" onClick={toggleCreateModal} style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}>
                 Add Brand
               </Button>
             </div>

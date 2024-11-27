@@ -6,9 +6,7 @@ import ROLES from "../../constants/role";
 import { staticPayments } from "../../data/PaymentData";
 import '../../assets/themes/colors.scss';
 
-
-
-const PaymentPage = () => {
+const InfluencersPayment = () => {
   document.title = "Payments | Brandraise";
 
   const [role, setRole] = useState("");
@@ -60,22 +58,6 @@ const columns = (role) =>
         >
           {value}
         </span>
-      ),
-    },
-    //   {
-    //     Header: "Created At",
-    //     accessor: "createdAt",
-    //     Cell: ({ value }) => formatDate(value),
-    //   },
-    role === ROLES.ADMIN && {
-      Header: "Actions",
-      accessor: "actions",
-      Cell: ({ row: { original } }) => (
-        <>
-        <Button color="link" size="lg" onClick={() => handleEdit(original)}>
-            <i className="bx bx-edit" style={{ color: "var(--secondary-yellow)" }}></i>
-          </Button>
-        </>
       ),
     },
   ].filter(Boolean); 
@@ -157,4 +139,4 @@ const columns = (role) =>
   );
 };
 
-export default PaymentPage;
+export default InfluencersPayment;

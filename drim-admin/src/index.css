@@ -18,3 +18,11 @@ code {
   letter-spacing: 1px !important;
   border-radius: 5px !important;
 }
+
+.menu-active i {
+  color: white !important;;
+}
+
+.border-none {
+  border: none !important;
+}

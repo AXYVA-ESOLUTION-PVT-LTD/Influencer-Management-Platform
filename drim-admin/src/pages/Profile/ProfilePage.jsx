@@ -14,13 +14,7 @@ import {
   NavItem,
   NavLink,
   TabContent,
-  TabPane,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  FormGroup,
-  ModalFooter,
-  Alert,
+  TabPane
 } from "reactstrap";
 import classnames from "classnames";
 // Formik Validation

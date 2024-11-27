@@ -18,6 +18,8 @@ import {
   InfluencerManagement,
   OpportunitiesPage,
   PublicationsPage,
+  PaymentPage,
+  CouponManagement
 } from "../pages/Admin";
 import {
   BrandDashboardOverview,
@@ -28,10 +30,10 @@ import {
 import {
   InfluencerDashboardOverview,
   OpportunitiesListPage,
+  InfluencerPayment
 } from "../pages/Influencer";
 import { ProfilePage } from "../pages/Profile";
 import { Notifications } from "../pages/Notification";
-import { PaymentPage } from "../pages/Payment";
 
 const authProtectedRoutes = [
   {
@@ -59,7 +61,11 @@ const authProtectedRoutes = [
     component: <OpportunitiesPage />,
     allowedRoles: [ROLES.ADMIN],
   },
-
+  {
+    path: "/coupon-management",
+    component: <CouponManagement />,
+    allowedRoles: [ROLES.ADMIN],
+  },
   {
     path: "/overview/brand",
     component: <BrandDashboardOverview />,
@@ -104,7 +110,12 @@ const authProtectedRoutes = [
   {
     path: "/payment",
     component: <PaymentPage />,
-    allowedRoles: [ROLES.ADMIN, ROLES.INFLUENCER],
+    allowedRoles: [ROLES.ADMIN],
+  },
+  {
+    path: "/payment/influencer",
+    component: <InfluencerPayment />,
+    allowedRoles: [ROLES.INFLUENCER],
   },
 ];
 

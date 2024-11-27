@@ -50,6 +50,7 @@ const Pagination = ({
                 style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)"}}
                 onClick={handleFirstPage}
                 disabled={!canPreviousPage}
+                className="border-none"
               >
                 {"<<"}
               </Button>
@@ -57,6 +58,7 @@ const Pagination = ({
                 style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}
                 onClick={handlePrev}
                 disabled={!canPreviousPage}
+                className="border-none"
               >
                 {"<"}
               </Button>

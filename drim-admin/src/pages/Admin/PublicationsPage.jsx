@@ -261,6 +261,7 @@ function PublicationsPage() {
             </h4>
           <div className="d-flex gap-2">
             <Button
+            className="border-none"
               style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}
               onClick={() => setIsShowFilter(!isShowFilter)}
             >

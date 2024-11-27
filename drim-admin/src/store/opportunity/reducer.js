@@ -1,21 +1,36 @@
-
 import {
   CREATE_OPPORTUNITY_ERROR,
   CREATE_OPPORTUNITY_REQUEST,
   CREATE_OPPORTUNITY_SUCCESS,
+  CREATE_TICKET_ERROR,
+  CREATE_TICKET_REQUEST,
+  CREATE_TICKET_SUCCESS,
   DELETE_OPPORTUNITY_ERROR,
   DELETE_OPPORTUNITY_REQUEST,
   DELETE_OPPORTUNITY_SUCCESS,
+  FETCH_TICKETS_ERROR,
+  FETCH_TICKETS_REQUEST,
+  FETCH_TICKETS_SUCCESS,
   GET_OPPORTUNITY_ERROR,
   GET_OPPORTUNITY_REQUEST,
   GET_OPPORTUNITY_SUCCESS,
+  REMOVE_OPPORTUNITY_IMAGE_ERROR,
+  REMOVE_OPPORTUNITY_IMAGE_REQUEST,
+  REMOVE_OPPORTUNITY_IMAGE_SUCCESS,
   UPDATE_OPPORTUNITY_ERROR,
   UPDATE_OPPORTUNITY_REQUEST,
   UPDATE_OPPORTUNITY_SUCCESS,
+  UPDATE_TICKET_ERROR,
+  UPDATE_TICKET_REQUEST,
+  UPDATE_TICKET_SUCCESS,
+  UPLOAD_OPPORTUNITY_IMAGE_ERROR,
+  UPLOAD_OPPORTUNITY_IMAGE_REQUEST,
+  UPLOAD_OPPORTUNITY_IMAGE_SUCCESS,
 } from "./actionTypes";
 
 const initialState = {
   opportunities: [],
+  opportunitiesData: [],
   totalOpportunities: null,
   currentPage: null,
   loading: false,
@@ -116,6 +131,112 @@ const opportunity = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
+    // Reducer Case Updates
+    case UPLOAD_OPPORTUNITY_IMAGE_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case UPLOAD_OPPORTUNITY_IMAGE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        opportunities: state.opportunities.map((opportunity) =>
+          opportunity._id === action.payload.id
+            ? { ...opportunity, imageUrl: action.payload.imageUrl }
+            : opportunity
+        ),
+        error: null,
+      };
+    case UPLOAD_OPPORTUNITY_IMAGE_ERROR:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case REMOVE_OPPORTUNITY_IMAGE_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case REMOVE_OPPORTUNITY_IMAGE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        opportunities: state.opportunities.map((opportunity) =>
+          opportunity._id === action.payload.id
+            ? { ...opportunity, imageUrl: "" }
+            : opportunity
+        ),
+        error: null,
+      };
+    case REMOVE_OPPORTUNITY_IMAGE_ERROR:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+      case FETCH_TICKETS_REQUEST:
+        return {
+          ...state,
+          loading: true,
+          error: null,
+        };
+      case FETCH_TICKETS_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+          opportunitiesData: action.payload.data || [],
+          error: null,
+        };
+      case FETCH_TICKETS_ERROR:
+        return {
+          ...state,
+          loading: false,
+          error: action.payload,
+        };
+      
+      case CREATE_TICKET_REQUEST:
+        return {
+          ...state,
+          loading: true,
+          error: null,
+        };
+      case CREATE_TICKET_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+          error: null,
+        };
+      case CREATE_TICKET_ERROR:
+        return {
+          ...state,
+          loading: false,
+          error: action.payload,
+        };
+      
+        case UPDATE_TICKET_REQUEST:
+          return {
+            ...state,
+            loading: true,
+            error: null,
+          };
+        case UPDATE_TICKET_SUCCESS:
+          return {
+            ...state,
+            loading: false,
+            error: null,
+          };
+        case UPDATE_TICKET_ERROR:
+          return {
+            ...state,
+            loading: false,
+            error: action.payload,
+          };
+        
 
     default:
       return state;

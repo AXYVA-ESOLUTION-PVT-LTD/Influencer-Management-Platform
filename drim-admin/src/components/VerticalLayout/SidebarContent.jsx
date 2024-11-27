@@ -161,7 +161,7 @@ const SidebarContent = (props) => {
                 <li>
                   <NavLink
                     to="/overview/admin"
-                    // className={({ isActive }) => (isActive ? "mm-active" : "")}
+                    className={({ isActive }) => (isActive ? "menu-active" : "")}
                     style={({ isActive }) => ({
                       backgroundColor: isActive ? "var(--primary-purple)" : "",
                       color: isActive ? "var(--primary-white)" : "",
@@ -180,7 +180,7 @@ const SidebarContent = (props) => {
                 <li>
                   <NavLink
                     to="/influencer"
-                    // className={({ isActive }) => (isActive ? "mm-active" : "")}
+                    className={({ isActive }) => (isActive ? "menu-active" : "")}
                     style={({ isActive }) => ({
                       backgroundColor: isActive ? "var(--primary-purple)" : "",
                       color: isActive ? "var(--primary-white)" : "",
@@ -193,7 +193,7 @@ const SidebarContent = (props) => {
                 <li>
                   <NavLink
                     to="/brand"
-                    // className={({ isActive }) => (isActive ? "mm-active" : "")}
+                    className={({ isActive }) => (isActive ? "menu-active" : "")}
                     style={({ isActive }) => ({
                       backgroundColor: isActive ? "var(--primary-purple)" : "",
                       color: isActive ? "var(--primary-white)" : "",
@@ -208,7 +208,7 @@ const SidebarContent = (props) => {
                   <NavLink
                     to="/publications"
                     end
-                    // className={({ isActive }) => (isActive ? "mm-active" : "")}
+                    className={({ isActive }) => (isActive ? "menu-active" : "")}
                     style={({ isActive }) => ({
                       backgroundColor: isActive ? "var(--primary-purple)" : "",
                       color: isActive ? "var(--primary-white)" : "",
@@ -221,8 +221,8 @@ const SidebarContent = (props) => {
                 <li>
                   <NavLink
                     to="/opportunities"
-                    // className={({ isActive }) => (isActive ? "mm-active" : "")}
                     end
+                    className={({ isActive }) => (isActive ? "menu-active" : "")}
                     style={({ isActive }) => ({
                       backgroundColor: isActive ? "var(--primary-purple)" : "",
                       color: isActive ? "var(--primary-white)" : "",
@@ -232,14 +232,26 @@ const SidebarContent = (props) => {
                     <span>Opportunities</span>
                   </NavLink>
                 </li>
+                <li>
+                  <NavLink
+                    to="/coupon-management"
+                    end
+                    className={({ isActive }) => (isActive ? "menu-active" : "")}
+                    style={({ isActive }) => ({
+                      backgroundColor: isActive ? "var(--primary-purple)" : "",
+                      color: isActive ? "var(--primary-white)" : "",
+                    })}
+                  >
+                     <i className="bx bx-gift"></i>
+                    <span>Coupon Management</span>
+                  </NavLink>
+                </li>
                 {roleName === ROLES.ADMIN && (
                   <li>
                     <NavLink
                       to="/payment"
-                      // className={({ isActive }) =>
-                      //   isActive ? "mm-active" : ""
-                      // }
-                      style={({ isActive }) => ({
+                      className={({ isActive }) => (isActive ? "menu-active" : "")}
+                    style={({ isActive }) => ({
                       backgroundColor: isActive ? "var(--primary-purple)" : "",
                       color: isActive ? "var(--primary-white)" : "",
                     })}
@@ -258,7 +270,7 @@ const SidebarContent = (props) => {
                 <li>
                   <NavLink
                     to="/overview/brand"
-                    // className={({ isActive }) => (isActive ? "mm-active" : "")}
+                    className={({ isActive }) => (isActive ? "menu-active" : "")}
                     style={({ isActive }) => ({
                       backgroundColor: isActive ? "var(--primary-purple)" : "",
                       color: isActive ? "var(--primary-white)" : "",
@@ -272,7 +284,7 @@ const SidebarContent = (props) => {
                 <li>
                   <NavLink
                     to="/influencers"
-                    // className={({ isActive }) => (isActive ? "mm-active" : "")}
+                    className={({ isActive }) => (isActive ? "menu-active" : "")}
                     style={({ isActive }) => ({
                       backgroundColor: isActive ? "var(--primary-purple)" : "",
                       color: isActive ? "var(--primary-white)" : "",
@@ -286,7 +298,7 @@ const SidebarContent = (props) => {
                   <NavLink
                     to="/publications/brand"
                     end
-                    // className={({ isActive }) => (isActive ? "mm-active" : "")}
+                    className={({ isActive }) => (isActive ? "menu-active" : "")}
                     style={({ isActive }) => ({
                       backgroundColor: isActive ? "var(--primary-purple)" : "",
                       color: isActive ? "var(--primary-white)" : "",
@@ -307,7 +319,7 @@ const SidebarContent = (props) => {
                 <li>
                   <NavLink
                     to="/overview/influencer"
-                    // className={({ isActive }) => (isActive ? "mm-active" : "")}
+                    className={({ isActive }) => (isActive ? "menu-active" : "")}
                     style={({ isActive }) => ({
                       backgroundColor: isActive ? "var(--primary-purple)" : "",
                       color: isActive ? "var(--primary-white)" : "",
@@ -326,12 +338,11 @@ const SidebarContent = (props) => {
                 <li>
                   <NavLink
                     to="/opportunities/influencer"
-                    // className={({ isActive }) => (isActive ? "mm-active" : "")}
+                    className={({ isActive }) => (isActive ? "menu-active" : "")}
                     style={({ isActive }) => ({
                       backgroundColor: isActive ? "var(--primary-purple)" : "",
                       color: isActive ? "var(--primary-white)" : "",
                     })}
-                
                   >
                      <i className="bx bx-rocket"></i>
                     <span>Opportunities</span>
@@ -340,14 +351,12 @@ const SidebarContent = (props) => {
                 {roleName === ROLES.INFLUENCER && (
                   <li>
                     <NavLink
-                      to="/payment"
-                      // className={({ isActive }) =>
-                      //   isActive ? "mm-active" : ""
-                      // }
+                      to="/payment/influencer"
+                      className={({ isActive }) => (isActive ? "menu-active" : "")}
                       style={({ isActive }) => ({
-                      backgroundColor: isActive ? "var(--primary-purple)" : "",
-                      color: isActive ? "var(--primary-white)" : "",
-                    })}
+                        backgroundColor: isActive ? "var(--primary-purple)" : "",
+                        color: isActive ? "var(--primary-white)" : "",
+                      })}
                     >
                        <i className="bx bx-wallet"></i>
                       <span>Payment</span>

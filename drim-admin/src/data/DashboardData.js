@@ -46,7 +46,7 @@ export const areaChartOptions = {
     colors:  [
       "var(--primary-purple)", 
       "var(--secondary-purple-light)", 
-      "var(--secondary-red)",  
+      "var(--secondary-blue)",  
       "var(--primary-pink)", 
       "var(--secondary-blue)"
     ], 
@@ -117,8 +117,8 @@ export const areaChartOptions = {
   },
   colors: [
     "var(--primary-purple)", 
-    "var(--secondary-purple-light)", 
-    "var(--secondary-red)", 
+    "var(--secondary-skyblue)", 
+    "var(--secondary-blue)", 
     "var(--primary-pink)", 
     "var(--secondary-blue)"
   ],
@@ -193,7 +193,7 @@ export const barChartOptions = {
     },
   },
   colors:[
-    "var(--secondary-purple-light)", 
+    "var(--secondary-skyblue)", 
     "var(--primary-purple)", 
     "var(--secondary-blue)"
   ],
@@ -235,12 +235,12 @@ export const donutChartOptions = {
       innerSize: "50%",
       depth: 45,
       colors: [
-        "var(--secondary-purple-light)", 
+        "var(--secondary-skyblue)", 
         "var(--primary-purple)", 
         "var(--primary-pink)", 
         "var(--secondary-yellow)", 
-        "var(--secondary-red)", 
         "var(--secondary-blue)",
+        "var(--secondary-red)", 
         "var(--secondary-yellow)", 
       ],
       dataLabels: {
