@@ -19,7 +19,7 @@ router.post(
 router.post(
   "/getOpportunity",
   auth,
-  OpportunityMiddleware.validateAdmin,
+  // OpportunityMiddleware.validateAdmin,
   Opportunity.getOpportunity
 );
 
@@ -38,6 +38,21 @@ router.put(
   auth,
   OpportunityMiddleware.validateAdmin,
   Opportunity.updateOpportunity
+);
+
+router.post(
+  "/uploadOpportunityImage",
+  auth,
+  OpportunityMiddleware.validateAdmin,
+  Opportunity.uploadOpportunityImage
+);
+
+router.post(
+  "/removeOpportunityImage",
+  auth,
+  OpportunityMiddleware.validateAdmin,
+  OpportunityMiddleware.validateOpportunityFileName,
+  Opportunity.removeOpportunityImage
 );
 
 module.exports = router;

@@ -18,9 +18,16 @@ const opportunitySchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    requirements: {
+    imageUrl: {
       type: String,
       default: "",
+    },
+    brand: {
+      type: String,
+      default: "",
+    },
+    endDate: {
+      type: Date
     },
     status: {
       type: String,
