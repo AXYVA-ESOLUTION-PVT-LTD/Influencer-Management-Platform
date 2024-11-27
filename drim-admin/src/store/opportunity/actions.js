@@ -2,15 +2,30 @@ import {
   CREATE_OPPORTUNITY_ERROR,
   CREATE_OPPORTUNITY_REQUEST,
   CREATE_OPPORTUNITY_SUCCESS,
+  CREATE_TICKET_ERROR,
+  CREATE_TICKET_REQUEST,
+  CREATE_TICKET_SUCCESS,
   DELETE_OPPORTUNITY_ERROR,
   DELETE_OPPORTUNITY_REQUEST,
   DELETE_OPPORTUNITY_SUCCESS,
+  FETCH_TICKETS_ERROR,
+  FETCH_TICKETS_REQUEST,
+  FETCH_TICKETS_SUCCESS,
   GET_OPPORTUNITY_ERROR,
   GET_OPPORTUNITY_REQUEST,
   GET_OPPORTUNITY_SUCCESS,
+  REMOVE_OPPORTUNITY_IMAGE_ERROR,
+  REMOVE_OPPORTUNITY_IMAGE_REQUEST,
+  REMOVE_OPPORTUNITY_IMAGE_SUCCESS,
   UPDATE_OPPORTUNITY_ERROR,
   UPDATE_OPPORTUNITY_REQUEST,
   UPDATE_OPPORTUNITY_SUCCESS,
+  UPDATE_TICKET_ERROR,
+  UPDATE_TICKET_REQUEST,
+  UPDATE_TICKET_SUCCESS,
+  UPLOAD_OPPORTUNITY_IMAGE_ERROR,
+  UPLOAD_OPPORTUNITY_IMAGE_REQUEST,
+  UPLOAD_OPPORTUNITY_IMAGE_SUCCESS,
 } from "./actionTypes";
 
 // Fetch opportunity
@@ -84,15 +99,96 @@ export const updateOpportunity = (payload) => {
     payload: payload,
   };
 };
+
 export const updateOpportunitySuccess = (data) => {
   return {
     type: UPDATE_OPPORTUNITY_SUCCESS,
     payload: data,
   };
 };
+
 export const updateOpportunityError = (error) => {
   return {
     type: UPDATE_OPPORTUNITY_ERROR,
     payload: error,
   };
 };
+
+// Upload Opportunity Image
+export const uploadOpportunityImage = (payload) => ({
+  type: UPLOAD_OPPORTUNITY_IMAGE_REQUEST,
+  payload,
+});
+
+export const uploadOpportunityImageSuccess = (data) => ({
+  type: UPLOAD_OPPORTUNITY_IMAGE_SUCCESS,
+  payload: data,
+});
+
+export const uploadOpportunityImageError = (error) => ({
+  type: UPLOAD_OPPORTUNITY_IMAGE_ERROR,
+  payload: error,
+});
+
+// Remove Opportunity Image
+export const removeOpportunityImage = (payload) => ({
+  type: REMOVE_OPPORTUNITY_IMAGE_REQUEST,
+  payload,
+});
+
+export const removeOpportunityImageSuccess = (data) => ({
+  type: REMOVE_OPPORTUNITY_IMAGE_SUCCESS,
+  payload: data,
+});
+
+export const removeOpportunityImageError = (error) => ({
+  type: REMOVE_OPPORTUNITY_IMAGE_ERROR,
+  payload: error,
+});
+
+// Fetch Tickets
+export const fetchTicketsRequest = (payload) => ({
+  type: FETCH_TICKETS_REQUEST,
+  payload,
+});
+
+export const fetchTicketsSuccess = (data) => ({
+  type: FETCH_TICKETS_SUCCESS,
+  payload: data,
+});
+
+export const fetchTicketsError = (error) => ({
+  type: FETCH_TICKETS_ERROR,
+  payload: error,
+});
+
+// Create Ticket
+export const createTicketRequest = (payload) => ({
+  type: CREATE_TICKET_REQUEST,
+  payload,
+});
+
+export const createTicketSuccess = (data) => ({
+  type: CREATE_TICKET_SUCCESS,
+  payload: data,
+});
+
+export const createTicketError = (error) => ({
+  type: CREATE_TICKET_ERROR,
+  payload: error,
+});
+
+export const updateTicketRequest = (payload) => ({
+  type: UPDATE_TICKET_REQUEST,
+  payload,
+});
+
+export const updateTicketSuccess = (data) => ({
+  type: UPDATE_TICKET_SUCCESS,
+  payload: data,
+});
+
+export const updateTicketError = (error) => ({
+  type: UPDATE_TICKET_ERROR,
+  payload: error,
+});

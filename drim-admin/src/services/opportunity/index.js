@@ -1,8 +1,13 @@
-import { del, post, put } from "../../helpers/api_helper";
+import { del, post, postForm, put } from "../../helpers/api_helper";
 import {
   CREATE_OPPORTUNITY_URL,
+  CREATE_TICKET,
   DELETE_OPPORTUNITY_URL,
   GET_OPPORTUNITY_URL,
+  GET_TICKET,
+  REMOVE_OPPORTUNITY_IMAGE_URL,
+  UPDATE_TICKET,
+  UPLOAD_OPPORTUNITY_IMAGE_URL,
 } from "./routes";
 
 //fetch all opportunity
@@ -41,6 +46,69 @@ export const updateOpportunityUrl = (id, data, token) => {
     { ...data },
     {
       headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+};
+
+export const uploadOpportunityImageUrl = (token, formData) => {
+  return postForm(
+    UPLOAD_OPPORTUNITY_IMAGE_URL,
+    formData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+};
+
+// Remove Opportunity Image
+export const removeOpportunityImageUrl = (token, payload) => {
+  return post(
+    REMOVE_OPPORTUNITY_IMAGE_URL,
+    payload,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+};
+export const fetchTicketsUrl = (data,token) => {
+  return post(
+    GET_TICKET,
+    data,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+};
+
+// Create Ticket
+export const createTicketUrl = ( data,token) => {
+  return post(
+    CREATE_TICKET,
+    data,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+};
+
+export const updateTicketUrl = (data, token) => {
+  return put(
+    `${UPDATE_TICKET}/${data.id}`,
+    data,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     }
   );
 };

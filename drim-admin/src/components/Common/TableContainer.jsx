@@ -287,6 +287,7 @@ const TableContainer = ({
                 style={{ backgroundColor  :  "var(--primary-purple)" ,color  : "var(--primary-white)"}}
                 onClick={() => gotoPage(0)}
                 disabled={!canPreviousPage}
+                className="border-none"
               >
                 {"<<"}
               </Button>
@@ -294,6 +295,7 @@ const TableContainer = ({
                 style={{ backgroundColor  : "var(--primary-purple)",color  : "var(--primary-white)"}}
                 onClick={previousPage}
                 disabled={!canPreviousPage}
+                className="border-none"
               >
                 {"<"}
               </Button>
@@ -322,6 +324,7 @@ const TableContainer = ({
                 style={{ backgroundColor  : "var(--primary-purple)" ,color  : "var(--primary-white)"}}
                 onClick={nextPage}
                 disabled={!canNextPage}
+                className="border-none"
               >
                 {">"}
               </Button>
@@ -329,6 +332,7 @@ const TableContainer = ({
                 style={{ backgroundColor  : "var(--primary-purple)" ,color  : "var(--primary-white)"}}
                 onClick={() => gotoPage(pageCount - 1)}
                 disabled={!canNextPage}
+                className="border-none"
               >
                 {">>"}
               </Button>

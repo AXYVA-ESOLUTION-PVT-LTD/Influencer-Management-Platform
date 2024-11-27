@@ -65,7 +65,6 @@ const Login = (props) => {
       email: "",
       password: "",
     };
-    console.log("google ",payload);
     
     dispatch(loginUser(payload, props.router.navigate));
   };
@@ -131,7 +130,6 @@ const Login = (props) => {
         email: values.email,
         password: values.password,
       };
-      console.log("manual login",payload);
       
       dispatch(loginUser(payload, props.router.navigate));
     },

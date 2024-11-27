@@ -91,7 +91,7 @@ function BrandFiltering({ filterFields, setFilterFields, setIsSearching }) {
         </Col>
         <Col xs="3" sm="2" md="auto" className="d-flex align-items-center mt-2">
         <Button
-          className="w-100 custom-button"
+          className="w-100 custom-button border-none"
           onClick={handleSearch}
           style={{ backgroundColor  :  "var(--primary-purple)" }}
         >
@@ -101,7 +101,7 @@ function BrandFiltering({ filterFields, setFilterFields, setIsSearching }) {
 
       <Col xs="3" sm="2" md="auto" className="d-flex align-items-center mt-2">
         <Button
-          className="w-100 custom-button"
+          className="w-100 custom-button border-none"
           onClick={handleClear}
           style={{ backgroundColor  : "var(--secondary-red)"}}
         >

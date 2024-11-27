@@ -28,22 +28,24 @@ const NotificationDropdown = (props) => {
   }
   return (
     <React.Fragment>
-      <Dropdown
+      {/* <Dropdown
         isOpen={menu}
         toggle={() => setMenu(!menu)}
         className="dropdown d-inline-block"
         tag="li"
-      >
+      > */}
         <DropdownToggle
           className="btn header-item noti-icon position-relative"
           tag="button"
           id="page-header-notifications-dropdown"
         >
-          <i className="bx bx-bell bx-tada" />
-          <span className="badge bg-danger rounded-pill">3</span>
-        </DropdownToggle>
+        <Link to="/notifications">
+          <i className="bx bx-bell bx-tada " />
+          </Link>
+          {/* <span className="badge bg-danger rounded-pill">3</span> */}
+         </DropdownToggle>
 
-        <DropdownMenu className="dropdown-menu dropdown-menu-lg p-0 dropdown-menu-end">
+        {/*<DropdownMenu className="dropdown-menu dropdown-menu-lg p-0 dropdown-menu-end">
           <div className="p-3">
             <Row className="align-items-center">
               <Col>
@@ -163,7 +165,7 @@ const NotificationDropdown = (props) => {
             </Link>
           </div>
         </DropdownMenu>
-      </Dropdown>
+      </Dropdown> */}
     </React.Fragment>
   );
 };
