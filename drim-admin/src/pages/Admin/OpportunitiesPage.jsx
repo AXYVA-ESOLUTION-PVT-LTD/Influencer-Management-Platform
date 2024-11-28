@@ -33,10 +33,21 @@ const OpportunitiesPage = (props) => {
     useSelector((state) => state.opportunity);
 
   // State for modals
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [OpportunityDetails, setOpportunityDetails] = useState({
+    title: "",
+    type: "",
+    description: "",
+    location: "",
+    imageUrl: "",
+    brand: "",
+    endDate: "",
+    status: "",
+  });
   const [selectedOpportunity, setSelectedOpportunity] = useState({
     title: "",
     type: "",
@@ -47,8 +58,10 @@ const OpportunitiesPage = (props) => {
     endDate: "",
     status: "",
   });
+  const [errors, setErrors] = useState({});
+  const [updateModelerrors, setupdateModelErrors] = useState({});
   const [imageFile, setImageFile] = useState(null);
-  const [isChangingImage, setIsChangingImage] = useState(false);
+  const [newImageFile, setnewImageFile] = useState(null);
   const [filterFields, setFilterFields] = useState({
     title: "",
     type: "",
@@ -63,7 +76,37 @@ const OpportunitiesPage = (props) => {
   document.title = "Opportunity | Brandraise ";
 
   // Toggle modals
-  const toggleUpdateModal = () => setIsUpdateModalOpen(!isUpdateModalOpen);
+  const toggleAddModal = () => {
+    // If the modal is being closed, reset the errors
+    if (isAddModalOpen) {
+      setOpportunityDetails({
+        title: "",
+        type: "",
+        description: "",
+        location: "",
+        imageUrl: "",
+        brand: "",
+        endDate: "",
+        status: "",
+      });
+      setErrors({}); 
+      setnewImageFile(null);
+    }
+  
+    // Toggle the modal open/close
+    setIsAddModalOpen(!isAddModalOpen);
+  };
+  
+  const toggleUpdateModal = () => {
+    // If the modal is being closed, reset the errors
+    if (isUpdateModalOpen) {
+      setupdateModelErrors({});
+    }
+  
+    // Toggle the modal open/close
+    setIsUpdateModalOpen(!isUpdateModalOpen);
+  };
+  
   const toggleDeleteModal = () => setIsDeleteModalOpen(!isDeleteModalOpen);
   const toggleViewModal = () => setIsViewModalOpen(!isViewModalOpen);
 
@@ -83,13 +126,58 @@ const OpportunitiesPage = (props) => {
   useEffect(() => {
     // When updating the record, format the date as YYYY-MM-DD if it's not already.
     if (selectedOpportunity.endDate) {
-      const formattedDate = new Date(selectedOpportunity.endDate).toISOString().split("T")[0]; // Get YYYY-MM-DD format
+      const formattedDate = new Date(selectedOpportunity.endDate)
+        .toISOString()
+        .split("T")[0]; // Get YYYY-MM-DD format
       setSelectedOpportunity((prevState) => ({
         ...prevState,
         endDate: formattedDate,
       }));
     }
-  }, [selectedOpportunity.endDate]); 
+  }, [selectedOpportunity.endDate]);
+
+  // Add Form Validation
+  const validateForm = () => {
+    const newErrors = {};
+    const tomorrow = new Date();
+    tomorrow.setHours(0, 0, 0, 0); // Set time to midnight
+    tomorrow.setDate(tomorrow.getDate() + 1); // Move to tomorrow
+  
+    if (!OpportunityDetails.title.trim())
+      newErrors.title = "Title is required.";
+    if (!OpportunityDetails.type.trim())
+      newErrors.type = "Type is required.";
+    if (!OpportunityDetails.description.trim())
+      newErrors.description = "Description is required.";
+    if (!OpportunityDetails.location.trim())
+      newErrors.location = "Location is required.";
+    if (!OpportunityDetails.brand.trim())
+      newErrors.brand = "Brand is required.";
+    if (!OpportunityDetails.imageUrl.trim())
+      newErrors.imageUrl = "Image upload is required.";
+    if (!OpportunityDetails.endDate.trim()) {
+      newErrors.endDate = "End Date is required.";
+    } else {
+      const selectedEndDate = new Date(OpportunityDetails.endDate).setHours(0, 0, 0, 0); // Normalize selected end date
+      if (selectedEndDate < tomorrow) {
+        newErrors.endDate = "Please select a future date.";
+      }
+    }
+    if (!OpportunityDetails.status.trim())
+      newErrors.status = "Status is required.";
+  
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  
+
+  const handleInputNewOpportunity = (e) => {
+    const { name, value } = e.target;
+    setOpportunityDetails((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: null })); // Clear error on change
+    }
+  };
 
   // Handle view
   const handleViewOpportunity = (opportunity) => {
@@ -109,20 +197,134 @@ const OpportunitiesPage = (props) => {
     toggleDeleteModal();
   };
 
+  const addNewOpportunity = () => {
+    if (validateForm()) {
+      dispatch(createOpportunity(OpportunityDetails));
+      toggleAddModal();
+      setOpportunityDetails({
+        title: "",
+        type: "",
+        description: "",
+        location: "",
+        imageUrl: "",
+        brand: "",
+        endDate: "",
+        status: "",
+      });
+      setnewImageFile(null);
+      setErrors({});
+    }
+  };
+
   // Confirm opportunity update
   const confirmUpdateOpportunity = () => {
-    if (selectedOpportunity && selectedOpportunity._id) {
+    if (validateUpdateForm()) {
       dispatch(updateOpportunity(selectedOpportunity));
-    } else {
-      dispatch(createOpportunity(selectedOpportunity));
+      toggleUpdateModal();
     }
-    toggleUpdateModal();
-    setSelectedOpportunity({ title: "", type: "" });
   };
 
   const confirmDeleteOpportunity = () => {
     dispatch(deleteOpportunity(selectedOpportunity._id));
     toggleDeleteModal();
+  };
+
+  const handleNewImageChange = (e) => {
+    setnewImageFile(e.target.files[0]);
+  };
+
+  // Image upload in Add Opportunity
+  const handleImageUploadNewOpportunity = async () => {
+    if (!newImageFile) {
+      setErrors((prev) => ({ ...prev, imageUrl: "Image is required." }));
+      return;
+    }
+    const formData = new FormData();
+    formData.append("file", newImageFile);
+    try {
+      const token = localStorage.getItem("authUser");
+      const response = await axios.post(
+        `${import.meta.env.VITE_APP_BASE_URL}${UPLOAD_OPPORTUNITY_IMAGE_URL}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if (response.status === 200) {
+        const result = response.data;
+        setOpportunityDetails((prevState) => ({
+          ...prevState,
+          imageUrl: result.result.data.fileName,
+        }));
+        toast.success("Image uploaded successfully!");
+      } else {
+        toast.error("Image not uploaded successfully. Please try again later.");
+      }
+    } catch (error) {
+      toast.error("Image not uploaded successfully. Please try again later.");
+      console.error("Error uploading image:", error);
+    }
+  };
+
+  const handleRemoveImageNewOpportunity = () => {
+    if (!OpportunityDetails.imageUrl) {
+      toast.error("No image to remove.");
+      return;
+    }
+
+    const payload = { fileName: OpportunityDetails.imageUrl };
+    dispatch(removeOpportunityImage(payload));
+    setOpportunityDetails((prev) => ({ ...prev, imageUrl: "" }));
+  };
+
+  const validateUpdateForm = () => {
+    const newUpdateErrors = {};
+    const tomorrow = new Date();
+    tomorrow.setHours(0, 0, 0, 0);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    if (!selectedOpportunity.title.trim()) {
+      newUpdateErrors.title = "Title is required.";
+    }
+    if (!selectedOpportunity.type.trim()) {
+      newUpdateErrors.type = "Type is required.";
+    }
+    if (!selectedOpportunity.description.trim()) {
+      newUpdateErrors.description = "Description is required.";
+    }
+    if (!selectedOpportunity.location.trim()) {
+      newUpdateErrors.location = "Location is required.";
+    }
+    if (!selectedOpportunity.brand.trim()) {
+      newUpdateErrors.brand = "Brand is required.";
+    }
+    if (!selectedOpportunity.imageUrl.trim()) {
+      newUpdateErrors.imageUrl = "Image upload is required.";
+    }
+    if (!selectedOpportunity.endDate.trim()) {
+      newUpdateErrors.endDate = "End Date is required.";
+    } else {
+      const selectedEndDate = new Date(selectedOpportunity.endDate).setHours(0, 0, 0, 0); // Normalize selected date
+      if (selectedEndDate < tomorrow) {
+        newUpdateErrors.endDate = "Please select a future date.";
+      }
+    }
+    if (!selectedOpportunity.status.trim()) {
+      newUpdateErrors.status = "Status is required.";
+    }
+
+    setupdateModelErrors(newUpdateErrors);
+
+    return Object.keys(newUpdateErrors).length === 0;
+  };
+
+  // Update Models
+  const handleImageChange = (e) => {
+    setImageFile(e.target.files[0]);
+
   };
 
   const handleInputChange = (e) => {
@@ -131,15 +333,19 @@ const OpportunitiesPage = (props) => {
       ...prevState,
       [name]: value,
     }));
+    if (updateModelerrors[name]) {
+      setupdateModelErrors((prev) => ({ ...prev, [name]: null })); // Clear error on change
+    }
   };
 
-  const handleImageChange = (e) => {
-    setImageFile(e.target.files[0]);
-  };
-
+  // Image Upload with Update Model
   const handleImageUpload = async () => {
     if (!imageFile) {
       toast.error("Please select an image first.");
+      setupdateModelErrors((prev) => ({
+        ...prev,
+        imageUrl: "Image is required.",
+      }));
       return;
     }
     const formData = new FormData();
@@ -147,7 +353,7 @@ const OpportunitiesPage = (props) => {
     try {
       const token = localStorage.getItem("authUser");
       const response = await axios.post(
-        `${ import.meta.env.VITE_APP_BASE_URL}${UPLOAD_OPPORTUNITY_IMAGE_URL}`,
+        `${import.meta.env.VITE_APP_BASE_URL}${UPLOAD_OPPORTUNITY_IMAGE_URL}`,
         formData,
         {
           headers: {
@@ -160,9 +366,8 @@ const OpportunitiesPage = (props) => {
         const result = response.data;
         setSelectedOpportunity((prevState) => ({
           ...prevState,
-          imageUrl: result.result.data.fileName, 
+          imageUrl: result.result.data.fileName,
         }));
-        toast.success("Image uploaded successfully!");
       } else {
         toast.error("Image not uploaded successfully. Please try again later.");
       }
@@ -172,21 +377,13 @@ const OpportunitiesPage = (props) => {
     }
   };
 
-  // const handleImageUpload = () => {
-  //   if (!imageFile) {
-  //     toast.error("Please select an image first.");
-  //     return;
-  //   }
-  
-  //   const formData = new FormData();
-  //   formData.append("file", imageFile);
-  
-  //   dispatch(uploadOpportunityImage(imageFile));
-  // };
-
   const handleRemoveImage = () => {
     if (!selectedOpportunity.imageUrl) {
       toast.error("No image to remove.");
+      setupdateModelErrors((prev) => ({
+        ...prev,
+        imageUrl: "Image is required.",
+      }));
       return;
     }
 
@@ -194,6 +391,18 @@ const OpportunitiesPage = (props) => {
     dispatch(removeOpportunityImage(payload));
     setSelectedOpportunity((prev) => ({ ...prev, imageUrl: "" }));
   };
+
+  // const handleImageUpload = () => {
+  //   if (!imageFile) {
+  //     toast.error("Please select an image first.");
+  //     return;
+  //   }
+
+  //   const formData = new FormData();
+  //   formData.append("file", imageFile);
+
+  //   dispatch(uploadOpportunityImage(imageFile));
+  // };
 
   const columns = useMemo(
     () => [
@@ -291,9 +500,6 @@ const OpportunitiesPage = (props) => {
     [handleViewOpportunity, handleUpdateOpportunity, handleDeleteOpportunity]
   );
 
-  const canSubmit =
-    selectedOpportunity?.title.trim().length > 0 &&
-    selectedOpportunity?.type.trim().length > 0;
   return (
     <React.Fragment>
       <div className="page-content">
@@ -314,9 +520,9 @@ const OpportunitiesPage = (props) => {
                 style={{
                   backgroundColor: "var(--primary-purple)",
                   color: "var(--primary-white)",
-                  border : "none"
+                  border: "none",
                 }}
-                onClick={() => toggleUpdateModal()}
+                onClick={toggleAddModal}
               >
                 Add Opportunity
               </Button>
@@ -372,19 +578,169 @@ const OpportunitiesPage = (props) => {
         </Container>
       </div>
 
+      {/* Add Model */}
+      <Modal isOpen={isAddModalOpen} toggle={toggleAddModal}>
+        <ModalHeader toggle={toggleAddModal}>Add Opportunity</ModalHeader>
+        <ModalBody>
+          {OpportunityDetails.imageUrl && (
+            <div className="mb-2">
+              <p>Current Image:</p>
+              <img
+                src={`${import.meta.env.VITE_APP_BASE_IMAGE_URL}${
+                  OpportunityDetails.imageUrl
+                }`}
+                alt="Current"
+                style={{ width: "50px", height: "50px", objectFit: "contain" }}
+              />
+              <Button
+                color="danger"
+                onClick={handleRemoveImageNewOpportunity}
+                className="mt-2 ms-2"
+              >
+                Change Image
+              </Button>
+            </div>
+          )}
+          {!OpportunityDetails.imageUrl && (
+            <>
+              <label htmlFor="imageFile">Upload New Image</label>
+              <Input
+                type="file"
+                name="imageFile"
+                onChange={handleNewImageChange}
+                className="mb-2"
+              />
+              {errors.imageUrl && (
+                <p className="text-danger">{errors.imageUrl}</p>
+              )}
+              <Button color="primary" onClick={handleImageUploadNewOpportunity}>
+                Upload New Image
+              </Button>
+            </>
+          )}
+
+          {/* <Input
+            type="text"
+            name="imageUrl"
+            value={OpportunityDetails.imageUrl || ""}
+            onChange={handleInputNewOpportunity}
+            placeholder="Uploaded image URL"
+            className="mb-2"
+            disabled
+          />
+            */}
+
+          <label htmlFor="title" className="mt-2">
+            Opportunity Title
+          </label>
+          <Input
+            type="text"
+            name="title"
+            value={OpportunityDetails.title}
+            onChange={handleInputNewOpportunity}
+            placeholder="Enter opportunity title"
+            className="mb-2"
+          />
+          {errors.title && <p className="text-danger">{errors.title}</p>}
+
+          <label htmlFor="type">Opportunity Type</label>
+          <Input
+            type="text"
+            name="type"
+            value={OpportunityDetails.type}
+            onChange={handleInputNewOpportunity}
+            placeholder="Enter opportunity type"
+            className="mb-2"
+          />
+          {errors.type && <p className="text-danger">{errors.type}</p>}
+
+          <label htmlFor="description">Opportunity Description</label>
+          <Input
+            type="text"
+            name="description"
+            value={OpportunityDetails.description}
+            onChange={handleInputNewOpportunity}
+            placeholder="Enter opportunity description"
+            className="mb-2"
+          />
+          {errors.description && (
+            <p className="text-danger">{errors.description}</p>
+          )}
+
+          <label htmlFor="location">Opportunity Location</label>
+          <Input
+            type="text"
+            name="location"
+            value={OpportunityDetails.location}
+            onChange={handleInputNewOpportunity}
+            placeholder="Enter opportunity location"
+            className="mb-2"
+          />
+          {errors.location && <p className="text-danger">{errors.location}</p>}
+
+          <label htmlFor="brand">Brand</label>
+          <Input
+            type="text"
+            name="brand"
+            value={OpportunityDetails.brand}
+            onChange={handleInputNewOpportunity}
+            placeholder="Enter brand"
+            className="mb-2"
+          />
+          {errors.brand && <p className="text-danger">{errors.brand}</p>}
+
+          <label htmlFor="endDate">End Date</label>
+          <Input
+            type="date"
+            name="endDate"
+            value={OpportunityDetails.endDate}
+            onChange={handleInputNewOpportunity}
+            placeholder="Enter end date"
+            className="mb-2"
+          />
+          {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
+
+          <label htmlFor="status">Opportunity Status</label>
+          <Input
+            type="select"
+            name="status"
+            value={OpportunityDetails.status}
+            onChange={handleInputNewOpportunity}
+            placeholder="Select opportunity status"
+          >
+            <option value="">Select Status</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </Input>
+          {errors.status && <p className="text-danger">{errors.status}</p>}
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            style={{
+              backgroundColor: "var(--primary-purple)",
+              color: "var(--primary-white)",
+            }}
+            onClick={addNewOpportunity}
+          >
+            Save
+          </Button>
+          <Button color="secondary" onClick={toggleAddModal}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
+
       {/* Update Modal */}
       <Modal isOpen={isUpdateModalOpen} toggle={toggleUpdateModal}>
-        <ModalHeader toggle={toggleUpdateModal}>
-          {selectedOpportunity && selectedOpportunity.id
-            ? "Update Opportunity"
-            : "Add Opportunity"}
-        </ModalHeader>
+        <ModalHeader toggle={toggleUpdateModal}>Update Opportunity</ModalHeader>
         <ModalBody>
           {selectedOpportunity.imageUrl && (
             <div className="mb-2">
               <p>Current Image:</p>
               <img
-                src={`${import.meta.env.VITE_APP_BASE_IMAGE_URL}${selectedOpportunity.imageUrl}`}
+                src={`${import.meta.env.VITE_APP_BASE_IMAGE_URL}${
+                  selectedOpportunity.imageUrl
+                }`}
                 alt="Current"
                 style={{ width: "50px", height: "50px", objectFit: "contain" }}
               />
@@ -397,16 +753,24 @@ const OpportunitiesPage = (props) => {
               </Button>
             </div>
           )}
-          <label htmlFor="imageFile">Upload New Image</label>
-          <Input
-            type="file"
-            name="imageFile"
-            onChange={handleImageChange}
-            className="mb-2"
-          />
-          <Button color="primary" onClick={handleImageUpload}>
-            Upload New Image
-          </Button>
+          {!selectedOpportunity.imageUrl && (
+            <>
+              <label htmlFor="imageFile">Upload New Image</label>
+              <Input
+                type="file"
+                name="imageFile"
+                onChange={handleImageChange}
+                className="mb-2"
+              />
+              {updateModelerrors.imageUrl && (
+                <p className="text-danger">{updateModelerrors.imageUrl}</p>
+              )}
+              <Button color="primary" onClick={handleImageUpload}>
+                Upload New Image
+              </Button>
+            </>
+          )}
+
           {/* <Input
             type="text"
             name="imageUrl"
@@ -416,7 +780,9 @@ const OpportunitiesPage = (props) => {
             className="mb-2"
             disabled
           /> */}
-           <label htmlFor="title" className="mt-2">Opportunity Title</label>
+          <label htmlFor="title" className="mt-2">
+            Opportunity Title
+          </label>
           <Input
             type="text"
             name="title"
@@ -425,6 +791,9 @@ const OpportunitiesPage = (props) => {
             placeholder="Enter opportunity title"
             className="mb-2"
           />
+          {updateModelerrors.title && (
+            <p className="text-danger">{updateModelerrors.title}</p>
+          )}
           <label htmlFor="type">Opportunity Type</label>
           <Input
             type="text"
@@ -434,7 +803,10 @@ const OpportunitiesPage = (props) => {
             placeholder="Enter opportunity type"
             className="mb-2"
           />
-           <label htmlFor="description">Opportunity Description</label>
+          {updateModelerrors.type && (
+            <p className="text-danger">{updateModelerrors.type}</p>
+          )}
+          <label htmlFor="description">Opportunity Description</label>
           <Input
             type="text"
             name="description"
@@ -443,6 +815,9 @@ const OpportunitiesPage = (props) => {
             placeholder="Enter opportunity description"
             className="mb-2"
           />
+          {updateModelerrors.description && (
+            <p className="text-danger">{updateModelerrors.description}</p>
+          )}
           <label htmlFor="location">Opportunity Location</label>
           <Input
             type="text"
@@ -452,15 +827,21 @@ const OpportunitiesPage = (props) => {
             placeholder="Enter opportunity location"
             className="mb-2"
           />
-          <label htmlFor="brand">Brand (Optional)</label>
+          {updateModelerrors.location && (
+            <p className="text-danger">{updateModelerrors.location}</p>
+          )}
+          <label htmlFor="brand">Brand</label>
           <Input
             type="text"
             name="brand"
             value={selectedOpportunity.brand}
             onChange={handleInputChange}
-            placeholder="Enter brand (optional)"
+            placeholder="Enter brand"
             className="mb-2"
           />
+          {updateModelerrors.brand && (
+            <p className="text-danger">{updateModelerrors.brand}</p>
+          )}
           <label htmlFor="endDate">End Date</label>
           <Input
             type="date"
@@ -470,6 +851,9 @@ const OpportunitiesPage = (props) => {
             placeholder="Enter end date"
             className="mb-2"
           />
+          {updateModelerrors.endDate && (
+            <p className="text-danger">{updateModelerrors.endDate}</p>
+          )}
           <label htmlFor="status">Opportunity Status</label>
           <Input
             type="select"
@@ -480,9 +864,11 @@ const OpportunitiesPage = (props) => {
           >
             <option value="">Select Status</option>
             <option value="Active">Active</option>
-            <option value="Pending">Pending</option>
             <option value="Inactive">Inactive</option>
           </Input>
+          {updateModelerrors.status && (
+            <p className="text-danger">{updateModelerrors.status}</p>
+          )}
         </ModalBody>
         <ModalFooter>
           <Button
@@ -491,7 +877,6 @@ const OpportunitiesPage = (props) => {
               color: "var(--primary-white)",
             }}
             onClick={confirmUpdateOpportunity}
-            disabled={!canSubmit}
           >
             Save
           </Button>

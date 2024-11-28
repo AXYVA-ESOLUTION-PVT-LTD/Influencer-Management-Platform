@@ -180,8 +180,9 @@ const OpportunitiesPage = (props) => {
                     {opportunities.length > 0 ? (
                       opportunities.map((opportunity) => (
                         <Col
-                          sm="6"
-                          md="4"
+                          xs="12" 
+                          sm="6" 
+                          md="4" 
                           lg="3"
                           key={opportunity._id}
                           className="mb-4"
@@ -197,9 +198,7 @@ const OpportunitiesPage = (props) => {
                                 <Col xs="12" className="p-3">
                                   <CardImg
                                     className="img-fluid"
-                                    src={`${
-                                      import.meta.env.VITE_APP_BASE_URL
-                                    }/uploads/opportunityImage/${
+                                    src={`${import.meta.env.VITE_APP_BASE_URL}/uploads/opportunityImage/${
                                       opportunity.imageUrl
                                     }`}
                                     alt={`Image for ${opportunity.title}`}
@@ -224,7 +223,7 @@ const OpportunitiesPage = (props) => {
                                   <p>
                                     <strong>Brand:</strong> {opportunity.brand}
                                   </p>
-                                  <p>
+                                  <p className="description-text">
                                     <strong>Description:</strong>{" "}
                                     {opportunity.description}
                                   </p>
@@ -256,9 +255,13 @@ const OpportunitiesPage = (props) => {
                                         backgroundColor:
                                           "var(--primary-purple)",
                                         color: "var(--primary-white)",
+                                        width: "100%",
                                       }}
                                       onClick={() =>
                                         handleCreateTicket(opportunity)
+                                      }
+                                      disabled={
+                                        opportunity.status === "Inactive"
                                       }
                                     >
                                       Apply
@@ -369,7 +372,7 @@ const OpportunitiesPage = (props) => {
                                   position: "absolute",
                                   bottom: "0",
                                   left: "0",
-                                  width : '50%',
+                                  width: "50%",
                                   height: "40px",
                                   zIndex: "100",
                                   boxSizing: "border-box",
