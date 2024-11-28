@@ -186,7 +186,11 @@ async function _updateNotification(req, res) {
       { _id: id },
       { status },
       { new: true, runValidators: true }
-    );
+    ) .populate({
+      path: "from",
+      model: "User",
+      select: ["email", "firstName"],
+    });
 
     if (!notification) {
       json.status = CONSTANT.FAIL;
