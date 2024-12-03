@@ -23,7 +23,9 @@ const Influencer = require("./routes/influencer.route");
 const Brand = require("./routes/brand.route");
 const Notification = require("./routes/notification.route");
 const Chat = require("./routes/chat.route");
+const Ticket = require("./routes/ticket.route");
 const path = require("path");
+const { getRefreshToken } = require("./controllers/tokengenerator");
 
 let server;
 
@@ -75,6 +77,9 @@ app.use("/v1/influencer", Influencer);
 app.use("/v1/brand", Brand);
 app.use("/v1/notification", Notification);
 app.use("/v1/chat", Chat);
+app.use("/v1/ticket", Ticket);
+
+app.post('/v1/refresh-token', getRefreshToken);
 
 app.get("/testing",(req,res)=>{
 	return res.status(200).json({msg:"server is up an running"});
