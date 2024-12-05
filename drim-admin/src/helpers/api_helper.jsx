@@ -1,21 +1,42 @@
 import axios from "axios";
-// import accessToken from "./jwt-token-access/accessToken";
 
-//pass new generated access token here
-// const token = accessToken;
-
-//apply base url for axios
 export const API_URL = import.meta.env.VITE_APP_BASE_URL;
 
 const axiosApi = axios.create({
   baseURL: API_URL,
 });
 
-// axiosApi.defaults.headers.common["Authorization"] = token;
-
 axiosApi.interceptors.response.use(
   (response) => response,
-  (error) => Promise.reject(error)
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response && (error.response.status === 403 )) {
+
+        const refreshToken = localStorage.getItem("authUser");
+        if (!refreshToken) {
+          throw new Error("No refresh token available");
+        }
+
+        const refreshResponse = await axios.post(
+          `${API_URL}/refresh-token`, 
+          {}, 
+          {
+            headers: {
+              Authorization: `Bearer ${refreshToken}`,
+            },
+          }
+        );
+        
+        const newAccessToken = refreshResponse.data.result.accessToken;
+        
+        localStorage.setItem("authUser", newAccessToken);
+
+        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+        return axiosApi(originalRequest);
+    }
+    return Promise.reject(error);
+  }
 );
 
 export async function get(url, config = {}) {
