@@ -17,7 +17,7 @@ import Pagination from "../../components/Common/Pagination";
 import TableContainer from "../../components/Common/TableContainer";
 import "../../assets/themes/colors.scss";
 import PropTypes from "prop-types";
-import { fetchTicketsRequest, updateTicketRequest } from "../../store/actions";
+import { deleteTicketRequest, fetchTicketsRequest, updateTicketRequest } from "../../store/actions";
 import axios from "axios";
 const CouponManagement = (props) => {
   const [limit, setLimit] = useState(10);
@@ -33,6 +33,16 @@ const CouponManagement = (props) => {
     setSelectedOpportunity(item);
     setCouponCode(item.couponCode || ""); 
     setIsEditModalOpen(true);
+  };
+
+  const handleDelete = (ticket) => {
+    dispatch(deleteTicketRequest({ ticketId: ticket._id }));
+    dispatch(
+      fetchTicketsRequest({
+        limit,
+        pageCount,
+      })
+    );
   };
 
   const handleSubmit = () => {
@@ -67,60 +77,86 @@ const CouponManagement = (props) => {
     );
   }, [dispatch, limit, pageCount]);
 
-  const columns = useMemo(() => [
-    {
-      Header: "Image",
-      accessor: "opportunity.imageUrl",
-      Cell: ({ value }) => (
-        <img
-          src={`${import.meta.env.VITE_APP_BASE_URL}/uploads/opportunityImage/${value}`}
-          alt="Opportunity"
-          style={{ width: "50px", height: "50px", objectFit: "cover", borderRadius: "5px" }}
-        />
-      ),
-    },
-    {
-      Header: "Brand",
-      accessor: "opportunity.brand", 
-    },
-    {
-      Header: "Opportunity Title",
-      accessor: "opportunity.title", 
-    },
-    {
-      Header: "Influencer Name",
-      accessor: row => `${row.influencerData.firstName} ${row.influencerData.lastName}`,
-    },    
-    {
-      Header: "Coupon Code",
-      accessor: "couponCode",
-      Cell: ({ value }) => (value ? value : "-"),
-    },
-    {
-      Header: "Actions",
-      accessor: "actions",
-      Cell: ({ row }) => (
-        <Button
-          onClick={() => handleEdit(row.original)}
-          size="lg"
-          style={{
-            background: "transparent",
-            border: "none",
-            cursor: "pointer",
-            color: "var(--primary-purple)",
-          }}
-        >
-          <i className="bx bx-edit" style={{ color: "var(--secondary-yellow)" }}></i>
-        </Button>
-      ),
-    },
-  ], []);
+  const columns = useMemo(
+    () => [
+      {
+        Header: "Image",
+        accessor: "opportunity.imageUrl",
+        Cell: ({ value }) => (
+          <img
+            src={`${
+              import.meta.env.VITE_APP_BASE_URL
+            }/uploads/opportunityImage/${value}`}
+            alt="Opportunity"
+            style={{
+              width: "50px",
+              height: "50px",
+              objectFit: "cover",
+              borderRadius: "5px",
+            }}
+          />
+        ),
+      },
+      {
+        Header: "Brand",
+        accessor: "opportunity.brand",
+      },
+      {
+        Header: "Opportunity Title",
+        accessor: "opportunity.title",
+      },
+      {
+        Header: "Influencer Name",
+        accessor: (row) =>
+          `${row.influencerData.firstName} ${row.influencerData.lastName}`,
+      },
+      {
+        Header: "Coupon Code",
+        accessor: "couponCode",
+        Cell: ({ value }) => (value ? value : "-"),
+      },
+      {
+        Header: "Actions",
+        accessor: "actions",
+        Cell: ({ row }) => (
+          <>
+            <Button
+              onClick={() => handleEdit(row.original)}
+              size="lg"
+              style={{
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                color: "var(--primary-purple)",
+              }}
+            >
+              <i
+                className="bx bx-edit"
+                style={{ color: "var(--secondary-yellow)" }}
+              ></i>
+            </Button>
+            <Button
+              color="link"
+              size="lg"
+              className="p-0"
+              onClick={() => handleDelete(row.original)}
+            >
+              <i
+                className="bx bx-trash"
+                style={{ color: "var(--secondary-red)" }}
+              ></i>
+            </Button>
+          </>
+        ),
+      },
+    ],
+    []
+  );
 
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h4 className="font-size-18" style={{ textTransform: "uppercase" }}>
               Manage Coupons

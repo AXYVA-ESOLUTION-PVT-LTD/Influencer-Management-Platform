@@ -80,7 +80,7 @@ const OpportunitiesPage = (props) => {
         sortOrder,
       })
     );
-  }, [dispatch, limit, pageCount, sortBy, isSearching, sortOrder, sortBy]);
+  }, [dispatch, limit, pageCount, sortBy, isSearching, sortOrder, sortBy, activeTab]);
 
   const handleTicketCreation = () => {
     dispatch(

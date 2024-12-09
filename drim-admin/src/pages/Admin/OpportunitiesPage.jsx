@@ -74,7 +74,9 @@ const OpportunitiesPage = (props) => {
 
   // Meta title`
   document.title = "Opportunity | Brandraise ";
-
+  
+  const today = new Date().toISOString().split("T")[0]
+  
   // Toggle modals
   const toggleAddModal = () => {
     // If the modal is being closed, reset the errors
@@ -697,6 +699,7 @@ const OpportunitiesPage = (props) => {
             onChange={handleInputNewOpportunity}
             placeholder="Enter end date"
             className="mb-2"
+            min={today}
           />
           {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
 

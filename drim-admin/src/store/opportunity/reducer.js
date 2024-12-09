@@ -8,6 +8,9 @@ import {
   DELETE_OPPORTUNITY_ERROR,
   DELETE_OPPORTUNITY_REQUEST,
   DELETE_OPPORTUNITY_SUCCESS,
+  DELETE_TICKET_ERROR,
+  DELETE_TICKET_REQUEST,
+  DELETE_TICKET_SUCCESS,
   FETCH_TICKETS_ERROR,
   FETCH_TICKETS_REQUEST,
   FETCH_TICKETS_SUCCESS,
@@ -236,7 +239,25 @@ const opportunity = (state = initialState, action) => {
             loading: false,
             error: action.payload,
           };
-        
+          case DELETE_TICKET_REQUEST:
+            return {
+              ...state,
+              loading: true,
+              error: null,
+            };
+          case DELETE_TICKET_SUCCESS:
+            return {
+              ...state,
+              loading: false,
+              error: null,
+            };
+          case DELETE_TICKET_ERROR:
+            return {
+              ...state,
+              loading: false,
+              error: action.payload,
+            };
+      
 
     default:
       return state;

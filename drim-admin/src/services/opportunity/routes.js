@@ -7,3 +7,4 @@ export const REMOVE_OPPORTUNITY_IMAGE_URL = "/opportunity/removeOpportunityImage
 export const GET_TICKET = "/ticket/getTickets";
 export const CREATE_TICKET = "/ticket/createTicket";
 export const UPDATE_TICKET = "/ticket/updateTicketById";
+export const DELETE_TICKET = "/ticket/removeTicketById";
