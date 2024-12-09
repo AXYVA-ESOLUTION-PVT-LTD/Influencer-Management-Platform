@@ -8,6 +8,9 @@ import {
   DELETE_OPPORTUNITY_ERROR,
   DELETE_OPPORTUNITY_REQUEST,
   DELETE_OPPORTUNITY_SUCCESS,
+  DELETE_TICKET_ERROR,
+  DELETE_TICKET_REQUEST,
+  DELETE_TICKET_SUCCESS,
   FETCH_TICKETS_ERROR,
   FETCH_TICKETS_REQUEST,
   FETCH_TICKETS_SUCCESS,
@@ -190,5 +193,20 @@ export const updateTicketSuccess = (data) => ({
 
 export const updateTicketError = (error) => ({
   type: UPDATE_TICKET_ERROR,
+  payload: error,
+});
+
+export const deleteTicketRequest = (payload) => ({
+  type: DELETE_TICKET_REQUEST,
+  payload,
+});
+
+export const deleteTicketSuccess = (data) => ({
+  type: DELETE_TICKET_SUCCESS,
+  payload: data,
+});
+
+export const deleteTicketError = (error) => ({
+  type: DELETE_TICKET_ERROR,
   payload: error,
 });

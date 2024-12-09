@@ -3,6 +3,7 @@ import {
   CREATE_OPPORTUNITY_URL,
   CREATE_TICKET,
   DELETE_OPPORTUNITY_URL,
+  DELETE_TICKET,
   GET_OPPORTUNITY_URL,
   GET_TICKET,
   REMOVE_OPPORTUNITY_IMAGE_URL,
@@ -111,4 +112,13 @@ export const updateTicketUrl = (data, token) => {
       },
     }
   );
+};
+
+export const deleteTicketUrl = async (ticketId, token) => {
+  return del(`${DELETE_TICKET}/${ticketId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
 };

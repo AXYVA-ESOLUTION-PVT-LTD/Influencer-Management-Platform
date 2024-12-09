@@ -3,6 +3,7 @@ import {
   createOpportunityUrl,
   createTicketUrl,
   deleteOpportunityUrl,
+  deleteTicketUrl,
   fetchTicketsUrl,
   readOpportunityUrl,
   removeOpportunityImageUrl,
@@ -17,6 +18,8 @@ import {
   createTicketSuccess,
   deleteOpportunityError,
   deleteOpportunitySuccess,
+  deleteTicketError,
+  deleteTicketSuccess,
   fetchTicketsError,
   fetchTicketsSuccess,
   getOpportunity,
@@ -35,6 +38,7 @@ import {
   CREATE_OPPORTUNITY_REQUEST,
   CREATE_TICKET_REQUEST,
   DELETE_OPPORTUNITY_REQUEST,
+  DELETE_TICKET_REQUEST,
   FETCH_TICKETS_REQUEST,
   GET_OPPORTUNITY_REQUEST,
   REMOVE_OPPORTUNITY_IMAGE_REQUEST,
@@ -242,6 +246,17 @@ function* onUpdateTicket(action) {
   }
 }
 
+function* onDeleteTicket(action) {
+  const { ticketId } = action.payload; 
+  const token = localStorage.getItem("authUser"); 
+  try {
+    yield call(deleteTicketUrl, ticketId, token); 
+    yield put(deleteTicketSuccess({ id: ticketId }));
+  } catch (error) {
+    yield put(deleteTicketError(error.response?.data || "Failed to delete ticket")); // Dispatch error action
+  }
+}
+
 function* opportunitySaga() {
   yield takeEvery(GET_OPPORTUNITY_REQUEST, fetchOpportunity);
   yield takeEvery(CREATE_OPPORTUNITY_REQUEST, onAddOpportunity);
@@ -252,6 +267,7 @@ function* opportunitySaga() {
   yield takeEvery(FETCH_TICKETS_REQUEST, onFetchTickets);
   yield takeEvery(CREATE_TICKET_REQUEST, onCreateTicket);
   yield takeEvery(UPDATE_TICKET_REQUEST, onUpdateTicket);
+  yield takeEvery(DELETE_TICKET_REQUEST, onDeleteTicket);
 }
 
 export default opportunitySaga;
