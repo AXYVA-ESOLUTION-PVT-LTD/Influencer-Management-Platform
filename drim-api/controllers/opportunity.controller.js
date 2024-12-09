@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator");
 const CONSTANT = require("../config/constant");
 const OPPORTUNITY_COLLECTION = require("../module/opportunity.module");
+const TICKET_COLLECTION = require("../module/ticket.module");
 const COMMON = require("../config/common");
 const { getSortOption } = require("../helper/getSortOption");
 const path = require("path");
@@ -20,10 +21,18 @@ TODO: Get all opportunities
 */
 async function _getOpportunity(req, res) {
   try {
+    const userId = req.decoded.id;
+    const userRole = req.decoded.roleId.name;
     const limit = req.body.limit ? req.body.limit : 10;
     const pageCount = req.body.pageCount ? req.body.pageCount : 0;
     const skip = limit * pageCount;
     let query = { isDeleted: false };
+    if(userRole == 'Influencer'){
+      const tickets = await TICKET_COLLECTION.find({influencerId: userId }, { opportunityId: 1 });
+      if(tickets.length > 0){
+        query._id = { $nin: tickets.map(t => t.opportunityId) };
+      }
+    }
     let sort = {};
     const { id, title, type, sortBy, sortOrder } = req.body;
 
