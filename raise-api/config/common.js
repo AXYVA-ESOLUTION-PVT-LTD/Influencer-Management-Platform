@@ -169,5 +169,5 @@ function _excelCSVToJson(file, ext, callback) {
 }
 
 function _isUndefinedOrNull(value) {
-	return (typeof value == 'undefined' || value == null || value == "")
+	return (typeof value == 'undefined' || value == null || value.trim() == "")
 }

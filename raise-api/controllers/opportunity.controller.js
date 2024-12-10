@@ -32,6 +32,7 @@ async function _getOpportunity(req, res) {
       if(tickets.length > 0){
         query._id = { $nin: tickets.map(t => t.opportunityId) };
       }
+      query.status = { $ne: "Inactive" };
     }
     let sort = {};
     const { id, title, type, sortBy, sortOrder } = req.body;
