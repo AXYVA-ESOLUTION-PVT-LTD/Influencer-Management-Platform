@@ -246,6 +246,20 @@ const SidebarContent = (props) => {
                     <span>Coupon Management</span>
                   </NavLink>
                 </li>
+                <li>
+                  <NavLink
+                    to="/ticket-management"
+                    end
+                    className={({ isActive }) => (isActive ? "menu-active" : "")}
+                    style={({ isActive }) => ({
+                      backgroundColor: isActive ? "var(--primary-purple)" : "",
+                      color: isActive ? "var(--primary-white)" : "",
+                    })}
+                  >
+                      <i className="bx bx-receipt"></i>
+                    <span>Ticket Management</span>
+                  </NavLink>
+                </li>
                 {roleName === ROLES.ADMIN && (
                   <li>
                     <NavLink

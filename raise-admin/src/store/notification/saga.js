@@ -23,7 +23,7 @@ import STATUS from "../../constants/status";
 function* fetchNotification(action) {
   try {
     const token = localStorage.getItem("authUser");
-    const response = yield call(getNotificationUrl, token);
+    const response = yield call(getNotificationUrl, token,action.payload);
     
     if (response?.status === STATUS.SUCCESS) {
       yield put(getNotificationSuccess(response.result.data));

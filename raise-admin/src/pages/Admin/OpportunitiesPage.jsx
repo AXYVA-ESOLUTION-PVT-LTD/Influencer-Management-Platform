@@ -853,6 +853,7 @@ const OpportunitiesPage = (props) => {
             onChange={handleInputChange}
             placeholder="Enter end date"
             className="mb-2"
+            min={today}
           />
           {updateModelerrors.endDate && (
             <p className="text-danger">{updateModelerrors.endDate}</p>

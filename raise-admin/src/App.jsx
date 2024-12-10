@@ -21,7 +21,7 @@ import NonAuthLayout from "./components/NonAuthLayout";
 import "./assets/scss/theme.scss";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Pages404 from "./pages/404";
-
+import './App.css'
 
 const App = (props) => {
   const { layoutType } = useSelector((state) => ({
