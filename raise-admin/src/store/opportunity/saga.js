@@ -212,10 +212,10 @@ function* onRemoveOpportunityImage(action) {
 }
 
 function* onFetchTickets(action) {
-  const { influencerId, limit, pageCount } = action.payload;
+  const { influencerId, limit, pageCount, brand, title ,influencerName } = action.payload;
   const token = localStorage.getItem("authUser");
   try {
-    const response = yield call(fetchTicketsUrl, { influencerId, limit, pageCount }, token);
+    const response = yield call(fetchTicketsUrl, { influencerId, limit, pageCount, brand, title ,influencerName }, token);
     if (response?.status === STATUS.SUCCESS) {
       yield put(fetchTicketsSuccess(response?.result));
     }

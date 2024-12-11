@@ -61,6 +61,7 @@ const OpportunitiesPage = (props) => {
   const [isSearching, setIsSearching] = useState(false);
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(0);
+  const [appliedOpportunities, setAppliedOpportunities] = useState([]);
 
   document.title = "Opportunity | Brandraise ";
 
@@ -97,6 +98,18 @@ const OpportunitiesPage = (props) => {
 
     dispatch(createNotification(newTicket));
 
+    setAppliedOpportunities((prevApplied) => [
+      ...prevApplied,
+      selectedOpportunity._id,
+    ]);
+
+    dispatch(
+      getOpportunity({
+        limit,
+        pageCount
+      })
+    );
+
     setModalOpen(false);
   };
 
@@ -114,6 +127,10 @@ const OpportunitiesPage = (props) => {
       }
     }
   };
+
+  const filteredOpportunities = opportunities.filter(
+    (opportunity) => !appliedOpportunities.includes(opportunity._id)
+  );
 
   const copyToClipboard = (code, id) => {
     navigator.clipboard.writeText(code);
@@ -143,7 +160,7 @@ const OpportunitiesPage = (props) => {
             breadcrumbItem={props.t("Opportunities")}
           /> */}
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h4 className="font-size-18" style={{ textTransform: "uppercase" }}>
+            <h4 className="font-size-18 text-uppercase">
               Opportunities
             </h4>
           </div>
@@ -177,70 +194,65 @@ const OpportunitiesPage = (props) => {
                 {/* All Opportunities */}
                 <TabPane tabId="1">
                   <Row className="d-flex flex-wrap">
-                    {opportunities.length > 0 ? (
-                      opportunities.map((opportunity) => (
+                    {filteredOpportunities.length > 0 ? (
+                      filteredOpportunities.map((opportunity) => (
                         <Col
-                          xs="12" 
-                          sm="6" 
-                          md="4" 
+                          xs="12"
+                          sm="6"
+                          md="4"
                           lg="3"
                           key={opportunity._id}
                           className="mb-4"
                         >
                           <Card className="overflow-hidden d-flex flex-column h-100">
                             {/* Image Section */}
-                            <div
-                              style={{
-                                backgroundColor: "var(--primary-purple)",
-                              }}
-                            >
+                            <div>
                               <Row>
-                                <Col xs="12" className="p-3">
+                                <Col xs="12">
                                   <CardImg
-                                    className="img-fluid"
-                                    src={`${import.meta.env.VITE_APP_BASE_URL}/uploads/opportunityImage/${
+                                    className="img-fluid opportunity-card-image"
+                                    src={`${
+                                      import.meta.env.VITE_APP_BASE_URL
+                                    }/uploads/opportunityImage/${
                                       opportunity.imageUrl
                                     }`}
                                     alt={`Image for ${opportunity.title}`}
-                                    style={{
-                                      height: "100px",
-                                      objectFit: "contain",
-                                    }}
+                                  
                                   />
                                 </Col>
                               </Row>
                             </div>
 
-                            <CardBody className="pt-0">
+                            <CardBody className="p-3">
                               <Row>
                                 <Col xs="12">
                                   <h5
                                     style={{ color: "var(--primary-purple)" }}
-                                    className="mt-2"
+                                    className="mt-2 ellipsis-text"
                                   >
                                     {opportunity.title}
                                   </h5>
-                                  <p>
+                                  <p className="ellipsis-text">
                                     <strong>Brand:</strong> {opportunity.brand}
                                   </p>
-                                  <p className="description-text">
+                                  <p className="ellipsis-text">
                                     <strong>Description:</strong>{" "}
                                     {opportunity.description}
                                   </p>
-                                  <p>
+                                  <p className="ellipsis-text">
                                     <strong>Type:</strong> {opportunity.type}
                                   </p>
-                                  <p>
+                                  <p className="ellipsis-text">
                                     <strong>Location:</strong>{" "}
                                     {opportunity.location}
                                   </p>
-                                  <p>
+                                  <p className="ellipsis-text">
                                     <strong>End Date:</strong>{" "}
                                     {new Date(
                                       opportunity.endDate
                                     ).toLocaleDateString()}
                                   </p>
-                                  <p>
+                                  <p className="ellipsis-text">
                                     <strong>Status:</strong>{" "}
                                     {opportunity.status}
                                   </p>
@@ -295,116 +307,83 @@ const OpportunitiesPage = (props) => {
                         >
                           <Card className="overflow-hidden d-flex flex-column h-100">
                             {/* Image Section */}
-                            <div
-                              style={{
-                                backgroundColor: "var(--primary-purple)",
-                              }}
-                            >
+                            <div>
                               <Row>
-                                <Col xs="12" className="p-3">
+                                <Col xs="12">
                                   <CardImg
-                                    className="img-fluid"
+                                    className="img-fluid opportunity-card-image"
                                     src={`${
                                       import.meta.env.VITE_APP_BASE_URL
                                     }/uploads/opportunityImage/${
                                       ticket.opportunity.imageUrl
                                     }`}
                                     alt={`Image for ${ticket.opportunity.title}`}
-                                    style={{
-                                      height: "100px",
-                                      objectFit: "contain",
-                                    }}
                                   />
                                 </Col>
                               </Row>
                             </div>
 
                             {/* Card Body with Flexbox Layout */}
-                            <CardBody className="pt-0 d-flex flex-column">
+                            <CardBody className="p-3 d-flex flex-column">
                               <Row>
                                 <Col xs="12">
                                   <h5
                                     style={{ color: "var(--primary-purple)" }}
-                                    className="mt-2"
+                                    className="mt-2 ellipsis-text"
                                   >
                                     {ticket.opportunity.title}
                                   </h5>
-                                  <p>
+                                  <p className="ellipsis-text">
                                     <strong>Brand:</strong>{" "}
                                     {ticket.opportunity.brand}
                                   </p>
-                                  <p>
+                                  <p className="ellipsis-text">
                                     <strong>Description:</strong>{" "}
                                     {ticket.opportunity.description}
                                   </p>
-                                  <p>
+                                  <p className="ellipsis-text">
                                     <strong>Type:</strong>{" "}
                                     {ticket.opportunity.type}
                                   </p>
-                                  <p>
+                                  <p className="ellipsis-text">
                                     <strong>Location:</strong>{" "}
                                     {ticket.opportunity.location}
                                   </p>
-                                  <p>
+                                  <p className="ellipsis-text">
                                     <strong>End Date:</strong>{" "}
                                     {new Date(
                                       ticket.opportunity.endDate
                                     ).toLocaleDateString()}
                                   </p>
-                                  <p>
+                                  <p className="ellipsis-text">
                                     <strong>Status:</strong>{" "}
                                     {ticket.opportunity.status}
                                   </p>
                                 </Col>
                               </Row>
-                              {/* Coupon Code Box fixed at the bottom */}
-                              <div
-                                className="mt-2 d-flex align-items-center"
-                                style={{
-                                  border: "2px dotted var(--primary-purple)",
-                                  padding: "8px",
-                                  margin: "8px 10px",
-                                  borderRadius: "5px",
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  justifyContent: "space-between",
-                                  marginTop: "auto",
-                                  position: "absolute",
-                                  bottom: "0",
-                                  left: "0",
-                                  width: "50%",
-                                  height: "40px",
-                                  zIndex: "100",
-                                  boxSizing: "border-box",
-                                }}
-                              >
-                                <span
-                                  className="me-2"
-                                  style={{ fontWeight: "bold" }}
-                                >
-                                  {ticket.couponCode || "N/A"}
-                                </span>
-                                <Button
-                                  size="sm"
-                                  onClick={() =>
-                                    copyToClipboard(
-                                      ticket.couponCode,
-                                      ticket._id
-                                    )
-                                  }
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    backgroundColor : "gray",
-                                    border : "none"
-                                  }}
-                                >
-                                  {copiedState[ticket._id] ? (
-                                    <FaCheckCircle color="white" />
-                                  ) : (
-                                    <FaCopy />
-                                  )}
-                                </Button>
+                              <div className="coupon-box-wrapper">
+                                <div className="coupon-code-container">
+                                  <span
+                                    className="me-2"
+                                  >
+                                    {ticket.couponCode || "N/A"}
+                                  </span>
+                                  <Button
+                                    size="sm"
+                                    onClick={() =>
+                                      copyToClipboard(
+                                        ticket.couponCode,
+                                        ticket._id
+                                      )
+                                    }
+                                  >
+                                    {copiedState[ticket._id] ? (
+                                      <FaCheckCircle color="white" />
+                                    ) : (
+                                      <FaCopy />
+                                    )}
+                                  </Button>
+                                </div>
                               </div>
                             </CardBody>
                           </Card>

@@ -24,7 +24,8 @@ import {
   updateNotification,
 } from "../../store/notification/actions";
 import '../../assets/themes/colors.scss';
-const TicketPage = () => {
+import TicketFiltering from "../../components/Common/TicketFiltering";
+const TicketManagement = () => {
   document.title = "Tickets | Brandraise";
   const dispatch = useDispatch();
   const { notifications, error, loading, totalNotifications } = useSelector(
@@ -45,6 +46,13 @@ const TicketPage = () => {
     title: "",
     description: "",
   });
+  const [filterFields, setFilterFields] = useState({
+    title: "",
+    name: "",
+    email: "",
+    status: "",
+  });
+  const [isSearching, setIsSearching] = useState(false);
   const [errors, setErrors] = useState({
     title: "",
     description: "",
@@ -210,8 +218,6 @@ const TicketPage = () => {
   const handleCloseCreateModal = () => setCreateModal(false);
 
   const handleDelete = () => {
-    // // Add your delete logic here
-    // console.log("Deleting ticket", currentTicket);
     handleCloseDeleteModal();
   };
 
@@ -237,14 +243,14 @@ const TicketPage = () => {
   };
 
   useEffect(() => {
-    dispatch(getNotification({ limit, pageCount }));
-  }, [dispatch, limit, pageCount]);
+    dispatch(getNotification({ limit, pageCount ,...filterFields }));
+  }, [dispatch, limit, pageCount ,isSearching]);
 
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumb title="Notification" breadcrumbItem="Notification" />
+          <Breadcrumb title="Ticket Management" breadcrumbItem="Ticket Management" />
           {role === "Influencer" && (
             <div className="d-flex justify-content-end mb-3">
               <Button color="primary" onClick={() => setCreateModal(true)}>
@@ -252,7 +258,11 @@ const TicketPage = () => {
               </Button>
             </div>
           )}
-
+          <TicketFiltering
+            setFilterFields={setFilterFields}
+            filterFields={filterFields}
+            setIsSearching={setIsSearching}
+          />
           {loading ? (
             <div className="text-center" style={{ marginTop: 50 }}>
               <Spinner color="primary" />
@@ -282,7 +292,7 @@ const TicketPage = () => {
                 </>
               ) : (
                 <h1 className="text-center" style={{ marginTop: 50 }}>
-                  No Notification Found
+                  No Ticket Found
                 </h1>
               )}
             </>
@@ -409,4 +419,4 @@ const TicketPage = () => {
   );
 };
 
-export default TicketPage;
+export default TicketManagement;

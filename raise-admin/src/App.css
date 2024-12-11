@@ -40,3 +40,60 @@
 button {
   font-size: calc(10px + 2vmin);
 }
+
+.coupon-image{
+  height: 100px;
+  width: 100px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.coupon-box-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  position: relative; 
+}
+
+.coupon-code-container {
+  border: 2px dotted var(--primary-purple);
+  padding: 8px;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 40px;
+  /* position: absolute;
+  bottom: 0; 
+  left: 0;
+  right: 0;
+  z-index: 100; */
+  box-sizing: border-box;
+}
+
+.coupon-code-button {
+  display: flex;
+  align-items: center;
+  background-color: var(--primary-purple);
+  border: none;
+  padding: 4px 8px;
+  border-radius: 5px;
+}
+
+.modal-header .btn-close{
+  font-size: 1rem;
+}
+
+.ellipsis-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.opportunity-card-image{
+  height: 200px;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}

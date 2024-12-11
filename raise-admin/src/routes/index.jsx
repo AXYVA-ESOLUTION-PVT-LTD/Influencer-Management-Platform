@@ -34,6 +34,7 @@ import {
 } from "../pages/Influencer";
 import { ProfilePage } from "../pages/Profile";
 import { Notifications } from "../pages/Notification";
+import TicketManagement from "../pages/Admin/TicketManagement";
 
 const authProtectedRoutes = [
   {
@@ -64,6 +65,11 @@ const authProtectedRoutes = [
   {
     path: "/coupon-management",
     component: <CouponManagement />,
+    allowedRoles: [ROLES.ADMIN],
+  },
+  {
+    path: "/ticket-management",
+    component: <TicketManagement />,
     allowedRoles: [ROLES.ADMIN],
   },
   {

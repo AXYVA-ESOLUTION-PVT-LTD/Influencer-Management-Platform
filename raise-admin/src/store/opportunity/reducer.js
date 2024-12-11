@@ -35,6 +35,7 @@ const initialState = {
   opportunities: [],
   opportunitiesData: [],
   totalOpportunities: null,
+  totalRecords :null,
   currentPage: null,
   loading: false,
   error: null,
@@ -193,6 +194,7 @@ const opportunity = (state = initialState, action) => {
           ...state,
           loading: false,
           opportunitiesData: action.payload.data || [],
+          totalRecords: action.payload.totalRecords,
           error: null,
         };
       case FETCH_TICKETS_ERROR:
