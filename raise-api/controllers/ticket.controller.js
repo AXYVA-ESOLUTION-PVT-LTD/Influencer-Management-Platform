@@ -1,5 +1,7 @@
 const { validationResult } = require("express-validator");
 const TICKET_COLLECTION = require("../module/ticket.module");
+const OPPORTUNITY_COLLECTION = require("../module/opportunity.module");
+const USER_COLLECTION = require("../module/user.module.js");
 const CONSTANT = require("../config/constant.js");
 const COMMON = require("../config/common.js");
 var json = {};
@@ -126,45 +128,101 @@ async function _getTickets(req, res) {
     const limit = req.body.limit ? req.body.limit : 10;
     const pageCount = req.body.pageCount ? req.body.pageCount : 0;
     const skip = limit * pageCount;
+    const { title, brand, influencerName } = req.body;
+
+    if (!COMMON.isUndefinedOrNull(title)) {
+      var oppQuery = { title: { $regex: `^${title}`, $options: "i" } };
+      var opportunities = await OPPORTUNITY_COLLECTION.find(oppQuery, {
+        _id: 1,
+      });
+      var opportunityIds = opportunities.map((a) => a._id);
+      var opportunityIdsQuery = { opportunityId: { $in: opportunityIds } };
+      query = Object.assign({}, query, opportunityIdsQuery);
+    }
+
+    if (!COMMON.isUndefinedOrNull(brand)) {
+      var oppQuery = { brand: { $regex: `${brand}`, $options: "i" } };
+      var opportunities = await OPPORTUNITY_COLLECTION.find(oppQuery, {
+        _id: 1,
+      });
+      var opportunityIds = opportunities.map((a) => a._id);
+      var opportunityIdsQuery = { opportunityId: { $in: opportunityIds } };
+      query = Object.assign({}, query, opportunityIdsQuery);
+    }
+
+    if (!COMMON.isUndefinedOrNull(influencerName)) {
+      let InfluencerQuery = {}; 
+      const nameParts = influencerName.trim().split(/\s+/);
+      if (nameParts.length === 1) {
+        InfluencerQuery["$or"] = [
+          { firstName: { $regex: nameParts[0], $options: "i" } },
+          { lastName: { $regex: nameParts[0], $options: "i" } },
+        ];
+      } else if (nameParts.length >= 2) {
+        InfluencerQuery["$and"] = [
+          { firstName: { $regex: nameParts[0], $options: "i" } },
+          { lastName: { $regex: nameParts[1], $options: "i" } },
+        ];
+      }
+      var InfluencerData = await USER_COLLECTION.find(InfluencerQuery, { _id: 1 });
+      var opportunityIds = InfluencerData.map((a) => a._id);
+
+      var opportunityIdsQuery = { influencerId: { $in: opportunityIds } };
+      query = Object.assign({}, query, opportunityIdsQuery);
+    }
+    
     var totalRecords = await TICKET_COLLECTION.countDocuments(query);
-    var result = await TICKET_COLLECTION.find(query).populate({
-        path: "opportunityId",  
-        model: "Opportunity",    
-        select: ["title", "description", "type", "location", "imageUrl", "brand", "endDate", "status"],  
-    })
-    .populate({
-      path: "influencerId", 
-      model: "User",
-      select: ["firstName", "lastName"],
-    })
+    var result = await TICKET_COLLECTION.find(query)
+      .populate({
+        path: "opportunityId",
+        model: "Opportunity",
+        select: [
+          "title",
+          "description",
+          "type",
+          "location",
+          "imageUrl",
+          "brand",
+          "endDate",
+          "status",
+        ],
+      })
+      .populate({
+        path: "influencerId",
+        model: "User",
+        select: ["firstName", "lastName"],
+      })
       .collation({ locale: "en", strength: 2 })
       .sort({ updatedAt: "desc" })
       .skip(skip)
       .limit(limit);
     if (!result) {
       json.status = CONSTANT.FAIL;
-      json.result = { message: "Tickets not found!", error: "Tickets not found!" };
+      json.result = {
+        message: "Tickets not found!",
+        error: "Tickets not found!",
+      };
       return res.send(json);
     }
-    
-    const formattedResult = result.map(ticket => {
+
+    const formattedResult = result.map((ticket) => {
       return {
-        ...ticket.toObject(), 
-        opportunity: ticket.opportunityId, 
-        opportunityId: undefined, 
+        ...ticket.toObject(),
+        opportunity: ticket.opportunityId,
+        opportunityId: undefined,
         influencerData: {
           firstName: ticket.influencerId.firstName,
           lastName: ticket.influencerId.lastName,
-        }, // Add influencer data in the response
+        },
       };
     });
 
     json.status = CONSTANT.SUCCESS;
     json.result = {
-        message: "Tickets found successfully!",
-        data: formattedResult, // Use formatted result
-        totalRecords: totalRecords,
-      };
+      message: "Tickets found successfully!",
+      data: formattedResult, // Use formatted result
+      totalRecords: totalRecords,
+    };
     return res.send(json);
   } catch (e) {
     console.error("Controller: ticket | Method: _getTickets | Error: ", e);

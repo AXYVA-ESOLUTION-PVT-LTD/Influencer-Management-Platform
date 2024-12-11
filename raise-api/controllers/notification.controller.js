@@ -1,8 +1,8 @@
 const { validationResult } = require("express-validator");
 const CONSTANT = require("../config/constant");
-
+const COMMON = require("../config/common.js");
 const NOTIFICATION_COLLECTION = require("../module/notification.module");
-
+const USER_COLLECTION = require("../module/user.module");
 const json = {};
 
 exports.createNotification = _createNotification;
@@ -95,12 +95,29 @@ async function _getNotifications(req, res) {
 
     let query = {};
     let sort = {};
-
-    const { title, description, status, sortBy, sortOrder, firstName, email } =
+    const { title, description, status, sortBy, sortOrder, name ,email} =
       req.body;
 
     if (title) {
-      query.title = { $regex: `^${title}`, $options: "i" };
+      query.title = { $regex: `${title}`, $options: "i" };
+    }
+    if (!COMMON.isUndefinedOrNull(name)) {
+      var oppQuery = { firstName: { $regex: `^${name}`, $options: "i" } };
+      var userData = await USER_COLLECTION.find(oppQuery, {
+        _id: 1,
+      });
+      var userIds = userData.map((a) => a._id);
+      var opportunityIdsQuery = { from: { $in: userIds } };
+      query = Object.assign({}, query, opportunityIdsQuery);
+    }
+    if (!COMMON.isUndefinedOrNull(email)) {
+      var oppQuery = { email: { $regex: `^${email}`, $options: "i" } };
+      var userData = await USER_COLLECTION.find(oppQuery, {
+        _id: 1,
+      });
+      var userIds = userData.map((a) => a._id);
+      var opportunityIdsQuery = { from: { $in: userIds } };
+      query = Object.assign({}, query, opportunityIdsQuery);
     }
     if (description) {
       query.description = { $regex: `^${description}`, $options: "i" };
