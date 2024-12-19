@@ -1,45 +1,33 @@
 const express = require("express");
 
-const NotificationMiddleware = require("../middleware/notification.middleware");
-
-const auth = require("../config/authentication");
+const router = express.Router();
 
 const Notification = require("../controllers/notification.controller");
 
-const router = express.Router();
+const auth = require("../config/authentication");
 
-// get Notifications
-router.post(
-  "/getNotifications",
-  auth,
-  NotificationMiddleware.validateUser,
-  Notification.getNotifications
-);
 
-// Create Notification
+
+// Create notification
 router.post(
   "/createNotification",
-  NotificationMiddleware.validateCreateNotification,
   auth,
-  NotificationMiddleware.validateUser,
   Notification.createNotification
 );
 
-// Update Notification
-router.put(
-  "/:id",
-  NotificationMiddleware.validateUpdateNotification,
+// Fetch unread notifications for a specific user
+router.get(
+  "/getUnreadNotifications",
   auth,
-  NotificationMiddleware.validateAdmin,
-  Notification.updateNotification
+  Notification.getUnreadNotifications
 );
 
-// Delete Notification
-router.delete(
-  "/:id",
+// Mark a specific notification as read
+router.patch(
+  "/markNotificationAsRead/:id",
   auth,
-  NotificationMiddleware.validateAdmin,
-  Notification.deleteNotification
+  Notification.getNotifications
 );
+
 
 module.exports = router;
