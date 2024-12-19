@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import withRouter from "../../components/Common/withRouter";
-
+import logo from "../../assets/images/tiktok-img.png";
 //redux
 import { useSelector, useDispatch } from "react-redux";
 
@@ -46,6 +46,7 @@ const Login = (props) => {
   document.title = "Login | Brandraise";
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   useEffect(() => {
     const token = localStorage.getItem("authUser");
     const user = localStorage.getItem("user");
@@ -93,20 +94,13 @@ const Login = (props) => {
   //   console.error("Facebook login failed", error);
   // };
 
-  // const handleTikTokLogin = (response) => {
-  //   if (response.access_token) {
-  //     const payload = {
-  //       token: response.access_token,
-  //       mode: AUTH_MODE.TIKTOK,
-  //       roleCode: ROLECODE["Brand"],
-  //       email: response.email,
-  //       password: "",
-  //     };
-  //     dispatch(loginUser(payload, props.router.navigate));
-  //   } else {
-  //     console.error("TikTok login failed");
-  //   }
-  // };
+
+  const handleTikTokLogin = () => {
+    const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
+    const TIKTOK_AUTH_ENDPOINT = "/tiktok/auth";  
+    const tiktokAuthUrl = `${BASE_URL}${TIKTOK_AUTH_ENDPOINT}`;
+    window.location.href = tiktokAuthUrl;
+  };
 
   const validation = useFormik({
     enableReinitialize: true,
@@ -141,7 +135,7 @@ const Login = (props) => {
 
   return (
     <React.Fragment>
-      <div className="account-pages my-5 pt-sm-5">
+      <div className="account-pages my-5 pt-sm-5 login-page">
         <Container>
           <Row className="justify-content-center">
             <Col md={8} lg={6} xl={5}>
@@ -179,7 +173,12 @@ const Login = (props) => {
                       className="form-horizontal"
                       onSubmit={(e) => {
                         e.preventDefault();
-                        validation.handleSubmit();
+                        if (
+                          e.nativeEvent.submitter &&
+                          e.nativeEvent.submitter.name === "login"
+                        ) {
+                          validation.handleSubmit(); 
+                        }
                         return false;
                       }}
                     >
@@ -250,24 +249,36 @@ const Login = (props) => {
                         <button
                           className="btn btn-primary btn-block"
                           type="submit"
+                          name="login"
                         >
                           Log In
                         </button>
                       </div>
                       <div className="mt-4 text-center">
-                          <p className="me-2">Or login with:</p>
-                          <div className="d-flex flex-column justify-content-center align-items-center gap-3">
-                              <GoogleLogin
-                                onSuccess={handleGoogleLoginSuccess}
-                                onError={handleGoogleLoginFailure}
-                              />
-                            {/* <FacebookLogin
+                        <p className="me-2">Or login with:</p>
+                        <div className="d-flex flex-column justify-content-center align-items-center gap-3">
+                          <GoogleLogin
+                            onSuccess={handleGoogleLoginSuccess}
+                            onError={handleGoogleLoginFailure}
+                          />
+                          {/* <FacebookLogin
                               appId="946726573608245"
                               fields="name,email,picture"
                               callback={handleFacebookLoginSuccess}
                               onFailure={handleFacebookLoginFailure} 
                             /> */}
-                          </div>
+                          <button
+                            onClick={handleTikTokLogin}
+                            type="button"
+                            className="tiktok-login-button"
+                          >
+                            <img
+                              src={logo}
+                              alt="tiktok"
+                            />
+                            Sign in with TikTok
+                          </button>
+                        </div>
                       </div>
                       <div className="mt-4 text-center">
                         <Link to="/forgot-password" className="text-muted">

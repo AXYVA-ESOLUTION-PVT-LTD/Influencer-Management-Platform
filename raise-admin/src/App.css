@@ -95,5 +95,91 @@ button {
   height: 200px;
   width: 100%;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 3px;
+}
+
+.no-opportunities-heading {
+  margin-top: 50px;
+  text-align: center;
+}
+
+.badge {
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.badge-active {
+  background-color: var(--status-green-light);
+  color: var(--status-green-dark);
+}
+
+.badge-inactive {
+  background-color: var(--status-yellow-light);
+  color: var(--status-yellow-dark);
+}
+
+.status-badge {
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.status-badge-completed {
+  background-color: var(--status-green-light);
+  color: var(--status-green-dark);
+}
+
+.status-badge-pending {
+  background-color: var(--status-yellow-light);
+  color: var(--status-yellow-dark);
+}
+
+.ticket-badge {
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.ticket-badge-read {
+  background-color: var(--status-light-gray);
+  color: var(--status-dark-gray);
+}
+
+.ticket-badge-pending {
+  background-color: var(--status-yellow-light);
+  color: var(--status-yellow-dark);
+}
+
+.ticket-badge-completed {
+  background-color: var(--status-green-light);
+  color: var(--status-green-dark);
+}
+
+.login-page .tiktok-login-button{
+    background-color: black;
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    font-size: 14px;
+    padding: 5px 20px;
+}
+
+.login-page .tiktok-login-button img{
+  width: 30px;
+  margin-right: 5px;
+}
+
+.loading-tiktok-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }

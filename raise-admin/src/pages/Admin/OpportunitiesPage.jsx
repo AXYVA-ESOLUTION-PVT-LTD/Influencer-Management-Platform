@@ -456,6 +456,13 @@ const OpportunitiesPage = (props) => {
       {
         Header: "Status",
         accessor: "status",
+        Cell: ({ value }) => (
+          <span 
+          className={`badge ${value=="Active" ? "badge-active" : "badge-inactive"}`}
+        >
+          {value}
+        </span>
+        ),
       },
       {
         Header: "Actions",

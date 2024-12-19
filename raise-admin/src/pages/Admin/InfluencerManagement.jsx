@@ -155,9 +155,11 @@ const InfluencerManagement = (props) => {
         Header: "Status",
         accessor: "status",
         Cell: ({ value }) => (
-          <span style={{ color: value ? "var(--status-green-dark)" : "var(--secondary-red)" }}>
-            {value ? "Active" : "Inactive"}
-          </span>
+          <span 
+          className={`badge ${value ? "badge-active" : "badge-inactive"}`}
+        >
+          {value ? "Active" : "Inactive"}
+        </span>
         ),
       },
       {

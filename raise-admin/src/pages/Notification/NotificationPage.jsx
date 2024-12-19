@@ -19,9 +19,8 @@ import TableContainer from "../../components/Common/TableContainer";
 import Chat from "../../components/Notification/Chat";
 import ROLES from "../../constants/role";
 import {
-  createNotification,
-  getNotification,
-  updateNotification,
+  createTicketNotification, getTicketNotification,
+  updateTicketNotification
 } from "../../store/notification/actions";
 import '../../assets/themes/colors.scss';
 const TicketPage = () => {
@@ -217,7 +216,7 @@ const TicketPage = () => {
 
   const handleSaveEdit = () => {
     dispatch(
-      updateNotification({
+      updateTicketNotification({
         id: currentTicket._id,
         status: currentTicket.status,
       })
@@ -227,7 +226,7 @@ const TicketPage = () => {
 
   const handleCreate = () => {
     if (validateForm()) {
-      dispatch(createNotification(newTicket));
+      dispatch(createTicketNotification(newTicket));
       setNewTicket({
         title: "",
         description: "",
@@ -237,7 +236,7 @@ const TicketPage = () => {
   };
 
   useEffect(() => {
-    dispatch(getNotification({ limit, pageCount }));
+    dispatch(getTicketNotification({ limit, pageCount }));
   }, [dispatch, limit, pageCount]);
 
   return (

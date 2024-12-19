@@ -151,7 +151,9 @@ const BrandManagement = (props) => {
         Header: "Status",
         accessor: "status",
         Cell: ({ value }) => (
-          <span style={{ color: value ? "var(--status-green-dark)" : "var(--secondary-red)" }}>
+          <span 
+            className={`badge ${value ? "badge-active" : "badge-inactive"}`}
+          >
             {value ? "Active" : "Inactive"}
           </span>
         ),

@@ -35,6 +35,7 @@ import {
 import { ProfilePage } from "../pages/Profile";
 import { Notifications } from "../pages/Notification";
 import TicketManagement from "../pages/Admin/TicketManagement";
+import LoginCallback from "../pages/Authentication/LoginCallback";
 
 const authProtectedRoutes = [
   {
@@ -127,6 +128,7 @@ const authProtectedRoutes = [
 
 const publicRoutes = [
   { path: "/login", component: <Login /> },
+  { path: "/login/callback", component: <LoginCallback /> },
   { path: "/logout", component: <Logout /> },
   { path: "/forgot-password", component: <ForgotPassword /> },
   { path: "/verify-otp", component: <VerifyOTP /> },
