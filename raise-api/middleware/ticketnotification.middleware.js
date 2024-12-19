@@ -2,7 +2,7 @@ const { check } = require("express-validator");
 const USER_COLLECTION = require("../module/user.module");
 const CONSTANT = require("../config/constant");
 
-const validateCreateNotification = [
+const validateCreateTicketNotification = [
   check("title")
     .exists()
     .withMessage("Title is required!")
@@ -20,7 +20,7 @@ const validateCreateNotification = [
     .notEmpty()
     .withMessage("Description cannot be empty!"),
 ];
-const validateUpdateNotification = [
+const validateUpdateTicketNotification = [
   check("status")
     .exists()
     .withMessage("Status is required!")
@@ -49,7 +49,7 @@ async function validateAdmin(req, res, next) {
   } else if (user.roleId.name !== "Admin") {
     return res.status(403).send({
       success: CONSTANT.FAIL,
-      message: "Only Admin can Update notification",
+      message: "Only Admin can Update Ticket Notification",
     });
   } else {
     next();
@@ -77,8 +77,8 @@ async function validateUser(req, res, next) {
   }
 }
 module.exports = {
-  validateCreateNotification,
-  validateUpdateNotification,
+  validateCreateTicketNotification,
+  validateUpdateTicketNotification,
   validateAdmin,
   validateUser,
 };

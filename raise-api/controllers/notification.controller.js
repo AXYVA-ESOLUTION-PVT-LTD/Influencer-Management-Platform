@@ -1,280 +1,175 @@
-const { validationResult } = require("express-validator");
-const CONSTANT = require("../config/constant");
-const COMMON = require("../config/common.js");
 const NOTIFICATION_COLLECTION = require("../module/notification.module");
-const USER_COLLECTION = require("../module/user.module");
-const json = {};
+const CONSTANT = require("../config/constant.js");
+const COMMON = require("../config/common.js");
 
+// Create a new notification
 exports.createNotification = _createNotification;
+// Mark a specific notification as read
 exports.getNotifications = _getNotifications;
-exports.updateNotification = _updateNotification;
+// Fetch unread notifications for a user
+exports.getUnreadNotifications = _getUnreadNotifications;
+// Delete a notification
 exports.deleteNotification = _deleteNotification;
 
-/*
-TYPE: Post
-TODO: Create Notification
-*/
+// Create a new notification
 async function _createNotification(req, res) {
+  const json = {};
+  const { userId, title, message } = req.body;
   try {
-    const errors = validationResult(req).array();
-    if (errors && errors.length > 0) {
-      let messArr = errors.map((a) => a.msg);
+    if (!userId || !title || !message) {
       json.status = CONSTANT.FAIL;
-      json.result = {
-        message: "Required fields are missing!",
-        error: messArr.join(", "),
-      };
-      return res.send(json);
+      json.result = { message: "All fields are required" };
+      return res.status(400).send(json);
     }
 
-    const { title, description } = req.body;
-    const user = req.user;
     const notification = await NOTIFICATION_COLLECTION.create({
+      userId,
       title,
-      description,
-      from: user._id,
+      message,
     });
 
-    await notification.populate({
-      path: "from",
-      model: "User",
-      select: ["email", "firstName"],
-    });
-
-    if (!notification) {
-      json.status = CONSTANT.FAIL;
-      json.result = {
-        error: "Fail to Create Notification",
-      };
-      return res.send(json);
-    }
     json.status = CONSTANT.SUCCESS;
     json.result = {
-      message: "Notification created Successfully",
-      data: {
-        notification,
-      },
+      message: "Notification created successfully",
+      data: notification,
     };
-    return res.send(json);
-  } catch (e) {
-    console.error(
-      "Controller: notification | Method: _createNotification | Error: ",
-      e
-    );
+    return res.status(201).send(json);
+  } catch (error) {
     json.status = CONSTANT.FAIL;
     json.result = {
-      message: "An error occurred while creating notification",
-      error: e,
+      message: "Failed to create notification",
+      error: error.message,
     };
-    return res.send(json);
+    return res.status(500).send(json);
   }
 }
 
-/*
-TYPE: Post
-TODO: Get Notifications
-*/
+// Fetch all notifications for a specific user
+// async function _getNotifications(req, res) {
+//   const json = {};
+//   const { userId } = req.params;
+
+//   try {
+//     const notifications = await NOTIFICATION_COLLECTION.find({ userId }).sort({
+//       createdAt: -1,
+//     });
+//     if (!notifications.length) {
+//       json.status = CONSTANT.FAIL;
+//       json.result = { message: "No notifications found" };
+//       return res.status(404).send(json);
+//     }
+
+//     json.status = CONSTANT.SUCCESS;
+//     json.result = {
+//       message: "Notifications fetched successfully",
+//       data: notifications,
+//     };
+//     return res.status(200).send(json);
+//   } catch (error) {
+//     json.status = CONSTANT.FAIL;
+//     json.result = {
+//       message: "Failed to fetch notifications",
+//       error: error.message,
+//     };
+//     return res.status(500).send(json);
+//   }
+// }
+
+// Mark a specific notification as read
 async function _getNotifications(req, res) {
+  const json = {};
+  const { id } = req.params;
+
   try {
-    const errors = validationResult(req).array();
-    if (errors && errors.length > 0) {
-      let messArr = errors.map((a) => a.msg);
-      json.status = CONSTANT.FAIL;
-      json.result = {
-        message: "Required fields are missing!",
-        error: messArr.join(", "),
-      };
-      return res.send(json);
-    }
-
-    const limit = req.body.limit ? req.body.limit : 10;
-    const pageCount = req.body.pageCount ? req.body.pageCount : 0;
-    const skip = limit * pageCount;
-
-    const user = req.user;
-
-    let query = {};
-    let sort = {};
-    const { title, description, status, sortBy, sortOrder, name ,email} =
-      req.body;
-
-    if (title) {
-      query.title = { $regex: `${title}`, $options: "i" };
-    }
-    if (!COMMON.isUndefinedOrNull(name)) {
-      var oppQuery = { firstName: { $regex: `^${name}`, $options: "i" } };
-      var userData = await USER_COLLECTION.find(oppQuery, {
-        _id: 1,
-      });
-      var userIds = userData.map((a) => a._id);
-      var opportunityIdsQuery = { from: { $in: userIds } };
-      query = Object.assign({}, query, opportunityIdsQuery);
-    }
-    if (!COMMON.isUndefinedOrNull(email)) {
-      var oppQuery = { email: { $regex: `^${email}`, $options: "i" } };
-      var userData = await USER_COLLECTION.find(oppQuery, {
-        _id: 1,
-      });
-      var userIds = userData.map((a) => a._id);
-      var opportunityIdsQuery = { from: { $in: userIds } };
-      query = Object.assign({}, query, opportunityIdsQuery);
-    }
-    if (description) {
-      query.description = { $regex: `^${description}`, $options: "i" };
-    }
-    if (status) {
-      query.status = { $regex: `^${status}`, $options: "i" };
-    }
-
-    if (sortBy) {
-      sort[sortBy] = sortOrder === 1 ? 1 : -1;
-    } else {
-      sort.createdAt = -1;
-    }
-
-    if (user.roleId.name === "Influencer") {
-      query.from = user._id.toString();
-    }
-
-    const notifications = await NOTIFICATION_COLLECTION.find(query)
-      .collation({
-        locale: "en",
-        caseLevel: true,
-      })
-      .populate({ path: "from", model: "User", select: ["email", "firstName"] })
-      .sort(sort)
-      .skip(skip)
-      .limit(limit);
-    const totalNotifications = await NOTIFICATION_COLLECTION.countDocuments(
-      query
+    const notification = await NOTIFICATION_COLLECTION.findByIdAndUpdate(
+      id,
+      { isRead: true },
+      { new: true }
     );
-
-    if (!notifications) {
-      json.status = CONSTANT.FAIL;
-      json.result = {
-        error: "Fail to Get Notification",
-      };
-      return res.send(json);
-    }
-    json.status = CONSTANT.SUCCESS;
-    json.result = {
-      message: "Notification fetched Successfully",
-      data: {
-        notifications,
-        totalNotifications,
-      },
-    };
-    return res.send(json);
-  } catch (e) {
-    console.error(
-      "Controller: notification | Method: _getNotifications | Error: ",
-      e
-    );
-    json.status = CONSTANT.FAIL;
-    json.result = {
-      message: "An error occurred while fetching notification",
-      error: e,
-    };
-    return res.send(json);
-  }
-}
-
-/*
-TYPE: Put
-TODO: Get Notifications
-*/
-async function _updateNotification(req, res) {
-  try {
-    const errors = validationResult(req).array();
-    if (errors && errors.length > 0) {
-      let messArr = errors.map((a) => a.msg);
-      json.status = CONSTANT.FAIL;
-      json.result = {
-        message: "Required fields are missing!",
-        error: messArr.join(", "),
-      };
-      return res.send(json);
-    }
-
-    const { status } = req.body;
-    const { id } = req.params;
-
-    const notification = await NOTIFICATION_COLLECTION.findOneAndUpdate(
-      { _id: id },
-      { status },
-      { new: true, runValidators: true }
-    ) .populate({
-      path: "from",
-      model: "User",
-      select: ["email", "firstName"],
-    });
 
     if (!notification) {
       json.status = CONSTANT.FAIL;
-      json.result = {
-        error: "Fail to Update Notification",
-      };
-      return res.send(json);
+      json.result = { message: "Notification not found" };
+      return res.status(404).send(json);
     }
+
     json.status = CONSTANT.SUCCESS;
     json.result = {
-      message: "Notification updated Successfully",
-      data: {
-        notification,
-      },
+      message: "Notification marked as read successfully",
+      data: notification,
     };
-    return res.send(json);
-  } catch (e) {
-    console.error(
-      "Controller: notification | Method: _updateNotification | Error: ",
-      e
-    );
+    return res.status(200).send(json);
+  } catch (error) {
     json.status = CONSTANT.FAIL;
     json.result = {
-      message: "An error occurred while updating notification",
-      error: e,
+      message: "Failed to mark notification as read",
+      error: error.message,
     };
-    return res.send(json);
+    return res.status(500).send(json);
   }
 }
 
-/*
-TYPE: Delete
-TODO: Delete Notification
-*/
+// Fetch unread notifications for a user
+async function _getUnreadNotifications(req, res) {
+  const json = {};
+  const userId = req.decoded.id;
+  try {
+    const unreadNotifications = await NOTIFICATION_COLLECTION.find({    
+      userId,
+      isRead: false,
+    }).sort({
+      createdAt: -1,
+    });
+    const count = unreadNotifications.length;
+    
+    // if (!unreadNotifications.length) {
+    //   json.status = CONSTANT.FAIL;
+    //   json.result = { message: "No unread notifications found" };
+    //   return res.status(404).send(json);
+    // }
+
+    json.status = CONSTANT.SUCCESS;
+    json.result = {
+      message: "Unread notifications fetched successfully",
+      data: unreadNotifications,
+      count: count,
+    };
+    return res.status(200).send(json);
+  } catch (error) {
+    json.status = CONSTANT.FAIL;
+    json.result = {
+      message: "Failed to fetch unread notifications",
+      error: error.message,
+    };
+    return res.status(500).send(json);
+  }
+}
+
+// Delete a notification
 async function _deleteNotification(req, res) {
+  const json = {};
+  const { id } = req.params;
+
   try {
-    const { id } = req.params;
-
-    const notification = await NOTIFICATION_COLLECTION.findOneAndDelete({
-      _id: id,
-    });
-
-    if (!notification) {
-      json.status = CONSTANT.FAIL;
-      json.result = {
-        error: "Fail to Delete Notification",
-      };
-      return res.send(json);
-    }
-    json.status = CONSTANT.SUCCESS;
-    json.result = {
-      message: "Notification deleted Successfully",
-      data: {
-        notification,
-      },
-    };
-    return res.send(json);
-  } catch (e) {
-    console.error(
-      "Controller: notification | Method: _deleteNotification | Error: ",
-      e
+    const deletedNotification = await NOTIFICATION_COLLECTION.findByIdAndDelete(
+      id
     );
+
+    if (!deletedNotification) {
+      json.status = CONSTANT.FAIL;
+      json.result = { message: "Notification not found" };
+      return res.status(404).send(json);
+    }
+
+    json.status = CONSTANT.SUCCESS;
+    json.result = { message: "Notification deleted successfully" };
+    return res.status(200).send(json);
+  } catch (error) {
     json.status = CONSTANT.FAIL;
     json.result = {
-      message: "An error occurred while deleting notification",
-      error: e,
+      message: "Failed to delete notification",
+      error: error.message,
     };
-    return res.send(json);
+    return res.status(500).send(json);
   }
 }

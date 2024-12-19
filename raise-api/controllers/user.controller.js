@@ -141,6 +141,7 @@ async function _login(req, res) {
           firstName: existUser.firstName,
           lastName: existUser.lastName,
           roleId: existUser.roleId,
+          loginType : existUser.loginType
         };
   
         let token = jwt.sign(userObj, process.env.superSecret, {
@@ -165,7 +166,8 @@ async function _login(req, res) {
           lastName: payload.family_name,
           email: payload.email,
           password: "",
-          roleId: role._id
+          roleId: role._id,
+          loginType: "google",
         });
         user
           .save()
@@ -177,6 +179,7 @@ async function _login(req, res) {
               firstName: result.firstName,
               lastName: result.lastName,
               roleId: result.roleId,
+              loginType: result.loginType,
             };
       
             let token = jwt.sign(userObj, process.env.superSecret, {

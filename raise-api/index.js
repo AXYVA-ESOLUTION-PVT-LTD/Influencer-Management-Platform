@@ -21,9 +21,11 @@ const Opportunity = require("./routes/opportunity.route");
 const Post = require("./routes/post.route");
 const Influencer = require("./routes/influencer.route");
 const Brand = require("./routes/brand.route");
-const Notification = require("./routes/notification.route");
+const TicketNotification = require("./routes/ticketnotification.route");
 const Chat = require("./routes/chat.route");
 const Ticket = require("./routes/ticket.route");
+const Notification = require("./routes/notification.route");
+const Tiktok = require("./routes/tiktok.route");
 const path = require("path");
 const { getRefreshToken } = require("./controllers/tokengenerator");
 
@@ -75,11 +77,12 @@ app.use("/v1/opportunity", Opportunity);
 app.use("/v1/posts", Post);
 app.use("/v1/influencer", Influencer);
 app.use("/v1/brand", Brand);
-app.use("/v1/notification", Notification);
+app.use("/v1/ticket-notification", TicketNotification);
 app.use("/v1/chat", Chat);
 app.use("/v1/ticket", Ticket);
-
+app.use("/v1/notification", Notification);
 app.post('/v1/refresh-token', getRefreshToken);
+app.use('/v1/tiktok', Tiktok);
 
 app.get("/testing",(req,res)=>{
 	return res.status(200).json({msg:"server is up an running"});
