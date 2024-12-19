@@ -4,7 +4,6 @@ import {
   Card,
   CardBody,
   CardImg,
-  CardText,
   Col,
   Container,
   Nav,
@@ -18,12 +17,14 @@ import {
   ModalBody,
   Input,
   ModalFooter,
+  Spinner,
 } from "reactstrap";
+import Pagination from "../../components/Common/Pagination";
 import classnames from "classnames";
 import { withTranslation } from "react-i18next";
 import "../../assets/themes/colors.scss";
 import { FaCopy, FaCheckCircle } from "react-icons/fa";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ROLES from "../../constants/role";
 import { useDispatch, useSelector } from "react-redux";
@@ -32,7 +33,10 @@ import {
   fetchTicketsRequest,
   getOpportunity,
 } from "../../store/opportunity/actions";
-import { createNotification } from "../../store/actions";
+import {
+  createNotification,
+  createTicketNotification,
+} from "../../store/actions";
 
 const OpportunitiesPage = (props) => {
   const dispatch = useDispatch();
@@ -43,6 +47,7 @@ const OpportunitiesPage = (props) => {
     loading,
     totalOpportunities,
     currentPage,
+    totalRecords,
   } = useSelector((state) => state.opportunity);
   // const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("1");
@@ -52,16 +57,13 @@ const OpportunitiesPage = (props) => {
   const [selectedOpportunity, setSelectedOpportunity] = useState(null);
   const [copiedState, setCopiedState] = useState({});
   const [role, setRole] = useState("");
-  const [filterFields, setFilterFields] = useState({
-    title: "",
-    type: "",
-  });
-  const [sortBy, setSortBy] = useState("");
-  const [sortOrder, setSortOrder] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [detailsOpportunity, setDetailsOpportunity] = useState(null);
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(0);
   const [appliedOpportunities, setAppliedOpportunities] = useState([]);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
   document.title = "Opportunity | Brandraise ";
 
@@ -76,12 +78,9 @@ const OpportunitiesPage = (props) => {
       getOpportunity({
         limit,
         pageCount,
-        ...filterFields,
-        sortBy: sortBy.toLowerCase(),
-        sortOrder,
       })
     );
-  }, [dispatch, limit, pageCount, sortBy, isSearching, sortOrder, sortBy, activeTab]);
+  }, [dispatch, limit, pageCount, activeTab]);
 
   const handleTicketCreation = () => {
     dispatch(
@@ -91,12 +90,21 @@ const OpportunitiesPage = (props) => {
         description,
       })
     );
+
     const newTicket = {
       title: `Applied for ${selectedOpportunity.title}`,
       description: description,
     };
 
-    dispatch(createNotification(newTicket));
+    dispatch(createTicketNotification(newTicket));
+
+    const newNotification = {
+      userId: "67334a52373c3328068f9157",
+      title: `Applied for ${selectedOpportunity.title}`,
+      message: description,
+    };
+
+    dispatch(createNotification(newNotification));
 
     setAppliedOpportunities((prevApplied) => [
       ...prevApplied,
@@ -106,7 +114,7 @@ const OpportunitiesPage = (props) => {
     dispatch(
       getOpportunity({
         limit,
-        pageCount
+        pageCount,
       })
     );
 
@@ -120,13 +128,24 @@ const OpportunitiesPage = (props) => {
       if (tab === "2" && influencer) {
         dispatch(
           fetchTicketsRequest({
-            limit: 10,
-            pageCount: 0,
+            limit: itemsPerPage,
+            pageCount: currentPageIndex,
           })
         );
       }
     }
   };
+
+  useEffect(() => {
+    if (activeTab === "2" && influencer) {
+      dispatch(
+        fetchTicketsRequest({
+          limit: itemsPerPage,
+          pageCount: currentPageIndex,
+        })
+      );
+    }
+  }, [itemsPerPage, currentPageIndex]);
 
   const filteredOpportunities = opportunities.filter(
     (opportunity) => !appliedOpportunities.includes(opportunity._id)
@@ -139,6 +158,11 @@ const OpportunitiesPage = (props) => {
     setTimeout(() => {
       setCopiedState((prev) => ({ ...prev, [id]: false }));
     }, 1000);
+  };
+
+  const handleDetailsView = (opportunity) => {
+    setDetailsOpportunity(opportunity);
+    setDetailsModalOpen(true);
   };
 
   const handleCreateTicket = (opportunity) => {
@@ -160,9 +184,7 @@ const OpportunitiesPage = (props) => {
             breadcrumbItem={props.t("Opportunities")}
           /> */}
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h4 className="font-size-18 text-uppercase">
-              Opportunities
-            </h4>
+            <h4 className="font-size-18 text-uppercase">Opportunities</h4>
           </div>
           <Row>
             <Col sm="12">
@@ -193,210 +215,259 @@ const OpportunitiesPage = (props) => {
               <TabContent activeTab={activeTab}>
                 {/* All Opportunities */}
                 <TabPane tabId="1">
-                  <Row className="d-flex flex-wrap">
-                    {filteredOpportunities.length > 0 ? (
-                      filteredOpportunities.map((opportunity) => (
-                        <Col
-                          xs="12"
-                          sm="6"
-                          md="4"
-                          lg="3"
-                          key={opportunity._id}
-                          className="mb-4"
-                        >
-                          <Card className="overflow-hidden d-flex flex-column h-100">
-                            {/* Image Section */}
-                            <div>
-                              <Row>
-                                <Col xs="12">
-                                  <CardImg
-                                    className="img-fluid opportunity-card-image"
-                                    src={`${
-                                      import.meta.env.VITE_APP_BASE_URL
-                                    }/uploads/opportunityImage/${
-                                      opportunity.imageUrl
-                                    }`}
-                                    alt={`Image for ${opportunity.title}`}
-                                  
-                                  />
-                                </Col>
-                              </Row>
-                            </div>
-
-                            <CardBody className="p-3">
-                              <Row>
-                                <Col xs="12">
-                                  <h5
-                                    style={{ color: "var(--primary-purple)" }}
-                                    className="mt-2 ellipsis-text"
-                                  >
-                                    {opportunity.title}
-                                  </h5>
-                                  <p className="ellipsis-text">
-                                    <strong>Brand:</strong> {opportunity.brand}
-                                  </p>
-                                  <p className="ellipsis-text">
-                                    <strong>Description:</strong>{" "}
-                                    {opportunity.description}
-                                  </p>
-                                  <p className="ellipsis-text">
-                                    <strong>Type:</strong> {opportunity.type}
-                                  </p>
-                                  <p className="ellipsis-text">
-                                    <strong>Location:</strong>{" "}
-                                    {opportunity.location}
-                                  </p>
-                                  <p className="ellipsis-text">
-                                    <strong>End Date:</strong>{" "}
-                                    {new Date(
-                                      opportunity.endDate
-                                    ).toLocaleDateString()}
-                                  </p>
-                                  <p className="ellipsis-text">
-                                    <strong>Status:</strong>{" "}
-                                    {opportunity.status}
-                                  </p>
-                                </Col>
-                              </Row>
-
-                              {role === ROLES.INFLUENCER && (
-                                <Row className="mt-3">
+                  {filteredOpportunities.length > 0 ? (
+                    <>
+                      <Row className="d-flex flex-wrap">
+                        {filteredOpportunities.map((opportunity) => (
+                          <Col
+                            xs="12"
+                            sm="6"
+                            md="4"
+                            lg="3"
+                            key={opportunity._id}
+                            className="mb-4"
+                          >
+                            <Card className="overflow-hidden d-flex flex-column h-100">
+                              {/* Image Section */}
+                              <div>
+                                <Row>
                                   <Col xs="12">
-                                    <Button
-                                      style={{
-                                        backgroundColor:
-                                          "var(--primary-purple)",
-                                        color: "var(--primary-white)",
-                                        width: "100%",
-                                      }}
-                                      onClick={() =>
-                                        handleCreateTicket(opportunity)
-                                      }
-                                      disabled={
-                                        opportunity.status === "Inactive"
-                                      }
-                                    >
-                                      Apply
-                                    </Button>
+                                    <CardImg
+                                      className="img-fluid opportunity-card-image"
+                                      src={`${
+                                        import.meta.env.VITE_APP_BASE_URL
+                                      }/uploads/opportunityImage/${
+                                        opportunity.imageUrl
+                                      }`}
+                                      alt={`Image for ${opportunity.title}`}
+                                    />
                                   </Col>
                                 </Row>
-                              )}
-                            </CardBody>
-                          </Card>
-                        </Col>
-                      ))
-                    ) : (
-                      <p>No opportunities found.</p>
-                    )}
-                  </Row>
+                              </div>
+
+                              <CardBody className="p-3">
+                                <Row>
+                                  <Col xs="12">
+                                    <h5
+                                      style={{ color: "var(--primary-purple)" }}
+                                      className="mt-2 ellipsis-text"
+                                    >
+                                      {opportunity.title}
+                                    </h5>
+                                    <p className="ellipsis-text">
+                                      <strong>Brand:</strong>{" "}
+                                      {opportunity.brand}
+                                    </p>
+                                    <p className="ellipsis-text">
+                                      <strong>Description:</strong>{" "}
+                                      {opportunity.description}
+                                    </p>
+                                    <p className="ellipsis-text">
+                                      <strong>Type:</strong> {opportunity.type}
+                                    </p>
+                                    <p className="ellipsis-text">
+                                      <strong>Location:</strong>{" "}
+                                      {opportunity.location}
+                                    </p>
+                                    <p className="ellipsis-text">
+                                      <strong>End Date:</strong>{" "}
+                                      {new Date(
+                                        opportunity.endDate
+                                      ).toLocaleDateString()}
+                                    </p>
+                                    <p className="ellipsis-text">
+                                      <strong>Status:</strong>{" "}
+                                      <span
+                                        className={`badge ${
+                                          opportunity?.status === "Active"
+                                            ? "badge-active"
+                                            : "badge-inactive"
+                                        }`}
+                                      >
+                                        {opportunity?.status}
+                                      </span>
+                                    </p>
+                                  </Col>
+                                </Row>
+
+                                {role === ROLES.INFLUENCER && (
+                                  <Row className="mt-3">
+                                    <Col xs="12">
+                                      <Button
+                                        style={{
+                                          backgroundColor:
+                                            "var(--primary-purple)",
+                                          color: "var(--primary-white)",
+                                          width: "100%",
+                                        }}
+                                        onClick={() =>
+                                          handleCreateTicket(opportunity)
+                                        }
+                                        disabled={
+                                          opportunity.status === "Inactive"
+                                        }
+                                      >
+                                        Apply
+                                      </Button>
+                                    </Col>
+                                  </Row>
+                                )}
+                              </CardBody>
+                            </Card>
+                          </Col>
+                        ))}
+                      </Row>
+                      <Pagination
+                        totalData={totalOpportunities}
+                        setLimit={setLimit}
+                        setPageCount={setPageCount}
+                        limit={limit}
+                        pageCount={pageCount}
+                        currentPage={currentPage}
+                      />
+                    </>
+                  ) : (
+                    <h1 className="no-opportunities-heading">
+                      No opportunities found.
+                    </h1>
+                  )}
                 </TabPane>
 
                 {/* Applied Opportunities */}
                 <TabPane tabId="2">
                   <Row>
                     {loading ? (
-                      <p>Loading...</p>
+                      <div className="no-opportunities-heading">
+                        <Spinner style={{ color: "var(--primary-purple)" }} />
+                      </div>
                     ) : opportunitiesData.length > 0 ? (
-                      opportunitiesData.map((ticket) => (
-                        <Col
-                          sm="6"
-                          md="4"
-                          lg="3"
-                          key={ticket._id}
-                          className="mb-4"
-                        >
-                          <Card className="overflow-hidden d-flex flex-column h-100">
-                            {/* Image Section */}
-                            <div>
-                              <Row>
-                                <Col xs="12">
-                                  <CardImg
-                                    className="img-fluid opportunity-card-image"
-                                    src={`${
-                                      import.meta.env.VITE_APP_BASE_URL
-                                    }/uploads/opportunityImage/${
-                                      ticket.opportunity.imageUrl
-                                    }`}
-                                    alt={`Image for ${ticket.opportunity.title}`}
-                                  />
-                                </Col>
-                              </Row>
-                            </div>
-
-                            {/* Card Body with Flexbox Layout */}
-                            <CardBody className="p-3 d-flex flex-column">
-                              <Row>
-                                <Col xs="12">
-                                  <h5
-                                    style={{ color: "var(--primary-purple)" }}
-                                    className="mt-2 ellipsis-text"
-                                  >
-                                    {ticket.opportunity.title}
-                                  </h5>
-                                  <p className="ellipsis-text">
-                                    <strong>Brand:</strong>{" "}
-                                    {ticket.opportunity.brand}
-                                  </p>
-                                  <p className="ellipsis-text">
-                                    <strong>Description:</strong>{" "}
-                                    {ticket.opportunity.description}
-                                  </p>
-                                  <p className="ellipsis-text">
-                                    <strong>Type:</strong>{" "}
-                                    {ticket.opportunity.type}
-                                  </p>
-                                  <p className="ellipsis-text">
-                                    <strong>Location:</strong>{" "}
-                                    {ticket.opportunity.location}
-                                  </p>
-                                  <p className="ellipsis-text">
-                                    <strong>End Date:</strong>{" "}
-                                    {new Date(
-                                      ticket.opportunity.endDate
-                                    ).toLocaleDateString()}
-                                  </p>
-                                  <p className="ellipsis-text">
-                                    <strong>Status:</strong>{" "}
-                                    {ticket.opportunity.status}
-                                  </p>
-                                </Col>
-                              </Row>
-                              <div className="coupon-box-wrapper">
-                                <div className="coupon-code-container">
-                                  <span
-                                    className="me-2"
-                                  >
-                                    {ticket.couponCode || "N/A"}
-                                  </span>
-                                  <Button
-                                    size="sm"
-                                    onClick={() =>
-                                      copyToClipboard(
-                                        ticket.couponCode,
-                                        ticket._id
-                                      )
-                                    }
-                                  >
-                                    {copiedState[ticket._id] ? (
-                                      <FaCheckCircle color="white" />
-                                    ) : (
-                                      <FaCopy />
-                                    )}
-                                  </Button>
-                                </div>
+                      <>
+                        {opportunitiesData.map((ticket) => (
+                          <Col
+                            sm="6"
+                            md="4"
+                            lg="3"
+                            key={ticket._id}
+                            className="mb-4"
+                          >
+                            <Card className="overflow-hidden d-flex flex-column h-100">
+                              {/* Image Section */}
+                              <div>
+                                <Row>
+                                  <Col xs="12">
+                                    <CardImg
+                                      className="img-fluid opportunity-card-image"
+                                      src={`${
+                                        import.meta.env.VITE_APP_BASE_URL
+                                      }/uploads/opportunityImage/${
+                                        ticket.opportunity.imageUrl
+                                      }`}
+                                      alt={`Image for ${ticket.opportunity.title}`}
+                                    />
+                                  </Col>
+                                </Row>
                               </div>
-                            </CardBody>
-                          </Card>
-                        </Col>
-                      ))
+
+                              {/* Card Body with Flexbox Layout */}
+                              <CardBody className="p-3 d-flex flex-column">
+                                <Row>
+                                  <Col xs="12">
+                                    <h5
+                                      style={{ color: "var(--primary-purple)" }}
+                                      className="mt-2 ellipsis-text"
+                                    >
+                                      {ticket.opportunity.title}
+                                    </h5>
+                                    <p className="ellipsis-text">
+                                      <strong>Brand:</strong>{" "}
+                                      {ticket.opportunity.brand}
+                                    </p>
+                                    <p className="ellipsis-text">
+                                      <strong>Description:</strong>{" "}
+                                      {ticket.opportunity.description}
+                                    </p>
+                                    <p className="ellipsis-text">
+                                      <strong>Type:</strong>{" "}
+                                      {ticket.opportunity.type}
+                                    </p>
+                                    <p className="ellipsis-text">
+                                      <strong>Location:</strong>{" "}
+                                      {ticket.opportunity.location}
+                                    </p>
+                                    <p className="ellipsis-text">
+                                      <strong>End Date:</strong>{" "}
+                                      {new Date(
+                                        ticket.opportunity.endDate
+                                      ).toLocaleDateString()}
+                                    </p>
+                                    <p className="ellipsis-text">
+                                      <strong>Status:</strong>{" "}
+                                      <span
+                                        className={`badge ${
+                                          ticket.opportunity?.status ===
+                                          "Active"
+                                            ? "badge-active"
+                                            : "badge-inactive"
+                                        }`}
+                                      >
+                                        {ticket.opportunity.status}
+                                      </span>
+                                    </p>
+                                  </Col>
+                                </Row>
+                                <div className="coupon-box-wrapper">
+                                  <div className="coupon-code-container">
+                                    <span className="me-2">
+                                      {ticket.couponCode || "N/A"}
+                                    </span>
+                                    <Button
+                                      size="sm"
+                                      onClick={() =>
+                                        copyToClipboard(
+                                          ticket.couponCode,
+                                          ticket._id
+                                        )
+                                      }
+                                    >
+                                      {copiedState[ticket._id] ? (
+                                        <FaCheckCircle color="white" />
+                                      ) : (
+                                        <FaCopy />
+                                      )}
+                                    </Button>
+                                  </div>
+                                </div>
+                                <Button
+                                  color="primary"
+                                  className="mt-3"
+                                  onClick={() => handleDetailsView(ticket)}
+                                >
+                                  View More
+                                </Button>
+                              </CardBody>
+                            </Card>
+                          </Col>
+                        ))}
+                        <Pagination
+                        totalData={totalRecords}
+                        setLimit={setItemsPerPage}
+                        setPageCount={setCurrentPageIndex}
+                        limit={itemsPerPage}
+                        pageCount={currentPageIndex}
+                        currentPage={currentPageIndex}
+                      />
+                      </>
                     ) : (
-                      <p>No applied opportunities found.</p>
+                      <h1 className="no-opportunities-heading">
+                        No applied opportunities found.
+                      </h1>
                     )}
                   </Row>
                 </TabPane>
               </TabContent>
             </Col>
           </Row>
+
           <Modal isOpen={modalOpen} toggle={() => setModalOpen(!modalOpen)}>
             <ModalHeader toggle={() => setModalOpen(!modalOpen)}>
               Apply for {selectedOpportunity ? selectedOpportunity.title : ""}
@@ -415,6 +486,127 @@ const OpportunitiesPage = (props) => {
               </Button>
               <Button color="primary" onClick={handleTicketCreation}>
                 Confirm
+              </Button>
+            </ModalFooter>
+          </Modal>
+
+          <Modal
+            isOpen={detailsModalOpen}
+            toggle={() => setDetailsModalOpen(!detailsModalOpen)}
+            size="lg"
+          >
+            <ModalHeader toggle={() => setDetailsModalOpen(!detailsModalOpen)}>
+              {detailsOpportunity?.opportunity?.title || "Opportunity Details"}
+            </ModalHeader>
+            <ModalBody>
+              {/* Image Section */}
+              {detailsOpportunity?.opportunity?.imageUrl && (
+                <div className="text-center mb-3">
+                  <img
+                    src={`${
+                      import.meta.env.VITE_APP_BASE_URL
+                    }/uploads/opportunityImage/${
+                      detailsOpportunity.opportunity.imageUrl
+                    }`}
+                    alt={`Image for ${detailsOpportunity.opportunity.title}`}
+                    className="img-fluid rounded"
+                    style={{
+                      maxHeight: "200px",
+                      objectFit: "cover",
+                      width: "100%",
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* Opportunity Details */}
+              <Row>
+                <Col xs="12">
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "100px auto",
+                      gap: "10px",
+                    }}
+                  >
+                    <p>
+                      <strong>Brand</strong>
+                    </p>
+                    <p>: {detailsOpportunity?.opportunity?.brand}</p>
+
+                    <p>
+                      <strong>Description</strong>
+                    </p>
+                    <p>: {detailsOpportunity?.opportunity?.description}</p>
+
+                    <p>
+                      <strong>Type</strong>
+                    </p>
+                    <p>: {detailsOpportunity?.opportunity?.type}</p>
+
+                    <p>
+                      <strong>Location</strong>
+                    </p>
+                    <p>: {detailsOpportunity?.opportunity?.location}</p>
+
+                    <p>
+                      <strong>End Date</strong>
+                    </p>
+                    <p>
+                      :{" "}
+                      {new Date(
+                        detailsOpportunity?.opportunity?.endDate
+                      ).toLocaleDateString()}
+                    </p>
+
+                    <p>
+                      <strong>Status:</strong>
+                    </p>
+                    <p>
+                      :{" "}
+                      <span
+                        className={`badge ${
+                          detailsOpportunity?.opportunity?.status === "Active"
+                            ? "badge-active"
+                            : "badge-inactive"
+                        }`}
+                      >
+                        {detailsOpportunity?.opportunity?.status}
+                      </span>
+                    </p>
+                  </div>
+
+                  <div className="coupon-box-wrapper">
+                    <div className="coupon-code-container">
+                      <span className="me-2">
+                        {detailsOpportunity?.couponCode || "N/A"}
+                      </span>
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          copyToClipboard(
+                            detailsOpportunity?.couponCode,
+                            detailsOpportunity?._id
+                          )
+                        }
+                      >
+                        {copiedState[detailsOpportunity?._id] ? (
+                          <FaCheckCircle color="white" />
+                        ) : (
+                          <FaCopy />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </Col>
+              </Row>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                color="secondary"
+                onClick={() => setDetailsModalOpen(false)}
+              >
+                Close
               </Button>
             </ModalFooter>
           </Modal>

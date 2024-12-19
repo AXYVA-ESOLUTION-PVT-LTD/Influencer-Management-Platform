@@ -17,7 +17,7 @@ import Pagination from "../../components/Common/Pagination";
 import TableContainer from "../../components/Common/TableContainer";
 import "../../assets/themes/colors.scss";
 import PropTypes from "prop-types";
-import { deleteTicketRequest, fetchTicketsRequest, updateTicketRequest } from "../../store/actions";
+import { createNotification, deleteTicketRequest, fetchTicketsRequest, updateTicketRequest } from "../../store/actions";
 import axios from "axios";
 import CouponFiltering from "../../components/Common/CouponFiltering";
 const CouponManagement = (props) => {
@@ -69,6 +69,15 @@ const CouponManagement = (props) => {
     };
   
     dispatch(updateTicketRequest(payload));
+    
+    const newNotification = {
+      userId: selectedOpportunity.influencerId._id,
+      title: `Coupon Assigned for ${selectedOpportunity.opportunity.title}`,
+      message: `A coupon code has been assigned to you for the opportunity: ${selectedOpportunity.opportunity.title}.`,
+    };
+
+    dispatch(createNotification(newNotification));
+    
     dispatch(
       fetchTicketsRequest({
         limit,

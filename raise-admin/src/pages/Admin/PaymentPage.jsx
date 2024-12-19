@@ -1,103 +1,115 @@
 import React, { useEffect, useState } from "react";
-import { Badge, Button, Container, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from "reactstrap";
+import {
+  Badge,
+  Button,
+  Container,
+  FormGroup,
+  Input,
+  Label,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  Spinner,
+} from "reactstrap";
 import Breadcrumb from "../../components/Common/Breadcrumb";
 import TableContainer from "../../components/Common/TableContainer";
 import ROLES from "../../constants/role";
 import { staticPayments } from "../../data/PaymentData";
-import '../../assets/themes/colors.scss';
+import "../../assets/themes/colors.scss";
 
 const PaymentPage = () => {
   document.title = "Payments | Brandraise";
 
   const [role, setRole] = useState("");
-  const [loading, setLoading] = useState(false); 
-  const [selectedPayment, setSelectedPayment] = useState(null); 
-  const [modalOpen, setModalOpen] = useState(false); 
-  const [status, setStatus] = useState(""); 
+  const [loading, setLoading] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [status, setStatus] = useState("");
 
   const toggleModal = () => setModalOpen(!modalOpen);
 
-   const formatDate = (dateString) => {
+  const formatDate = (dateString) => {
     const date = new Date(dateString);
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
       2,
       "0"
     )}-${String(date.getDate()).padStart(2, "0")}`;
   };
-const columns = (role) =>
-  [
-    {
-      Header: "Name",
-      accessor: "name",
-    },
-    {
-      Header: "Email",
-      accessor: "email",
-    },
-    {
-      Header: "Commission",
-      accessor: "commission",
-    },
-    {
-      Header: "Deduction",
-      accessor: "deduction",
-    },
-    {
-      Header: "Status",
-      accessor: "status",
-      Cell: ({ value }) => (
-        <span
-          style={{
-            backgroundColor: value === "Completed" ? "var(--status-green-light)" : "var(--status-yellow-light)",
-            color: value === "Completed" ? "var(--status-green-dark)" : "var(--status-yellow-dark)",
-            borderRadius: "8px",
-            padding: "5px 10px",
-            fontSize: "0.7rem",
-            fontWeight: 500,
-          }}
-        >
-          {value}
-        </span>
-      ),
-    },
-    //   {
-    //     Header: "Created At",
-    //     accessor: "createdAt",
-    //     Cell: ({ value }) => formatDate(value),
-    //   },
-    role === ROLES.ADMIN && {
-      Header: "Actions",
-      accessor: "actions",
-      Cell: ({ row: { original } }) => (
-        <>
-        <Button color="link" size="lg" onClick={() => handleEdit(original)}>
-            <i className="bx bx-edit" style={{ color: "var(--secondary-yellow)" }}></i>
-          </Button>
-        </>
-      ),
-    },
-  ].filter(Boolean); 
+  const columns = (role) =>
+    [
+      {
+        Header: "Name",
+        accessor: "name",
+      },
+      {
+        Header: "Email",
+        accessor: "email",
+      },
+      {
+        Header: "Commission",
+        accessor: "commission",
+      },
+      {
+        Header: "Deduction",
+        accessor: "deduction",
+      },
+      {
+        Header: "Status",
+        accessor: "status",
+        Cell: ({ value }) => (
+          <span
+            className={`status-badge ${
+              value === "Completed"
+                ? "status-badge-completed"
+                : "status-badge-pending"
+            }`}
+          >
+            {value}
+          </span>
+        ),
+      },
+      //   {
+      //     Header: "Created At",
+      //     accessor: "createdAt",
+      //     Cell: ({ value }) => formatDate(value),
+      //   },
+      role === ROLES.ADMIN && {
+        Header: "Actions",
+        accessor: "actions",
+        Cell: ({ row: { original } }) => (
+          <>
+            <Button color="link" size="lg" onClick={() => handleEdit(original)}>
+              <i
+                className="bx bx-edit"
+                style={{ color: "var(--secondary-yellow)" }}
+              ></i>
+            </Button>
+          </>
+        ),
+      },
+    ].filter(Boolean);
 
-   const handleEdit = (payment) => {
-     setSelectedPayment(payment); 
-     setStatus(payment.status); 
-     toggleModal(); 
-   };
- 
-   const handleStatusChange = (e) => {
-     setStatus(e.target.value);
-   };
- 
-   const handleSave = () => {
-     const updatedPayments = staticPayments.map(payment =>
-       payment.id === selectedPayment.id ? { ...payment, status } : payment
-     );
-     toggleModal(); 
-   };
+  const handleEdit = (payment) => {
+    setSelectedPayment(payment);
+    setStatus(payment.status);
+    toggleModal();
+  };
+
+  const handleStatusChange = (e) => {
+    setStatus(e.target.value);
+  };
+
+  const handleSave = () => {
+    const updatedPayments = staticPayments.map((payment) =>
+      payment.id === selectedPayment.id ? { ...payment, status } : payment
+    );
+    toggleModal();
+  };
 
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("user"));
-    setRole(data?.roleId?.name || "User"); 
+    setRole(data?.roleId?.name || "User");
   }, []);
 
   return (
@@ -116,8 +128,8 @@ const columns = (role) =>
             </div>
           ) : (
             <TableContainer
-              columns={columns(role)} 
-              data={staticPayments} 
+              columns={columns(role)}
+              data={staticPayments}
               isGlobalFilter={true}
               isAddOptions={false}
               customPageSize={10}
@@ -129,28 +141,39 @@ const columns = (role) =>
       </div>
 
       <Modal isOpen={modalOpen} toggle={toggleModal}>
-          <ModalHeader toggle={toggleModal}>Edit Payment Status</ModalHeader>
-          <ModalBody>
-            <FormGroup>
-              <Label for="paymentStatus">Status</Label>
-              <Input
-                type="select"
-                name="status"
-                id="paymentStatus"
-                value={status}
-                onChange={handleStatusChange}
-              >
-                <option value="Pending">Pending</option>
-                <option value="Completed">Completed</option>
-                <option value="Failed">Failed</option>
-              </Input>
-            </FormGroup>
-          </ModalBody>
-          <ModalFooter>
-            <Button className="border-none" style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)"}} onClick={handleSave}>Save</Button>
-            <Button color="secondary" onClick={toggleModal}>Cancel</Button>
-          </ModalFooter>
-        </Modal>
+        <ModalHeader toggle={toggleModal}>Edit Payment Status</ModalHeader>
+        <ModalBody>
+          <FormGroup>
+            <Label for="paymentStatus">Status</Label>
+            <Input
+              type="select"
+              name="status"
+              id="paymentStatus"
+              value={status}
+              onChange={handleStatusChange}
+            >
+              <option value="Pending">Pending</option>
+              <option value="Completed">Completed</option>
+              <option value="Failed">Failed</option>
+            </Input>
+          </FormGroup>
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            className="border-none"
+            style={{
+              backgroundColor: "var(--primary-purple)",
+              color: "var(--primary-white)",
+            }}
+            onClick={handleSave}
+          >
+            Save
+          </Button>
+          <Button color="secondary" onClick={toggleModal}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
     </React.Fragment>
   );
 };

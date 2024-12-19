@@ -19,9 +19,8 @@ import TableContainer from "../../components/Common/TableContainer";
 import Chat from "../../components/Notification/Chat";
 import ROLES from "../../constants/role";
 import {
-  createNotification,
-  getNotification,
-  updateNotification,
+  createTicketNotification, getTicketNotification,
+  updateTicketNotification
 } from "../../store/notification/actions";
 import '../../assets/themes/colors.scss';
 import TicketFiltering from "../../components/Common/TicketFiltering";
@@ -130,6 +129,13 @@ const TicketManagement = () => {
     {
       Header: "Status",
       accessor: "status",
+      Cell: ({ value }) => (
+        <span 
+        className={`ticket-badge ticket-badge-${value}`}
+      >
+        {value}
+      </span>
+      ),
     },
     {
       Header: "Actions",
@@ -223,7 +229,7 @@ const TicketManagement = () => {
 
   const handleSaveEdit = () => {
     dispatch(
-      updateNotification({
+      updateTicketNotification({
         id: currentTicket._id,
         status: currentTicket.status,
       })
@@ -233,7 +239,7 @@ const TicketManagement = () => {
 
   const handleCreate = () => {
     if (validateForm()) {
-      dispatch(createNotification(newTicket));
+      dispatch(createTicketNotification(newTicket));
       setNewTicket({
         title: "",
         description: "",
@@ -243,7 +249,7 @@ const TicketManagement = () => {
   };
 
   useEffect(() => {
-    dispatch(getNotification({ limit, pageCount ,...filterFields }));
+    dispatch(getTicketNotification({ limit, pageCount ,...filterFields }));
   }, [dispatch, limit, pageCount ,isSearching]);
 
   return (
@@ -251,13 +257,6 @@ const TicketManagement = () => {
       <div className="page-content">
         <Container fluid>
           <Breadcrumb title="Ticket Management" breadcrumbItem="Ticket Management" />
-          {role === "Influencer" && (
-            <div className="d-flex justify-content-end mb-3">
-              <Button color="primary" onClick={() => setCreateModal(true)}>
-                Create Ticket
-              </Button>
-            </div>
-          )}
           <TicketFiltering
             setFilterFields={setFilterFields}
             filterFields={filterFields}
