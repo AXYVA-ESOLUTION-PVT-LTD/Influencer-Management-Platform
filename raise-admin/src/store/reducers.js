@@ -5,28 +5,35 @@ import Layout from "./layout/reducer";
 import ForgetPassword from "./auth/forgetpwd/reducer";
 import Login from "./auth/login/reducer";
 import Account from "./auth/register/reducer";
-import resetPassword from "./auth/reset-pwd/reducer";
-import chats from "./chats/reducers";
-import brand from "./brand/reducer";
-import influencer from "./influencers/reducer";
-import notification from "./notification/reducers";
-import opportunity from "./opportunity/reducer";
 import Role from "./role/reducer";
-import user from "./user/reducer";
+import Dashboard from "./dashboard/reducer";
+import Chats from "./chats/reducers";
+import Notification from "./notification/reducers";
+import Brand from "./brand/reducer";
+import Influencer from "./influencers/reducer";
+import User from "./user/reducer";
+import Opportunity from "./opportunity/reducer";
+import ResetPassword from "./auth/reset-pwd/reducer";
+import Publication from "./publication/reducer";
+import Payment from "./payment/reducer";
+
 
 const rootReducer = combineReducers({
   Layout,
   Login,
   Account,
   ForgetPassword,
-  resetPassword,
+  ResetPassword,
   Role,
-  opportunity,
-  user,
-  influencer,
-  brand,
-  notification,
-  chats,
+  Opportunity,
+  User,
+  Influencer,
+  Brand,
+  Notification,
+  Chats,
+  Dashboard,
+  Publication,
+  Payment
 });
 
 export default rootReducer;

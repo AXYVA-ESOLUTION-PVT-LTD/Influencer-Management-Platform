@@ -1,206 +1,660 @@
-import React, { useEffect } from "react";
-import { Row, Col, CardBody, Card, Alert, Container, Input, Label, Form, FormFeedback } from "reactstrap";
-import PropTypes from "prop-types";
-// Formik Validation
+import React, { useEffect, useState } from "react";
+import {
+  Row,
+  Col,
+  CardBody,
+  Card,
+  Input,
+  Label,
+  Form,
+  InputGroup,
+  InputGroupText,
+  Alert,
+  Button,
+} from "reactstrap";
 import * as Yup from "yup";
 import { useFormik } from "formik";
-
-// action
-import { registerUser, apiError, registerUserFailed } from "../../store/actions";
-
-//redux
-import { useSelector, useDispatch } from "react-redux";
-
 import { Link, useNavigate } from "react-router-dom";
-
-// import images
-import profileImg from "../../assets/images/profile-img.png";
-// import logoImg from "../../assets/images/favicon/logo-sm.png";
-import withRouter from "../../components/Common/withRouter";
-
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useSelector, useDispatch } from "react-redux";
+import { registerUser } from "../../store/actions";
+import PropTypes from "prop-types";
 import ROLECODE from "../../constants/rolecode";
+import withRouter from "../../components/Common/withRouter";
 
 const Register = (props) => {
   document.title = "Register | Brandraise";
-  
+
   const dispatch = useDispatch();
-  const history = useNavigate();
-  const validation = useFormik({
-    // enableReinitialize : use this flag when initial values needs to be changed
-    enableReinitialize: true,
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionError, setSubmissionError] = useState(null);
+  // const [filteredCountries, setFilteredCountries] = useState([]);
+  // const [filteredCities, setFilteredCities] = useState([]);
 
-    initialValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      password: '',
-      roleCode  : ROLECODE["Brand"]
-    },
-    validationSchema: Yup.object({
-      firstName: Yup.string().required("Please Enter Your First Name"),
-      lastName: Yup.string().required("Please Enter Your Last Name"),
-      email: Yup.string().email("Invalid email address").required("Please Enter Your Email"),
-      password: Yup.string().min(6, "Password must be at least 6 characters").required("Please Enter Your Password"),
-    }),
-    onSubmit: (values) => {
-      dispatch(registerUser(values , props.router.navigate));
-    },
-  });
+  // const {
+  //   user,
+  //   registrationError,
+  //   loading,
+  //   countries,
+  //   cities,
+  //   loadingCountries,
+  //   loadingCities,
+  // } = useSelector((state) => ({
+  //   user: state.Account.user,
+  //   registrationError: state.Account.registrationError,
+  //   loading: state.Account.loading,
+  //   countries: state.Account.countries,
+  //   cities: state.Account.cities,
+  //   loadingCountries: state.Account.loadingCountries,
+  //   loadingCities: state.Account.loadingCities,
+  // }));
 
-  const { user, registrationError, loading } = useSelector((state) => ({
-    user: state.Account.user,
+  const { registrationError, loading } = useSelector((state) => ({
     registrationError: state.Account.registrationError,
     loading: state.Account.loading,
   }));
 
-  
+  // useEffect(() => {
+  //   // console.log("Country api call..........");
+  //   dispatch(fetchCountries());
+  // }, [dispatch]);
+
+  // useEffect(() => {
+  //   if (countries.length > 0) {
+  //     console.log("countries .....", countries);
+  //     setFilteredCountries(countries);
+  //   } else {
+  //     setFilteredCountries([]);
+  //   }
+  // }, [countries]);
+
+  // useEffect(() => {
+  //   if (cities.length > 0) {
+  //     setFilteredCities(cities);
+  //   } else {
+  //     setFilteredCities([]);
+  //   }
+  // }, [cities]);
+
+  // const handleCountryChange = (e) => {
+  //   const selectedCountry = e.target.value;
+  //   dispatch(fetchCities(selectedCountry));
+  // };
+
+  const validationStep1 = useFormik({
+    enableReinitialize: true,
+    initialValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      phoneNumber: "",
+      city: "",
+      country: "",
+      roleCode: ROLECODE["Influencer"],
+    },
+    validationSchema: Yup.object({
+      firstName: Yup.string()
+        .matches(
+          /^[A-Za-z]+$/,
+          "First name must only contain alphabets and cannot have special characters or numbers"
+        )
+        .min(2, "First name must be at least 2 characters long")
+        .max(50, "First name must not exceed 50 characters")
+        .required("Please Enter Your First Name"),
+      lastName: Yup.string()
+        .matches(
+          /^[A-Za-z]+$/,
+          "Last name must only contain alphabets and cannot have special characters or numbers"
+        )
+        .min(2, "Last name must be at least 2 characters long")
+        .max(50, "Last name must not exceed 50 characters")
+        .required("Please Enter Your Last Name"),
+      email: Yup.string()
+        .email("Invalid email address")
+        .required("Please Enter Your Email"),
+      password: Yup.string()
+        .matches(
+          /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,20}$/,
+          "Password must be 8-20 characters, include uppercase, lowercase, number, and special character."
+        )
+        .required("Password is required"),
+      confirmPassword: Yup.string()
+        .oneOf([Yup.ref("password"), null], "Passwords must match")
+        .required("Please Confirm Your Password"),
+      phoneNumber: Yup.string()
+        .transform((value) => {
+          return value.replace(/[^\d\+\-]/g, ""); 
+        })
+        .matches(
+          /^\+(\d{1,2})[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4}$/,
+          "Phone number must start with a country code (e.g., +1 00000 00000) and contain only digits and dashes"
+        )
+        .required("Please enter your phone number"),
+      city: Yup.string()
+        .matches(
+          /^[A-Za-z\s]+$/,
+          "City should only contain alphabets and spaces, and cannot include special characters or numbers"
+        )
+        .min(3, "City name must be at least 3 characters long")
+        .max(100, "City name must not exceed 100 characters")
+        .required("City is required"),
+      country: Yup.string()
+        .matches(
+          /^[A-Za-z\s]+$/,
+          "Country should only contain alphabets and spaces, and cannot include special characters or numbers"
+        )
+        .min(3, "Country name must be at least 3 characters long")
+        .max(100, "Country name must not exceed 100 characters")
+        .required("Country is required"),
+      // city: Yup.string().required("Please select a city from the list"),
+      // country: Yup.string().required("Please select a country from the list"),
+    }),
+  });
+
+  const handleSubmit = async () => {
+    // Prevent multiple submissions
+    if (isSubmitting) return;
+    // Validate both forms before submitting
+    const errorsStep1 = await validationStep1.validateForm();
+    if (Object.keys(errorsStep1).length === 0) {
+      // Merge the data from both steps and submit
+      const mergedData = {
+        ...validationStep1.values,
+      };
+      setIsSubmitting(true);
+      dispatch(registerUser(mergedData));
+    } else {
+      validationStep1.setTouched({
+        firstName: true,
+        lastName: true,
+        email: true,
+        password: true,
+        confirmPassword: true,
+        phoneNumber: true,
+        city: true,
+        country: true,
+      });
+    }
+  };
+
   useEffect(() => {
-    dispatch(registerUserFailed(""));
-  }, [dispatch]);
+    if (!loading && isSubmitting) {
+      if (!registrationError) {
+        navigate("/onboarding");
+      } else {
+        setSubmissionError(registrationError);
+        console.error("Error creating User:", registrationError);
+      }
+      setIsSubmitting(false);
+    }
+  }, [loading, registrationError, isSubmitting]);
+
+  useEffect(() => {
+    return () => {
+      setSubmissionError(null);
+    };
+  }, []);
+
+  const formatErrorMessage = (error) => {
+    if (!error) return null;
+
+    const errorMessage =
+      typeof error === "string" ? error : JSON.stringify(error);
+
+    if (errorMessage.includes("This")) {
+      return errorMessage.split(/(?=This)/g).map((msg, index) => (
+        <p
+          key={index}
+          className="text-danger"
+        >
+          {msg.trim()}
+        </p>
+      ));
+    }
+
+    return <p className="text-danger">{errorMessage}</p>;
+  };
+
+  const handleNavigateToLogin = () => {
+    navigate("/login");
+  };
 
   return (
     <React.Fragment>
-      <div className="account-pages my-5 pt-sm-5">
-        <Container>
-          <Row className="justify-content-center">
-            <Col md={8} lg={6} xl={5}>
-              <Card className="overflow-hidden">
-                <div className="bg-primary bg-soft">
-                  <Row>
-                    <Col className="col-7">
-                      <div className="text-primary p-4">
-                        <h5 className="text-primary">Free Register</h5>
-                        <p>Get your free Brandraise account now.</p>
-                      </div>
-                    </Col>
-                    <Col className="col-5 align-self-end">
-                      <img src={profileImg} alt="" className="img-fluid" />
-                    </Col>
-                  </Row>
-                </div>
-                <CardBody className="pt-0">
-                  <div>
-                    <Link to="/">
-                      <div className="avatar-md profile-user-wid mb-4">
-                        <span className="avatar-title rounded-circle bg-light">
-                          {/* <img src={logoImg} alt="" className="rounded-circle" height="34" /> */}
-                        </span>
-                      </div>
+      <div className="d-flex min-vh-100 align-items-center justify-content-center bg-light w-100">
+        <Card className="shadow-lg register-page">
+          <Row className="g-0 h-100">
+            <Col
+              xs={12}
+              lg={6}
+              className="bg-primary text-white p-4 d-flex flex-column align-items-start justify-content-between d-none d-lg-flex"
+            >
+              <h1 className="fw-bold mb-3 text-center text-md-start">
+                BrandRaise
+              </h1>
+
+              <div className="text-center text-md-start mt-5">
+                <h1 className="fw-bold mb-3">Empowering Creators Worldwide</h1>
+                <h1 className="fw-bold mb-3 text-center text-md-start">
+                  Partnered with Leading Brands
+                </h1>
+              </div>
+
+              <div className="company-logo-slider">
+                <h5 className="mb-1 text-center text-md-start">
+                  Our partners include:
+                </h5>
+                <ul className="list-inline mt-2 text-center text-md-start">
+                  <li className="list-inline-item">
+                    <img
+                      src="path-to-amazon-logo.png"
+                      alt="Amazon logo"
+                      height="30"
+                    />
+                  </li>
+                  <li className="list-inline-item">
+                    <img
+                      src="path-to-nike-logo.png"
+                      alt="Nike logo"
+                      height="30"
+                    />
+                  </li>
+                  <li className="list-inline-item">
+                    <img
+                      src="path-to-coca-cola-logo.png"
+                      alt="Coca-Cola logo"
+                      height="30"
+                    />
+                  </li>
+                  <li className="list-inline-item">
+                    <img
+                      src="path-to-apple-logo.png"
+                      alt="Apple logo"
+                      height="30"
+                    />
+                  </li>
+                  <li className="list-inline-item">
+                    <img
+                      src="path-to-microsoft-logo.png"
+                      alt="Microsoft logo"
+                      height="30"
+                    />
+                  </li>
+                </ul>
+              </div>
+            </Col>
+
+            <Col
+              xs={12}
+              lg={6}
+              className="d-flex flex-column align-items-center justify-content-between h-100"
+            >
+              <div className="w-100 d-flex justify-content-end  text-right shadow-sm p-3">
+                <Button
+                  color="primary"
+                  className="w-auto rounded-0"
+                  onClick={handleNavigateToLogin}
+                  style={{
+                    borderColor: "var(--primary-purple)",
+                    color: "var(--primary-purple)",
+                    backgroundColor: "var(--primary-white)",
+                  }}
+                  size="lg"
+                >
+                  Login
+                </Button>
+              </div>
+
+              <CardBody className="d-flex flex-column align-items-center justify-content-center my-lg-4">
+                <div>
+                  <h2 className="text-left mb-4">Registration</h2>
+                  <h6 className="text-left mb-4">
+                    Already have an account?{" "}
+                    <Link to="/login" className="text-primary fw-bold">
+                      Log In
                     </Link>
-                  </div>
-                  <div className="p-2">
+                  </h6>
+                  {submissionError && (
+                    <Alert color="danger" >
+                      {formatErrorMessage(submissionError)}
+                    </Alert>
+                  )}
+                  <div>
                     <Form
                       className="form-horizontal"
                       onSubmit={(e) => {
                         e.preventDefault();
-                        validation.handleSubmit();
-                        return false;
+                        handleSubmit();
                       }}
                     >
-                      {user && user ? (
-                        <Alert color="success">Register User Successfully</Alert>
-                      ) : null}
+                      <div className="row mb-3">
+                        <div className="col-lg-6 col-12">
+                          <Label className="form-label">First Name</Label>
+                          <Input
+                            name="firstName"
+                            type="text"
+                            placeholder="Enter first name"
+                            onChange={validationStep1.handleChange}
+                            onBlur={validationStep1.handleBlur}
+                            value={validationStep1.values.firstName || ""}
+                            invalid={
+                              validationStep1.touched.firstName &&
+                              validationStep1.errors.firstName
+                                ? true
+                                : false
+                            }
+                          />
+                          {validationStep1.touched.firstName &&
+                            validationStep1.errors.firstName && (
+                              <Alert color="danger" className="mt-2 p-1">
+                                {validationStep1.errors.firstName}
+                              </Alert>
+                            )}
+                        </div>
 
-                      {registrationError ? (
-                        <Alert color="danger">{registrationError}</Alert>
-                      ) : null}
+                        <div className="col-lg-6 col-12">
+                          <Label className="form-label">Last Name</Label>
+                          <Input
+                            name="lastName"
+                            type="text"
+                            placeholder="Enter last name"
+                            onChange={validationStep1.handleChange}
+                            onBlur={validationStep1.handleBlur}
+                            value={validationStep1.values.lastName || ""}
+                            invalid={
+                              validationStep1.touched.lastName &&
+                              validationStep1.errors.lastName
+                                ? true
+                                : false
+                            }
+                          />
+                          {validationStep1.touched.lastName &&
+                            validationStep1.errors.lastName && (
+                              <Alert color="danger" className="mt-2 p-1">
+                                {validationStep1.errors.lastName}
+                              </Alert>
+                            )}
+                        </div>
+                      </div>
 
-                      <div className="mb-3">
-                        <Label className="form-label">First Name</Label>
+                      <div className="row mb-3">
+                        <div className="col-lg-6 col-12">
+                          <Label className="form-label">Email</Label>
+                          <Input
+                            name="email"
+                            type="email"
+                            placeholder="Enter email"
+                            onChange={validationStep1.handleChange}
+                            onBlur={validationStep1.handleBlur}
+                            value={validationStep1.values.email || ""}
+                            invalid={
+                              validationStep1.touched.email &&
+                              validationStep1.errors.email
+                                ? true
+                                : false
+                            }
+                          />
+                          {validationStep1.touched.email &&
+                            validationStep1.errors.email && (
+                              <Alert color="danger" className="mt-2 p-1">
+                                {validationStep1.errors.email}
+                              </Alert>
+                            )}
+                        </div>
+                        <div className="col-lg-6 col-12">
+                          <Label className="form-label">Phone Number</Label>
+                          <Input
+                            name="phoneNumber"
+                            type="text"
+                            placeholder="Enter phone number"
+                            onChange={validationStep1.handleChange}
+                            onBlur={validationStep1.handleBlur}
+                            value={validationStep1.values.phoneNumber || ""}
+                            invalid={
+                              validationStep1.touched.phoneNumber &&
+                              validationStep1.errors.phoneNumber
+                                ? true
+                                : false
+                            }
+                          />
+                          {validationStep1.touched.phoneNumber &&
+                            validationStep1.errors.phoneNumber && (
+                              <Alert color="danger" className="mt-2 p-1">
+                                {validationStep1.errors.phoneNumber}
+                              </Alert>
+                            )}
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-lg-6 col-12">
+                          <Label className="form-label">Password</Label>
+                          <InputGroup>
+                            <Input
+                              name="password"
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Enter password"
+                              onChange={validationStep1.handleChange}
+                              onBlur={validationStep1.handleBlur}
+                              value={validationStep1.values.password || ""}
+                              invalid={
+                                validationStep1.touched.password &&
+                                validationStep1.errors.password
+                                  ? true
+                                  : false
+                              }
+                            />
+                            <InputGroupText
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="cursor-pointer-dot"
+                            >
+                              {showPassword ? <FaEyeSlash /> : <FaEye />}
+                            </InputGroupText>
+                          </InputGroup>
+                          {validationStep1.touched.password &&
+                            validationStep1.errors.password && (
+                              <Alert color="danger" className="mt-2 p-1">
+                                {validationStep1.errors.password}
+                              </Alert>
+                            )}
+                        </div>
+                        <div className="col-lg-6 col-12">
+                          <Label className="form-label">Confirm Password</Label>
+                          <InputGroup>
+                            <Input
+                              name="confirmPassword"
+                              type={showConfirmPassword ? "text" : "password"}
+                              placeholder="Confirm password"
+                              onChange={validationStep1.handleChange}
+                              onBlur={validationStep1.handleBlur}
+                              value={
+                                validationStep1.values.confirmPassword || ""
+                              }
+                              invalid={
+                                validationStep1.touched.confirmPassword &&
+                                validationStep1.errors.confirmPassword
+                                  ? true
+                                  : false
+                              }
+                            />
+                            <InputGroupText
+                              onClick={() =>
+                                setShowConfirmPassword(!showConfirmPassword)
+                              }
+                              className="cursor-pointer-dot"
+                            >
+                              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                            </InputGroupText>
+                          </InputGroup>
+                          {validationStep1.touched.confirmPassword &&
+                            validationStep1.errors.confirmPassword && (
+                              <Alert color="danger" className="mt-2 p-1">
+                                {validationStep1.errors.confirmPassword}
+                              </Alert>
+                            )}
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-lg-6 col-12">
+                          <Label className="form-label">City</Label>
+                          <Input
+                            name="city"
+                            type="text"
+                            placeholder="Enter city"
+                            onChange={validationStep1.handleChange}
+                            onBlur={validationStep1.handleBlur}
+                            value={validationStep1.values.city || ""}
+                            invalid={
+                              validationStep1.touched.city &&
+                              validationStep1.errors.city
+                                ? true
+                                : false
+                            }
+                          />
+                          {validationStep1.touched.city &&
+                            validationStep1.errors.city && (
+                              <Alert color="danger" className="mt-2 p-1">
+                                {validationStep1.errors.city}
+                              </Alert>
+                            )}
+                        </div>
+
+                        <div className="col-lg-6 col-12">
+                          <Label className="form-label">Country</Label>
+                          <Input
+                            name="country"
+                            type="text"
+                            placeholder="Enter country"
+                            onChange={validationStep1.handleChange}
+                            onBlur={validationStep1.handleBlur}
+                            value={validationStep1.values.country || ""}
+                            invalid={
+                              validationStep1.touched.country &&
+                              validationStep1.errors.country
+                                ? true
+                                : false
+                            }
+                          />
+                          {validationStep1.touched.country &&
+                            validationStep1.errors.country && (
+                              <Alert color="danger" className="mt-2 p-1">
+                                {validationStep1.errors.country}
+                              </Alert>
+                            )}
+                        </div>
+                      </div>
+
+                      {/* <div className="mb-3">
+                        <Label className="form-label">Country</Label>
                         <Input
-                          name="firstName"
-                          type="text"
-                          placeholder="Enter first name"
-                          onChange={validation.handleChange}
-                          onBlur={validation.handleBlur}
-                          value={validation.values.firstName || ""}
-                          invalid={validation.touched.firstName && validation.errors.firstName ? true : false}
-                        />
-                        {validation.touched.firstName && validation.errors.firstName ? (
-                          <FormFeedback type="invalid">{validation.errors.firstName}</FormFeedback>
-                        ) : null}
+                          name="country"
+                          type="select"
+                          onChange={(e) => {
+                            validationStep1.handleChange(e);
+                            handleCountryChange(e);
+                          }}
+                          onBlur={validationStep1.handleBlur}
+                          value={validationStep1.values.country || ""}
+                          invalid={
+                            validationStep1.touched.country &&
+                            validationStep1.errors.country
+                              ? true
+                              : false
+                          }
+                        >
+                          <option value="">Select a country</option>
+                          {loadingCountries ? (
+                            <option>Loading countries...</option>
+                          ) : filteredCountries.length > 0 ? (
+                            filteredCountries.map((country) => (
+                              <option key={country.code} value={country.name}>
+                                {country.name}
+                              </option>
+                            ))
+                          ) : (
+                            <option>No countries available</option>
+                          )}
+                        </Input>
+                        {validationStep1.touched.country &&
+                          validationStep1.errors.country && (
+                            <FormFeedback type="invalid">
+                              {validationStep1.errors.country}
+                            </FormFeedback>
+                          )}
                       </div>
 
                       <div className="mb-3">
-                        <Label className="form-label">Last Name</Label>
+                        <Label className="form-label">City</Label>
                         <Input
-                          name="lastName"
-                          type="text"
-                          placeholder="Enter last name"
-                          onChange={validation.handleChange}
-                          onBlur={validation.handleBlur}
-                          value={validation.values.lastName || ""}
-                          invalid={validation.touched.lastName && validation.errors.lastName ? true : false}
-                        />
-                        {validation.touched.lastName && validation.errors.lastName ? (
-                          <FormFeedback type="invalid">{validation.errors.lastName}</FormFeedback>
-                        ) : null}
-                      </div>
+                          name="city"
+                          type="select"
+                          onChange={validationStep1.handleChange}
+                          onBlur={validationStep1.handleBlur}
+                          value={validationStep1.values.city || ""}
+                          invalid={
+                            validationStep1.touched.city &&
+                            validationStep1.errors.city
+                              ? true
+                              : false
+                          }
+                          disabled={loadingCities}
+                        >
+                          <option value="">Select a city</option>
+                          {loadingCities ? (
+                            <option>Loading cities...</option>
+                          ) : filteredCities.length > 0 ? (
+                            filteredCities.map((city) => (
+                              <option key={city.geonameId} value={city.name}>
+                                {city.name}
+                              </option>
+                            ))
+                          ) : (
+                            <option>No cities available</option> 
+                          )}
+                        </Input>
+                        {validationStep1.touched.city &&
+                          validationStep1.errors.city && (
+                            <FormFeedback type="invalid">
+                              {validationStep1.errors.city}
+                            </FormFeedback>
+                          )}
+                      </div> */}
 
-                      <div className="mb-3">
-                        <Label className="form-label">Email</Label>
-                        <Input
-                          id="email"
-                          name="email"
-                          className="form-control"
-                          placeholder="Enter email"
-                          type="email"
-                          onChange={validation.handleChange}
-                          onBlur={validation.handleBlur}
-                          value={validation.values.email || ""}
-                          invalid={validation.touched.email && validation.errors.email ? true : false}
-                        />
-                        {validation.touched.email && validation.errors.email ? (
-                          <FormFeedback type="invalid">{validation.errors.email}</FormFeedback>
-                        ) : null}
-                      </div>
-
-                      <div className="mb-3">
-                        <Label className="form-label">Password</Label>
-                        <Input
-                          name="password"
-                          type="password"
-                          placeholder="Enter Password"
-                          onChange={validation.handleChange}
-                          onBlur={validation.handleBlur}
-                          value={validation.values.password || ""}
-                          invalid={validation.touched.password && validation.errors.password ? true : false}
-                        />
-                        {validation.touched.password && validation.errors.password ? (
-                          <FormFeedback type="invalid">{validation.errors.password}</FormFeedback>
-                        ) : null}
-                      </div>
-
-                      <div className="mt-4">
-                        <button className="btn btn-primary btn-block" type="submit">
-                          Register
+                      {/* <div className="mt-4 d-flex justify-content-end">
+                        <button
+                          className="btn btn-primary btn-block"
+                          type="submit"
+                          onClick={handleSubmit}
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? "Submitting..." : "Submit"}
                         </button>
-                      </div>
-
-                      <div className="mt-4 text-center">
-                        <p className="mb-0">
-                          By registering you agree to the Brandraise{" "}
-                          <Link to="#" className="text-primary">
-                            Terms of Use
-                          </Link>
-                        </p>
-                      </div>
+                      </div> */}
                     </Form>
                   </div>
-                </CardBody>
-              </Card>
-              <div className="mt-5 text-center">
-                <p>
-                  Already have an account?{" "}
-                  <Link to="/login" className="font-weight-medium text-primary">
-                    {" "}
-                    Login
-                  </Link>{" "}
-                </p>
+                </div>
+              </CardBody>
+
+              <div className="w-100 text-right shadow-lg p-3">
+                <Button
+                  color="primary"
+                  className="w-auto rounded-0 float-end"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  size="lg"
+                >
+                  {isSubmitting ? "Submitting..." : "Submit"}
+                </Button>
               </div>
             </Col>
           </Row>
-        </Container>
+        </Card>
       </div>
     </React.Fragment>
   );

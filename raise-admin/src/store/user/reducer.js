@@ -10,7 +10,7 @@ const initialState = {
   error: null,
 };
 
-const user = (state = initialState, action) => {
+const User = (state = initialState, action) => {
   switch (action.type) {
     case UPDATE_PROFILE_REQUEST:
       return {
@@ -39,4 +39,4 @@ const user = (state = initialState, action) => {
   }
 };
 
-export default user;
+export default User;

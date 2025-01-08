@@ -27,7 +27,7 @@ const TicketPage = () => {
   document.title = "Tickets | Brandraise";
   const dispatch = useDispatch();
   const { notifications, error, loading, totalNotifications } = useSelector(
-    (state) => state.notification
+    (state) => state.Notification
   );
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(0);
@@ -253,7 +253,7 @@ const TicketPage = () => {
           )}
 
           {loading ? (
-            <div className="text-center" style={{ marginTop: 50 }}>
+            <div className="text-center space-top">
               <Spinner color="primary" />
             </div>
           ) : (
@@ -280,7 +280,7 @@ const TicketPage = () => {
                   />
                 </>
               ) : (
-                <h1 className="text-center" style={{ marginTop: 50 }}>
+                <h1 className="text-center space-top">
                   No Notification Found
                 </h1>
               )}
@@ -403,7 +403,7 @@ const TicketPage = () => {
         </ModalFooter>
       </Modal>
 
-      {isChatOpen && <Chat ticket={selectedTicket} onClose={handleCloseChat} />}
+      {isChatOpen && <Chat type="Ticket" ticket={selectedTicket} onClose={handleCloseChat} />}
     </React.Fragment>
   );
 };

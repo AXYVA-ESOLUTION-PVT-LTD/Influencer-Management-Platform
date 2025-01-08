@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { withTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  Alert,
   Button,
   Container,
   Input,
@@ -16,24 +17,25 @@ import {
 import * as Yup from "yup";
 import BrandFiltering from "../../components/Common/BrandFiltering";
 import Pagination from "../../components/Common/Pagination";
-import TableContainer from "../../components/Common/TableContainer"; // Adjust import path if necessary
+import TableContainer from "../../components/Common/TableContainer";
 import ROLES from "../../constants/role";
 import { addNewBrand, getBrand, updateBrand } from "../../store/brand/actions";
-import '../../assets/themes/colors.scss';
+import "../../assets/themes/colors.scss";
 const BrandManagement = (props) => {
   // State for modals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState(null);
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionError, setSubmissionError] = useState(null);
   // Meta title
   document.title = "Brand | Brandraise ";
 
   const dispatch = useDispatch();
 
   const { brands, loading, error, totalBrands } = useSelector(
-    (state) => state.brand
+    (state) => state.Brand
   );
 
   const [limit, setLimit] = useState(10);
@@ -43,6 +45,7 @@ const BrandManagement = (props) => {
     firstName: "",
     lastName: "",
     email: "",
+    companyName: "",
     status: "",
   });
   const [isSearching, setIsSearching] = useState(false);
@@ -56,26 +59,114 @@ const BrandManagement = (props) => {
       firstName: "",
       lastName: "",
       email: "",
+      companyName: "",
+      phoneNumber: "",
+      city: "",
+      country: "",
     },
     validationSchema: Yup.object({
-      firstName: Yup.string().required("First Name is required"),
-      lastName: Yup.string().required("Last Name is required"),
+      firstName: Yup.string()
+        .matches(
+          /^[A-Za-z\s]+$/,
+          "First Name should not contain numbers or special characters"
+        )
+        .min(2, "First Name must be at least 2 characters long")
+        .max(50, "First Name can't be longer than 50 characters")
+        .required("First Name is required"),
+
+      lastName: Yup.string()
+        .matches(
+          /^[A-Za-z\s]+$/,
+          "Last Name should not contain numbers or special characters"
+        )
+        .min(2, "Last Name must be at least 2 characters long")
+        .max(50, "Last Name can't be longer than 50 characters")
+        .required("Last Name is required"),
+
       email: Yup.string()
         .email("Invalid email address")
         .required("Email is required"),
+
+      companyName: Yup.string()
+        .min(2, "Company Name must be at least 2 characters long")
+        .max(100, "Company Name can't be longer than 100 characters")
+        .required("Company Name is required"),
+
+      phoneNumber: Yup.string()
+              .transform((value) => {
+                return value.replace(/[^\d\+\-]/g, ""); 
+              })
+              .matches(
+                /^\+(\d{1,2})[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4}$/,
+                "Phone number must start with a country code (e.g., +1 00000 00000) and contain only digits and dashes"
+              )
+              .required("Please enter your phone number"),
+
+      city: Yup.string()
+        .matches(
+          /^[A-Za-z\s]+$/,
+          "City should not contain numbers or special characters"
+        )
+        .min(2, "City must be at least 2 characters long")
+        .max(50, "City can't be longer than 50 characters")
+        .required("City is required"),
+
+      country: Yup.string()
+        .matches(
+          /^[A-Za-z\s]+$/,
+          "Country should not contain numbers or special characters"
+        )
+        .min(2, "Country must be at least 2 characters long")
+        .max(50, "Country can't be longer than 50 characters")
+        .required("Country is required"),
     }),
     onSubmit: (values, { resetForm }) => {
       const payload = {
-        firstName: values.firstName,
-        lastName: values.lastName,
-        email: values.email,
+        firstName: values.firstName.trim(),
+        lastName: values.lastName.trim(),
+        email: values.email.trim(),
+        companyName: values.companyName.trim(),
+        phoneNumber: values.phoneNumber.trim(),
+        country: values.country.trim(),
+        city: values.city.trim(),
         roleName: ROLES.BRAND,
+        status: false,
       };
+      setIsSubmitting(true);
       dispatch(addNewBrand(payload));
-      resetForm();
-      toggleCreateModal();
     },
   });
+
+  useEffect(() => {
+    if (!loading && isSubmitting) {
+      if (!error) {
+        createBrandValidation.resetForm();
+        toggleCreateModal();
+      } else {
+        setSubmissionError(error);
+        console.error("Error creating brand:", error);
+      }
+      setIsSubmitting(false);
+    }
+  }, [loading, error, isSubmitting]);
+
+  const formatErrorMessage = (error) => {
+    if (!error) return null;
+
+    const errorMessage =
+      typeof error === "string" ? error : JSON.stringify(error);
+
+    if (errorMessage.includes("This")) {
+      return errorMessage.split(/(?=This)/g).map((msg, index) => (
+        <p key={index} className="text-danger m-0">
+          {msg.trim()}
+        </p>
+      ));
+    }
+
+    return <p className="text-danger">{errorMessage}</p>;
+  };
+
   const updateBrandValidation = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -106,6 +197,7 @@ const BrandManagement = (props) => {
         ...filterFields,
         sortBy,
         sortOrder,
+        allrecord: false,
       })
     );
   }, [dispatch, limit, pageCount, isSearching, sortOrder, sortBy]);
@@ -114,7 +206,12 @@ const BrandManagement = (props) => {
   const toggleUpdateModal = () => {
     setIsUpdateModalOpen(!isUpdateModalOpen);
   };
+
   const toggleCreateModal = () => {
+    if (isCreateModalOpen) {
+      createBrandValidation.resetForm();
+      setSubmissionError(null);
+    }
     setIsCreateModalOpen(!isCreateModalOpen);
   };
 
@@ -148,10 +245,30 @@ const BrandManagement = (props) => {
         accessor: "email",
       },
       {
+        Header: "Company Name",
+        accessor: "companyName",
+        Cell: ({ value }) => (value ? value : "-"),
+      },
+      {
+        Header: "Phone Number",
+        accessor: "phoneNumber",
+        Cell: ({ value }) => (value ? value : "-"),
+      },
+      {
+        Header: "City",
+        accessor: "city",
+        Cell: ({ value }) => (value ? value : "-"),
+      },
+      {
+        Header: "Country",
+        accessor: "country",
+        Cell: ({ value }) => (value ? value : "-"),
+      },
+      {
         Header: "Status",
         accessor: "status",
         Cell: ({ value }) => (
-          <span 
+          <span
             className={`badge ${value ? "badge-active" : "badge-inactive"}`}
           >
             {value ? "Active" : "Inactive"}
@@ -169,7 +286,10 @@ const BrandManagement = (props) => {
               className="p-0 me-2"
               onClick={() => handleViewDetails(original)}
             >
-              <i className="bx bx-show" style={{ color: "var(--secondary-blue)" }}></i>
+              <i
+                className="bx bx-show"
+                style={{ color: "var(--secondary-blue)" }}
+              ></i>
             </Button>
             <Button
               color="link"
@@ -177,7 +297,10 @@ const BrandManagement = (props) => {
               className="p-0 me-2"
               onClick={() => handleUpdateBrand(original)}
             >
-              <i className="bx bx-edit" style={{ color:"var(--secondary-yellow)" }}></i>
+              <i
+                className="bx bx-edit"
+                style={{ color: "var(--secondary-yellow)" }}
+              ></i>
             </Button>
           </>
         ),
@@ -192,11 +315,16 @@ const BrandManagement = (props) => {
         <Container fluid>
           {/* Button to Add New Influencer */}
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h4 className="font-size-18" style={{ textTransform: "uppercase" }}>
-              Brands
-            </h4>
+            <h4 className="font-size-18 text-uppercase">Brands</h4>
             <div>
-              <Button className="border-none" onClick={toggleCreateModal} style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}>
+              <Button
+                className="border-none"
+                onClick={toggleCreateModal}
+                style={{
+                  backgroundColor: "var(--primary-purple)",
+                  color: "var(--primary-white)",
+                }}
+              >
                 Add Brand
               </Button>
             </div>
@@ -208,7 +336,7 @@ const BrandManagement = (props) => {
           />
 
           {loading ? (
-            <div className="text-center" style={{ marginTop: 50 }}>
+            <div className="text-center space-top">
               <Spinner style={{ color: "var(--primary-purple)" }} />
             </div>
           ) : (
@@ -241,9 +369,7 @@ const BrandManagement = (props) => {
                   />
                 </>
               ) : (
-                <h1 className="text-center" style={{ marginTop: 50 }}>
-                  No Brand Found
-                </h1>
+                <h1 className="text-center space-top">No Brand Found</h1>
               )}
             </>
           )}
@@ -255,19 +381,37 @@ const BrandManagement = (props) => {
         <ModalHeader toggle={toggleDetailsModal}>Brand Details</ModalHeader>
         <ModalBody>
           {selectedBrand && (
-            <>
-              <p>
-                <strong>First Name:</strong> {selectedBrand.firstName}
-              </p>
-              <p>
-                <strong>Last Name:</strong> {selectedBrand.lastName}
-              </p>
-              <p>
-                <strong>Email:</strong> {selectedBrand.email}
-              </p>
-            </>
+            <div className="model-format">
+              <strong>First Name</strong>
+              <span>: {selectedBrand.firstName}</span>
+
+              <strong>Last Name</strong>
+              <span>: {selectedBrand.lastName}</span>
+
+              <strong>Email</strong>
+              <span>: {selectedBrand.email}</span>
+
+              <strong>Company Name</strong>
+              <span>
+                :{selectedBrand.companyName ? selectedBrand.companyName : "-"}
+              </span>
+
+              <strong>Phone Number</strong>
+              <span>
+                :{selectedBrand.phoneNumber ? selectedBrand.phoneNumber : "-"}
+              </span>
+
+              <strong>City</strong>
+              <span>: {selectedBrand.city ? selectedBrand.city : "-"}</span>
+
+              <strong>Country</strong>
+              <span>
+                : {selectedBrand.country ? selectedBrand.country : "-"}
+              </span>
+            </div>
           )}
         </ModalBody>
+
         <ModalFooter>
           <Button color="secondary" onClick={toggleDetailsModal}>
             Close
@@ -276,8 +420,13 @@ const BrandManagement = (props) => {
       </Modal>
 
       {/* Create Modal */}
-      <Modal isOpen={isCreateModalOpen} toggle={toggleCreateModal}>
+      <Modal isOpen={isCreateModalOpen}>
         <ModalHeader toggle={toggleCreateModal}>Add Brand</ModalHeader>
+        {submissionError && (
+          <Alert color="danger" className="m-3">
+            {formatErrorMessage(submissionError)}
+          </Alert>
+        )}
         <form onSubmit={createBrandValidation.handleSubmit}>
           <ModalBody>
             <div className="mb-2">
@@ -288,6 +437,7 @@ const BrandManagement = (props) => {
                 id="firstName"
                 name="firstName"
                 type="text"
+                placeholder="Enter First Name"
                 onChange={createBrandValidation.handleChange}
                 onBlur={createBrandValidation.handleBlur}
                 value={createBrandValidation.values.firstName}
@@ -313,6 +463,7 @@ const BrandManagement = (props) => {
                 id="lastName"
                 name="lastName"
                 type="text"
+                placeholder="Enter Last Name"
                 onChange={createBrandValidation.handleChange}
                 onBlur={createBrandValidation.handleBlur}
                 value={createBrandValidation.values.lastName}
@@ -338,6 +489,7 @@ const BrandManagement = (props) => {
                 id="email"
                 name="email"
                 type="email"
+                placeholder="Enter Email"
                 onChange={createBrandValidation.handleChange}
                 onBlur={createBrandValidation.handleBlur}
                 value={createBrandValidation.values.email}
@@ -355,10 +507,121 @@ const BrandManagement = (props) => {
                 </div>
               ) : null}
             </div>
+            <div className="mb-2">
+              <Label htmlFor="companyName" className="block mb-1">
+                Company Name:
+              </Label>
+              <Input
+                id="companyName"
+                name="companyName"
+                type="text"
+                placeholder="Enter Company Name"
+                onChange={createBrandValidation.handleChange}
+                onBlur={createBrandValidation.handleBlur}
+                value={createBrandValidation.values.companyName}
+                invalid={
+                  createBrandValidation.touched.companyName &&
+                  createBrandValidation.errors.companyName
+                    ? true
+                    : false
+                }
+              />
+              {createBrandValidation.touched.companyName &&
+              createBrandValidation.errors.companyName ? (
+                <div className="invalid-feedback">
+                  {createBrandValidation.errors.companyName}
+                </div>
+              ) : null}
+            </div>
+            <div className="mb-2">
+              <Label htmlFor="phoneNumber" className="block mb-1">
+                Phone Number:
+              </Label>
+              <Input
+                id="phoneNumber"
+                name="phoneNumber"
+                type="text"
+                placeholder="Enter Phone Number"
+                onChange={createBrandValidation.handleChange}
+                onBlur={createBrandValidation.handleBlur}
+                value={createBrandValidation.values.phoneNumber}
+                invalid={
+                  createBrandValidation.touched.phoneNumber &&
+                  createBrandValidation.errors.phoneNumber
+                    ? true
+                    : false
+                }
+              />
+              {createBrandValidation.touched.phoneNumber &&
+              createBrandValidation.errors.phoneNumber ? (
+                <div className="invalid-feedback">
+                  {createBrandValidation.errors.phoneNumber}
+                </div>
+              ) : null}
+            </div>
+            <div className="mb-2">
+              <Label htmlFor="city" className="block mb-1">
+                City:
+              </Label>
+              <Input
+                id="city"
+                name="city"
+                type="text"
+                placeholder="Enter City"
+                onChange={createBrandValidation.handleChange}
+                onBlur={createBrandValidation.handleBlur}
+                value={createBrandValidation.values.city}
+                invalid={
+                  createBrandValidation.touched.city &&
+                  createBrandValidation.errors.city
+                    ? true
+                    : false
+                }
+              />
+              {createBrandValidation.touched.city &&
+              createBrandValidation.errors.city ? (
+                <div className="invalid-feedback">
+                  {createBrandValidation.errors.city}
+                </div>
+              ) : null}
+            </div>
+            <div className="mb-2">
+              <Label htmlFor="country" className="block mb-1">
+                Country:
+              </Label>
+              <Input
+                id="country"
+                name="country"
+                type="text"
+                placeholder="Enter Country"
+                onChange={createBrandValidation.handleChange}
+                onBlur={createBrandValidation.handleBlur}
+                value={createBrandValidation.values.country}
+                invalid={
+                  createBrandValidation.touched.country &&
+                  createBrandValidation.errors.country
+                    ? true
+                    : false
+                }
+              />
+              {createBrandValidation.touched.country &&
+              createBrandValidation.errors.country ? (
+                <div className="invalid-feedback">
+                  {createBrandValidation.errors.country}
+                </div>
+              ) : null}
+            </div>
           </ModalBody>
           <ModalFooter>
-            <Button style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }} type="submit">
-              Save
+            <Button
+              style={{
+                backgroundColor: "var(--primary-purple)",
+                color: "var(--primary-white)",
+              }}
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Submitting..." : "Save"}
             </Button>
             <Button color="secondary" onClick={toggleCreateModal}>
               Cancel
@@ -401,7 +664,13 @@ const BrandManagement = (props) => {
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }} type="submit">
+            <Button
+              style={{
+                backgroundColor: "var(--primary-purple)",
+                color: "var(--primary-white)",
+              }}
+              type="submit"
+            >
               Save
             </Button>
             <Button color="secondary" onClick={toggleUpdateModal}>

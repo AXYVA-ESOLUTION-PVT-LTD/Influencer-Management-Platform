@@ -18,6 +18,9 @@ import {
   Input,
   ModalFooter,
   Spinner,
+  FormGroup,
+  Label,
+  FormFeedback,
 } from "reactstrap";
 import Pagination from "../../components/Common/Pagination";
 import classnames from "classnames";
@@ -35,6 +38,7 @@ import {
 } from "../../store/opportunity/actions";
 import {
   createNotification,
+  createPublication,
   createTicketNotification,
 } from "../../store/actions";
 
@@ -48,7 +52,7 @@ const OpportunitiesPage = (props) => {
     totalOpportunities,
     currentPage,
     totalRecords,
-  } = useSelector((state) => state.opportunity);
+  } = useSelector((state) => state.Opportunity);
   // const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("1");
   const [influencer, setInfluencer] = useState(null);
@@ -64,6 +68,12 @@ const OpportunitiesPage = (props) => {
   const [appliedOpportunities, setAppliedOpportunities] = useState([]);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
+  const [publicationModalOpen, setPublicationModalOpen] = useState(false);
+  const [publicationType, setPublicationType] = useState("");
+  const [publicationLink, setPublicationLink] = useState("");
+  const [screenshot, setScreenshot] = useState(null);
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [errors, setErrors] = useState({});
 
   document.title = "Opportunity | Brandraise ";
 
@@ -83,6 +93,8 @@ const OpportunitiesPage = (props) => {
   }, [dispatch, limit, pageCount, activeTab]);
 
   const handleTicketCreation = () => {
+    setDescription("");
+
     dispatch(
       createTicketRequest({
         influencerId: influencer,
@@ -98,8 +110,9 @@ const OpportunitiesPage = (props) => {
 
     dispatch(createTicketNotification(newTicket));
 
+    // userId: "6719f9714d317f459da508d7", //server
     const newNotification = {
-      userId: "67334a52373c3328068f9157",
+      userId: "67334a52373c3328068f9157", //local server
       title: `Applied for ${selectedOpportunity.title}`,
       message: description,
     };
@@ -174,6 +187,69 @@ const OpportunitiesPage = (props) => {
     setDescription(e.target.value);
   };
 
+  const getImageUrl = (
+    value,
+    basePath = import.meta.env.VITE_APP_BASE_IMAGE_URL
+  ) => {
+    return value.startsWith("http") || value.startsWith("https")
+      ? value
+      : `${basePath}${value}`;
+  };
+  const publicationToggleModal = (ticket) => {
+    setSelectedTicket(ticket);
+    setErrors({});
+    setPublicationType("");
+    setPublicationLink("");
+    setScreenshot(null);
+    setPublicationModalOpen(!publicationModalOpen);
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!publicationType) newErrors.type = "Publication type is required.";
+    if (!publicationLink) {
+      newErrors.link = "Publication link is required.";
+    } else if (!publicationLink.startsWith("https://")) {
+      newErrors.link = "Publication link must start with 'https://'";
+    }
+    if (!screenshot) {
+      newErrors.screenshot = "Screenshot upload is required.";
+    }
+    return newErrors;
+  };
+  const handleSubmit = () => {
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    const payload = {
+      selectedTicket,
+      publicationType,
+      publicationLink,
+      screenshot,
+    };
+
+    dispatch(createPublication(payload));
+    // userId: "6719f9714d317f459da508d7", //server
+    const influencerName = `${selectedTicket.influencerData?.firstName || ""} ${
+      selectedTicket.influencerData?.lastName || ""
+    }`.trim();
+    const newNotification = {
+      userId: "67334a52373c3328068f9157", // Local server or dynamically get userId
+      title: `Add new Publication by ${influencerName}`,
+      message: `A new publication has been added by the influencer ${influencerName}.`,
+    };
+
+    dispatch(createNotification(newNotification));
+    setErrors({});
+    setPublicationType("");
+    setPublicationLink("");
+    setScreenshot(null);
+    setPublicationModalOpen(false);
+  };
+
   return (
     <React.Fragment>
       <div className="page-content">
@@ -234,11 +310,12 @@ const OpportunitiesPage = (props) => {
                                   <Col xs="12">
                                     <CardImg
                                       className="img-fluid opportunity-card-image"
-                                      src={`${
-                                        import.meta.env.VITE_APP_BASE_URL
-                                      }/uploads/opportunityImage/${
-                                        opportunity.imageUrl
-                                      }`}
+                                      src={getImageUrl(
+                                        opportunity.imageUrl,
+                                        `${
+                                          import.meta.env.VITE_APP_BASE_URL
+                                        }/uploads/opportunityImage/`
+                                      )}
                                       alt={`Image for ${opportunity.title}`}
                                     />
                                   </Col>
@@ -357,18 +434,18 @@ const OpportunitiesPage = (props) => {
                                   <Col xs="12">
                                     <CardImg
                                       className="img-fluid opportunity-card-image"
-                                      src={`${
-                                        import.meta.env.VITE_APP_BASE_URL
-                                      }/uploads/opportunityImage/${
-                                        ticket.opportunity.imageUrl
-                                      }`}
+                                      src={getImageUrl(
+                                        ticket.opportunity.imageUrl,
+                                        `${
+                                          import.meta.env.VITE_APP_BASE_URL
+                                        }/uploads/opportunityImage/`
+                                      )}
                                       alt={`Image for ${ticket.opportunity.title}`}
                                     />
                                   </Col>
                                 </Row>
                               </div>
 
-                              {/* Card Body with Flexbox Layout */}
                               <CardBody className="p-3 d-flex flex-column">
                                 <Row>
                                   <Col xs="12">
@@ -437,25 +514,40 @@ const OpportunitiesPage = (props) => {
                                     </Button>
                                   </div>
                                 </div>
-                                <Button
-                                  color="primary"
-                                  className="mt-3"
-                                  onClick={() => handleDetailsView(ticket)}
-                                >
-                                  View More
-                                </Button>
+                                <div className="d-flex flex-column justify-content-center align-items-center mt-3 gap-1">
+                                  <Button
+                                    color="primary"
+                                    className="w-100"
+                                    onClick={() => handleDetailsView(ticket)}
+                                  >
+                                    View More
+                                  </Button>
+                                  <Button
+                                    color="primary"
+                                    className="w-100"
+                                    onClick={() =>
+                                      publicationToggleModal(ticket)
+                                    }
+                                    disabled={
+                                      !ticket.couponCode ||
+                                      ticket.couponCode === "N/A"
+                                    }
+                                  >
+                                    Add Publication
+                                  </Button>
+                                </div>
                               </CardBody>
                             </Card>
                           </Col>
                         ))}
                         <Pagination
-                        totalData={totalRecords}
-                        setLimit={setItemsPerPage}
-                        setPageCount={setCurrentPageIndex}
-                        limit={itemsPerPage}
-                        pageCount={currentPageIndex}
-                        currentPage={currentPageIndex}
-                      />
+                          totalData={totalRecords}
+                          setLimit={setItemsPerPage}
+                          setPageCount={setCurrentPageIndex}
+                          limit={itemsPerPage}
+                          pageCount={currentPageIndex}
+                          currentPage={currentPageIndex}
+                        />
                       </>
                     ) : (
                       <h1 className="no-opportunities-heading">
@@ -481,7 +573,13 @@ const OpportunitiesPage = (props) => {
               />
             </ModalBody>
             <ModalFooter>
-              <Button color="secondary" onClick={() => setModalOpen(false)}>
+              <Button
+                color="secondary"
+                onClick={() => {
+                  setModalOpen(false);
+                  setDescription("");
+                }}
+              >
                 Cancel
               </Button>
               <Button color="primary" onClick={handleTicketCreation}>
@@ -503,18 +601,9 @@ const OpportunitiesPage = (props) => {
               {detailsOpportunity?.opportunity?.imageUrl && (
                 <div className="text-center mb-3">
                   <img
-                    src={`${
-                      import.meta.env.VITE_APP_BASE_URL
-                    }/uploads/opportunityImage/${
-                      detailsOpportunity.opportunity.imageUrl
-                    }`}
+                    src={getImageUrl(detailsOpportunity.opportunity.imageUrl)}
                     alt={`Image for ${detailsOpportunity.opportunity.title}`}
-                    className="img-fluid rounded"
-                    style={{
-                      maxHeight: "200px",
-                      objectFit: "cover",
-                      width: "100%",
-                    }}
+                    className="img-fluid rounded opportunity-image"
                   />
                 </div>
               )}
@@ -522,13 +611,7 @@ const OpportunitiesPage = (props) => {
               {/* Opportunity Details */}
               <Row>
                 <Col xs="12">
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "100px auto",
-                      gap: "10px",
-                    }}
-                  >
+                  <div className="model-format">
                     <p>
                       <strong>Brand</strong>
                     </p>
@@ -607,6 +690,61 @@ const OpportunitiesPage = (props) => {
                 onClick={() => setDetailsModalOpen(false)}
               >
                 Close
+              </Button>
+            </ModalFooter>
+          </Modal>
+
+          <Modal isOpen={publicationModalOpen} toggle={publicationToggleModal}>
+            <ModalHeader toggle={publicationToggleModal}>
+              Add Publication for Ticket
+            </ModalHeader>
+            <ModalBody>
+              <FormGroup>
+                <Label for="type">Type</Label>
+                <Input
+                  type="select"
+                  id="type"
+                  value={publicationType}
+                  onChange={(e) => setPublicationType(e.target.value)}
+                  invalid={!!errors.type}
+                >
+                  <option value="" disabled>
+                    Select Type
+                  </option>
+                  <option value="post">Post</option>
+                  <option value="story">Story</option>
+                </Input>
+                <FormFeedback>{errors.type}</FormFeedback>
+              </FormGroup>
+              <FormGroup>
+                <Label for="link">Publication Link</Label>
+                <Input
+                  type="url"
+                  id="link"
+                  placeholder="Enter publication link"
+                  value={publicationLink}
+                  onChange={(e) => setPublicationLink(e.target.value)}
+                  invalid={!!errors.link}
+                />
+                <FormFeedback>{errors.link}</FormFeedback>
+              </FormGroup>
+              <FormGroup>
+                <Label for="screenshot">Upload Screenshot</Label>
+                <Input
+                  type="file"
+                  id="screenshot"
+                  onChange={(e) => setScreenshot(e.target.files[0])}
+                  invalid={!!errors.screenshot}
+                />
+                <FormFeedback>{errors.screenshot}</FormFeedback>
+              </FormGroup>
+            </ModalBody>
+            <ModalFooter>
+              <Button color="secondary" onClick={publicationToggleModal}>
+                Cancel
+              </Button>
+              <Button color="primary" onClick={handleSubmit}>
+                Confirm
               </Button>
             </ModalFooter>
           </Modal>

@@ -26,6 +26,9 @@ import {
   UPDATE_TICKET_ERROR,
   UPDATE_TICKET_REQUEST,
   UPDATE_TICKET_SUCCESS,
+  UPLOAD_CSV_ERROR,
+  UPLOAD_CSV_REQUEST,
+  UPLOAD_CSV_SUCCESS,
   UPLOAD_OPPORTUNITY_IMAGE_ERROR,
   UPLOAD_OPPORTUNITY_IMAGE_REQUEST,
   UPLOAD_OPPORTUNITY_IMAGE_SUCCESS,
@@ -34,14 +37,15 @@ import {
 const initialState = {
   opportunities: [],
   opportunitiesData: [],
+  csvUploadResult: [],
   totalOpportunities: null,
-  totalRecords :null,
+  totalRecords: null,
   currentPage: null,
   loading: false,
   error: null,
 };
 
-const opportunity = (state = initialState, action) => {
+const Opportunity = (state = initialState, action) => {
   switch (action.type) {
     // GET
     case GET_OPPORTUNITY_REQUEST:
@@ -183,87 +187,107 @@ const opportunity = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
-      case FETCH_TICKETS_REQUEST:
-        return {
-          ...state,
-          loading: true,
-          error: null,
-        };
-      case FETCH_TICKETS_SUCCESS:
-        return {
-          ...state,
-          loading: false,
-          opportunitiesData: action.payload.data || [],
-          totalRecords: action.payload.totalRecords,
-          error: null,
-        };
-      case FETCH_TICKETS_ERROR:
-        return {
-          ...state,
-          loading: false,
-          error: action.payload,
-        };
-      
-      case CREATE_TICKET_REQUEST:
-        return {
-          ...state,
-          loading: true,
-          error: null,
-        };
-      case CREATE_TICKET_SUCCESS:
-        return {
-          ...state,
-          loading: false,
-          error: null,
-        };
-      case CREATE_TICKET_ERROR:
-        return {
-          ...state,
-          loading: false,
-          error: action.payload,
-        };
-      
-        case UPDATE_TICKET_REQUEST:
-          return {
-            ...state,
-            loading: true,
-            error: null,
-          };
-        case UPDATE_TICKET_SUCCESS:
-          return {
-            ...state,
-            loading: false,
-            error: null,
-          };
-        case UPDATE_TICKET_ERROR:
-          return {
-            ...state,
-            loading: false,
-            error: action.payload,
-          };
-          case DELETE_TICKET_REQUEST:
-            return {
-              ...state,
-              loading: true,
-              error: null,
-            };
-          case DELETE_TICKET_SUCCESS:
-            return {
-              ...state,
-              loading: false,
-              error: null,
-            };
-          case DELETE_TICKET_ERROR:
-            return {
-              ...state,
-              loading: false,
-              error: action.payload,
-            };
-      
+    case FETCH_TICKETS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_TICKETS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        opportunitiesData: action.payload.data || [],
+        totalRecords: action.payload.totalRecords,
+        error: null,
+      };
+    case FETCH_TICKETS_ERROR:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case CREATE_TICKET_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case CREATE_TICKET_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case CREATE_TICKET_ERROR:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case UPDATE_TICKET_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case UPDATE_TICKET_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case UPDATE_TICKET_ERROR:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case DELETE_TICKET_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case DELETE_TICKET_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case DELETE_TICKET_ERROR:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    // UPLOAD CSV
+    case UPLOAD_CSV_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case UPLOAD_CSV_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        csvUploadResult: action.payload,
+        error: null,
+      };
+    case UPLOAD_CSV_ERROR:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
 
     default:
       return state;
   }
 };
 
-export default opportunity;
+export default Opportunity;

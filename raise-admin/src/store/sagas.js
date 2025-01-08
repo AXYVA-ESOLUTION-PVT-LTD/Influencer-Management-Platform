@@ -5,13 +5,17 @@ import AuthSaga from "./auth/login/saga";
 import AccountSaga from "./auth/register/saga";
 import ResetPasswordSaga from "./auth/reset-pwd/saga";
 import ChatsSaga from "./chats/saga";
-import brandsSaga from "./brand/saga";
-import influencersSaga from "./influencers/saga";
 import LayoutSaga from "./layout/saga";
-import notificationSaga from "./notification/saga";
-import opportunitySaga from "./opportunity/saga";
-import rolesSaga from "./role/saga";
-import userSaga from "./user/saga";
+import DashboardSaga from "./dashboard/saga";
+import NotificationSaga from "./notification/saga";
+import OpportunitySaga from "./opportunity/saga";
+import InfluencersSaga from "./influencers/saga";
+import BrandsSaga from "./brand/saga";
+import RolesSaga from "./role/saga";
+import UserSaga from "./user/saga";
+import PublicationSaga from "./publication/saga";
+import PaymentSaga from "./payment/saga";
+
 
 export default function* rootSaga() {
   yield all([
@@ -21,12 +25,15 @@ export default function* rootSaga() {
     fork(ForgetSaga),
     fork(ResetPasswordSaga),
     fork(LayoutSaga),
-    fork(rolesSaga),
-    fork(opportunitySaga),
-    fork(userSaga),
-    fork(brandsSaga),
-    fork(influencersSaga),
-    fork(notificationSaga),
+    fork(RolesSaga),
+    fork(OpportunitySaga),
+    fork(UserSaga),
+    fork(BrandsSaga),
+    fork(InfluencersSaga),
+    fork(NotificationSaga),
     fork(ChatsSaga),
+    fork(DashboardSaga),
+    fork(PublicationSaga),
+    fork(PaymentSaga)
   ]);
 }

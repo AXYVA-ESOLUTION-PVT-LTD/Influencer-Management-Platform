@@ -10,6 +10,7 @@ export const createBrandUrl = (token, data) => {
     }
   );
 };
+
 export const getBrandUrl = (token, data) => {
   return post(
     GET_BRAND_API,
@@ -19,6 +20,7 @@ export const getBrandUrl = (token, data) => {
     }
   );
 };
+
 export const updateBrandUrl = (token, data) => {
   const { id, ...payload } = data;
   return put(

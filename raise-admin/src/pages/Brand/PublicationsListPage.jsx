@@ -101,7 +101,7 @@ function PublicationsListPage() {
       <div className="container-fluid">
         {/* <Breadcrumbs title="Publications" breadcrumbItem="Publications" /> */}
         <div className="d-flex justify-content-between align-items-center mb-3">
-            <h4 className="font-size-18" style={{ textTransform: "uppercase" }}>
+            <h4 className="font-size-18 text-uppercase">
             Publications
             </h4>
           </div>

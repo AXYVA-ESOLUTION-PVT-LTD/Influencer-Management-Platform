@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Row,
   Col,
@@ -11,6 +11,8 @@ import {
   Input,
   Label,
   Form,
+  InputGroupText,
+  InputGroup,
 } from "reactstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -20,12 +22,36 @@ import { useFormik } from "formik";
 import { setNewPassword } from "../../store/actions";
 
 import profile from "../../assets/images/profile-img.png";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 // import logo from "../../assets/images/favicon/logo-sm.png";
 
 const ChangePassword = (props) => {
-
   document.title = "Set New Password | Brandraise";
   const dispatch = useDispatch();
+  const { resetError, resetSuccessMsg } = useSelector((state) => ({
+    resetError: state.ForgetPassword.setNewPasswordError,
+    resetSuccessMsg: state.ForgetPassword.setNewPasswordSuccessMsg,
+  }));
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [localError, setLocalError] = useState(null);
+  const [localSuccessMsg, setLocalSuccessMsg] = useState(null);
+
+  useEffect(() => {
+    if (resetError) {
+      setLocalError(resetError);
+    }
+    if (resetSuccessMsg) {
+      setLocalSuccessMsg(resetSuccessMsg);
+    }
+  }, [resetError, resetSuccessMsg]);
+
+   useEffect(() => {
+      return () => {
+        setLocalError(null);
+        setLocalSuccessMsg(null);
+      };
+    }, []);
 
   const validation = useFormik({
     enableReinitialize: true,
@@ -35,14 +61,18 @@ const ChangePassword = (props) => {
     },
     validationSchema: Yup.object({
       newPwd: Yup.string()
-        .required("Please Enter Your New Password")
-        .min(6, "Password must be at least 6 characters"),
+        .matches(
+          /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,20}$/,
+          "Password must be 8-20 characters, include uppercase, lowercase, number, and special character."
+        )
+        .required("Password is required"),
+
       confirmPwd: Yup.string()
         .oneOf([Yup.ref("newPwd"), null], "Passwords must match")
         .required("Please Confirm Your New Password"),
     }),
     onSubmit: (values) => {
-      const token = localStorage.getItem('usertoken');
+      const token = localStorage.getItem("usertoken");
       const data = {
         token: token,
         password: values.newPwd,
@@ -51,11 +81,6 @@ const ChangePassword = (props) => {
       dispatch(setNewPassword(data, props.router.navigate));
     },
   });
-
-  const { resetError, resetSuccessMsg } = useSelector((state) => ({
-    resetError: state.ForgetPassword.setNewPasswordError,
-    resetSuccessMsg: state.ForgetPassword.setNewPasswordSuccessMsg,
-  }));
 
   return (
     <React.Fragment>
@@ -94,16 +119,18 @@ const ChangePassword = (props) => {
                     </Link>
                   </div>
                   <div className="p-2">
-                    {resetError ? (
-                      <Alert color="danger" style={{ marginTop: "13px" }}>
-                        {resetError}
+                    {localError && (
+                      <Alert color="danger" className="section-space-top">
+                        {localError}
                       </Alert>
-                    ) : null}
-                    {resetSuccessMsg ? (
-                      <Alert color="success" style={{ marginTop: "13px" }}>
-                        {resetSuccessMsg}
+                    )}
+
+                    {/* Display success message */}
+                    {localSuccessMsg && (
+                      <Alert color="success" className="section-space-top">
+                        {localSuccessMsg}
                       </Alert>
-                    ) : null}
+                    )}
 
                     <Form
                       className="form-horizontal"
@@ -115,52 +142,68 @@ const ChangePassword = (props) => {
                     >
                       <div className="mb-3">
                         <Label className="form-label">New Password</Label>
-                        <Input
-                          name="newPwd"
-                          className="form-control"
-                          placeholder="Enter new password"
-                          type="password"
-                          onChange={validation.handleChange}
-                          onBlur={validation.handleBlur}
-                          value={validation.values.newPwd || ""}
-                          invalid={
-                            validation.touched.newPwd &&
-                            validation.errors.newPwd
-                              ? true
-                              : false
-                          }
-                        />
+                        <InputGroup>
+                          <Input
+                            name="newPwd"
+                            type={showNewPassword ? "text" : "password"}
+                            placeholder="Enter new password"
+                            onChange={validation.handleChange}
+                            onBlur={validation.handleBlur}
+                            value={validation.values.newPwd || ""}
+                            invalid={
+                              validation.touched.newPwd &&
+                              validation.errors.newPwd
+                                ? true
+                                : false
+                            }
+                          />
+                          <InputGroupText
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                            className="cursor-pointer-dot"
+                          >
+                            {showNewPassword ? <FaEyeSlash /> : <FaEye />}
+                          </InputGroupText>
+                        </InputGroup>
                         {validation.touched.newPwd &&
-                        validation.errors.newPwd ? (
-                          <FormFeedback type="invalid">
-                            {validation.errors.newPwd}
-                          </FormFeedback>
-                        ) : null}
+                          validation.errors.newPwd && (
+                            <Alert color="danger" className="mt-2 p-1">
+                              {validation.errors.newPwd}
+                            </Alert>
+                          )}
                       </div>
 
                       <div className="mb-3">
                         <Label className="form-label">Confirm Password</Label>
-                        <Input
-                          name="confirmPwd"
-                          className="form-control"
-                          placeholder="Confirm new password"
-                          type="password"
-                          onChange={validation.handleChange}
-                          onBlur={validation.handleBlur}
-                          value={validation.values.confirmPwd || ""}
-                          invalid={
-                            validation.touched.confirmPwd &&
-                            validation.errors.confirmPwd
-                              ? true
-                              : false
-                          }
-                        />
+                        <InputGroup>
+                          <Input
+                            name="confirmPwd"
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="Confirm new password"
+                            onChange={validation.handleChange}
+                            onBlur={validation.handleBlur}
+                            value={validation.values.confirmPwd || ""}
+                            invalid={
+                              validation.touched.confirmPwd &&
+                              validation.errors.confirmPwd
+                                ? true
+                                : false
+                            }
+                          />
+                          <InputGroupText
+                            onClick={() =>
+                              setShowConfirmPassword(!showConfirmPassword)
+                            }
+                            className="cursor-pointer-dot"
+                          >
+                            {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                          </InputGroupText>
+                        </InputGroup>
                         {validation.touched.confirmPwd &&
-                        validation.errors.confirmPwd ? (
-                          <FormFeedback type="invalid">
-                            {validation.errors.confirmPwd}
-                          </FormFeedback>
-                        ) : null}
+                          validation.errors.confirmPwd && (
+                            <Alert color="danger" className="mt-2 p-1">
+                              {validation.errors.confirmPwd}
+                            </Alert>
+                          )}
                       </div>
 
                       <Row className="mb-3">

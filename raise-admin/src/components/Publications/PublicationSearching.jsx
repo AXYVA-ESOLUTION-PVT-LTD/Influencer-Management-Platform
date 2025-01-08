@@ -1,58 +1,44 @@
 import React from "react";
 import { Button, Col, FormGroup, Input, Label, Row } from "reactstrap";
-import '../../assets/themes/colors.scss';
+import "../../assets/themes/colors.scss";
+
 const PublicationSearching = ({
   filterFields,
   setFilterFields,
   setIsSearching,
-  closeModal,
 }) => {
   const handleFilter = (e) => {
     const { name, value } = e.target;
-    setFilterFields((prev) => ({ ...prev, [name]: value }));
+    setFilterFields((prev) => ({
+      ...prev,
+      [name]: name.includes("Count") || name === "engagementRate" ? Number(value) : value,
+    }));
   };
 
   const handleSearch = () => {
     setIsSearching((prev) => !prev);
-    closeModal();
   };
 
   const handleClear = () => {
-    setFilterFields(
-      Object.fromEntries(Object.keys(filterFields).map((key) => [key, ""]))
-    );
+    setFilterFields({
+      influencer: "",
+      platform: "",
+      status: "",
+      type: "",
+      engagementRate: 0,
+      followerCount: 0,
+      likeCount: 0,
+      commentCount: 0,
+      shareCount: 0,
+      viewCount: 0,
+    });
     setIsSearching((prev) => !prev);
   };
 
   return (
     <div>
       <Row className="align-items-center">
-        <Col md="4">
-          <FormGroup>
-            <Label for="project">Project</Label>
-            <Input
-              type="text"
-              placeholder="Enter Project"
-              className="form-control"
-              name="project"
-              value={filterFields.project}
-              onChange={handleFilter}
-            />
-          </FormGroup>
-        </Col>
-        <Col md="4">
-          <FormGroup>
-            <Label for="postDate">Post Date</Label>
-            <Input
-              type="date"
-              className="form-control"
-              name="postDate"
-              value={filterFields.postDate}
-              onChange={handleFilter}
-            />
-          </FormGroup>
-        </Col>
-        <Col md="4">
+        <Col xs="12" sm="6" md="2">
           <FormGroup>
             <Label for="influencer">Influencer</Label>
             <Input
@@ -65,26 +51,27 @@ const PublicationSearching = ({
             />
           </FormGroup>
         </Col>
-        <Col md="4">
+
+        <Col xs="12" sm="6" md="2">
           <FormGroup>
-            <Label for="socialNetwork">Social Network</Label>
+            <Label for="platform">Social Network</Label>
             <Input
               type="select"
               className="form-control"
-              name="socialNetwork"
-              value={filterFields.socialNetwork}
+              name="platform"
+              value={filterFields.platform}
               onChange={handleFilter}
             >
-              <option value="">Select Social Network</option>
-              <option value="instagram">Instagram</option>
-              <option value="youtube">YouTube</option>
-              <option value="telegram">Telegram</option>
-              <option value="facebook">Facebook</option>
-              <option value="tiktok">TikTok</option>
+              <option value="">Select Platform</option>
+              <option value="Tiktok">Tiktok</option>
+              <option value="Instagram">Instagram</option>
+              <option value="Youtube">Youtube</option>
+              <option value="Facebook">Facebook</option>
             </Input>
           </FormGroup>
         </Col>
-        <Col md="4">
+
+        <Col xs="12" sm="6" md="2">
           <FormGroup>
             <Label for="status">Status</Label>
             <Input
@@ -95,13 +82,15 @@ const PublicationSearching = ({
               onChange={handleFilter}
             >
               <option value="">Select Status</option>
-              <option value="published">Published</option>
+              <option value="Pending">Pending</option>
               <option value="Declined">Declined</option>
               <option value="Cancelled">Cancelled</option>
+              <option value="Published">Published</option>
             </Input>
           </FormGroup>
         </Col>
-        <Col md="4">
+
+        <Col xs="12" sm="6" md="2">
           <FormGroup>
             <Label for="type">Type</Label>
             <Input
@@ -112,148 +101,138 @@ const PublicationSearching = ({
               onChange={handleFilter}
             >
               <option value="">Select Type</option>
-              <option value="post">Post</option>
-              <option value="reel">Reel</option>
-              <option value="clip">Clip</option>
-              <option value="shorts">Shorts</option>
-              <option value="full video">Full Video</option>
+              <option value="Post">Post</option>
+              <option value="Story">Story</option>
             </Input>
           </FormGroup>
         </Col>
-      </Row>
-      <Row className="align-items-center">
-        <Col md="4">
+        <Col xs="12" sm="6" md="2">
           <FormGroup>
-            <Label for="price">Price</Label>
-            <Input
-              type="number"
-              placeholder="Enter Price"
-              className="form-control"
-              name="price"
-              value={filterFields.price}
-              onChange={handleFilter}
-            />
+            <Label for="engagementRate">Engagement Rate</Label>
+            <div className="d-flex justify-content-between align-items-center publication-filter">
+              <Input
+                type="range"
+                name="engagementRate"
+                min="0"
+                max="100"
+                value={filterFields.engagementRate}
+                onChange={handleFilter}
+              />
+              <span>{filterFields.engagementRate}%</span>
+            </div>
           </FormGroup>
         </Col>
-        <Col md="4">
+
+        {/* Follower Count Range */}
+        <Col xs="12" sm="6" md="2">
           <FormGroup>
-            <Label for="ER">Engagement Rate</Label>
-            <Input
-              type="text"
-              placeholder="Enter ER"
-              className="form-control"
-              name="ER"
-              value={filterFields.ER}
-              onChange={handleFilter}
-            />
+            <Label for="followerCount">Follower Count</Label>
+            <div className="d-flex justify-content-between align-items-center publication-filter">
+              <Input
+                type="range"
+                name="followerCount"
+                min="0"
+                max="100"
+                value={filterFields.followerCount}
+                onChange={handleFilter}
+              />
+              <span>{filterFields.followerCount}</span>
+            </div>
           </FormGroup>
         </Col>
-        <Col md="4">
+
+        {/* Like Count Range */}
+        <Col xs="12" sm="6" md="2">
           <FormGroup>
-            <Label for="follower">Follower</Label>
-            <Input
-              type="number"
-              placeholder="Enter Follower"
-              className="form-control"
-              name="follower"
-              value={filterFields.follower}
-              onChange={handleFilter}
-            />
+            <Label for="likeCount">Like Count</Label>
+            <div className="d-flex justify-content-between align-items-center publication-filter">
+              <Input
+                type="range"
+                name="likeCount"
+                min="0"
+                max="100"
+                value={filterFields.likeCount}
+                onChange={handleFilter}
+              />
+              <span>{filterFields.likeCount}</span>
+            </div>
           </FormGroup>
         </Col>
-      </Row>
-      <Row className="align-items-center">
-        <Col md="4">
+
+        {/* Comment Count Range */}
+        <Col xs="12" sm="6" md="2">
           <FormGroup>
-            <Label for="views">Views</Label>
-            <Input
-              type="number"
-              placeholder="Enter Views"
-              className="form-control"
-              name="views"
-              value={filterFields.views}
-              onChange={handleFilter}
-            />
+            <Label for="commentCount">Comment Count</Label>
+            <div className="d-flex justify-content-between align-items-center publication-filter">
+              <Input
+                type="range"
+                name="commentCount"
+                min="0"
+                max="100"
+                value={filterFields.commentCount}
+                onChange={handleFilter}
+              />
+              <span>{filterFields.commentCount}</span>
+            </div>
           </FormGroup>
         </Col>
-        <Col md="4">
+
+        {/* Share Count Range */}
+        <Col xs="12" sm="6" md="2">
           <FormGroup>
-            <Label for="videoViews">Video Views</Label>
-            <Input
-              type="number"
-              placeholder="Enter Video Views"
-              className="form-control"
-              name="videoViews"
-              value={filterFields.videoViews}
-              onChange={handleFilter}
-            />
+            <Label for="shareCount">Share Count</Label>
+            <div className="d-flex justify-content-between align-items-center publication-filter">
+              <Input
+                type="range"
+                name="shareCount"
+                min="0"
+                max="100"
+                value={filterFields.shareCount}
+                onChange={handleFilter}
+              />
+              <span>{filterFields.shareCount}</span>
+            </div>
           </FormGroup>
         </Col>
-        <Col md="4">
+
+        {/* View Count Range */}
+        <Col xs="12" sm="6" md="2">
           <FormGroup>
-            <Label for="country">Country</Label>
-            <Input
-              type="text"
-              placeholder="Enter Country"
-              className="form-control"
-              name="country"
-              value={filterFields.country}
-              onChange={handleFilter}
-            />
+            <Label for="viewCount">View Count</Label>
+            <div className="d-flex justify-content-between align-items-center publication-filter">
+              <Input
+                type="range"
+                name="viewCount"
+                min="0"
+                max="100"
+                value={filterFields.viewCount}
+                onChange={handleFilter}
+              />
+              <span>{filterFields.viewCount}</span>
+            </div>
           </FormGroup>
         </Col>
-      </Row>
-      <Row className="align-items-center">
-        <Col md="4">
-          <FormGroup>
-            <Label for="approximateReach">Approximate Reach</Label>
-            <Input
-              type="text"
-              placeholder="Enter Approximate Reach"
-              className="form-control"
-              name="approximateReach"
-              value={filterFields.approximateReach}
-              onChange={handleFilter}
-            />
-          </FormGroup>
-        </Col>
-        <Col md="4">
-          <FormGroup>
-            <Label for="likes">Likes</Label>
-            <Input
-              type="number"
-              placeholder="Enter Likes"
-              className="form-control"
-              name="likes"
-              value={filterFields.likes}
-              onChange={handleFilter}
-            />
-          </FormGroup>
-        </Col>
-        <Col md="4">
-          <FormGroup>
-            <Label for="comments">Comments</Label>
-            <Input
-              type="text"
-              placeholder="Enter Comments"
-              className="form-control"
-              name="comments"
-              value={filterFields.comments}
-              onChange={handleFilter}
-            />
-          </FormGroup>
-        </Col>
-      </Row>
-      <Row className="align-items-center"></Row>
-      <Row className="align-items-center justify-content-center">
-        <Col md="3">
-          <Button style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}  className="w-100" onClick={handleSearch}>
-            Apply
+
+        <Col xs="3" sm="2" md="auto" className="d-flex align-items-center mt-2">
+          <Button
+            className="w-100 custom-button border-none"
+            onClick={handleSearch}
+            style={{ backgroundColor: "var(--primary-purple)" }}
+          >
+            <i
+              className="bx bx-search-alt-2"
+              style={{ color: "var(--primary-white)" }}
+            ></i>
           </Button>
         </Col>
-        <Col md="3">
-          <Button style={{ backgroundColor: "var(--secondary-red)", color: "var(--primary-white)" }} className="w-100" onClick={handleClear}>
-            Clear
+
+        <Col xs="3" sm="2" md="auto" className="d-flex align-items-center mt-2">
+          <Button
+            className="w-100 custom-button border-none"
+            onClick={handleClear}
+            style={{ backgroundColor: "var(--secondary-red)" }}
+          >
+            <i className="bx bx-x"></i>
           </Button>
         </Col>
       </Row>

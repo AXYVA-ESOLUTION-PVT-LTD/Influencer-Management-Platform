@@ -45,7 +45,7 @@ function* createTicketNotification(action) {
     const response = yield call(createTicketNotificationUrl, token, action.payload);
     if (response?.status === STATUS.SUCCESS) {
       toast.update(toastId, {
-        render: response.result.message || 'Notification created successfully',
+        render: 'Opportunity applied successfully',
         type: "success",
         isLoading: false,
         autoClose: true,
@@ -135,7 +135,7 @@ function* markNotificationAsReadSaga(action) {
 }
 
 
-function* notificationSaga() {
+function* NotificationSaga() {
   yield takeEvery(GET_TICKET_NOTIFICATION, fetchTicketNotification);
   yield takeEvery(CREATE_TICKET_NOTIFICATION, createTicketNotification);
   yield takeEvery(UPDATE_TICKET_NOTIFICATION, updateTicketNotifications);
@@ -144,4 +144,4 @@ function* notificationSaga() {
   yield takeEvery(MARK_NOTIFICATION_AS_READ, markNotificationAsReadSaga);
 }
 
-export default notificationSaga;
+export default NotificationSaga;

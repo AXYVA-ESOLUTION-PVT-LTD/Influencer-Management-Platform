@@ -2,10 +2,10 @@ import React from "react";
 import { FormGroup, Input, Label } from "reactstrap";
 
 const ColumnSelector = ({ columns, filterHeader, setFilterHeader }) => {
-  const handleCheckboxChange = (columnName) => {
+  const handleCheckboxChange = (accessor) => {
     setFilterHeader((prev) => ({
       ...prev,
-      [columnName]: !prev[columnName],
+      [accessor]: !prev[accessor],
     }));
   };
 
@@ -16,9 +16,7 @@ const ColumnSelector = ({ columns, filterHeader, setFilterHeader }) => {
           <Label check className="fs-6">
             <Input
               type="checkbox"
-              style={{ fontSize: 20 }}
               checked={filterHeader[column.accessor] || false}
-              disable={true}
               onChange={() => handleCheckboxChange(column.accessor)}
             />
             {column.Header}

@@ -14,7 +14,7 @@ const NotificationDropdown = (props) => {
   const {
     notificationsData,
     notificationsDataCount,
-  } = useSelector((state) => state.notification);
+  } = useSelector((state) => state.Notification);
   const [menu, setMenu] = useState(false);
   const [role, setRole] = useState("");
   

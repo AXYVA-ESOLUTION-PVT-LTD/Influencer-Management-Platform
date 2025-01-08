@@ -68,19 +68,7 @@ export const areaChartOptions = {
     },
   },
   xaxis: {
-    categories: [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-    ],
+    categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
     title: {
       text: "Month",
     },
@@ -138,7 +126,7 @@ export const areaChartSeries = [
   {
     name: "Comments",
     type: "line",
-    data: [25, 30, 35, 40, 45, 50, 35, 60, 65, 40, 75], // Updated client data
+    data: [25, 30, 35, 40, 45, 50, 35, 60, 65, 40, 75], 
   },
 ];
 
@@ -163,7 +151,7 @@ export const barChartOptions = {
     colors: ["transparent"], // Border color for bars
   },
   xaxis: {
-    categories: ["Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"],
+    categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
     labels: {
       style: {
         colors: "var(--primary-black)",

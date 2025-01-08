@@ -1,4 +1,4 @@
-import { del, post, postForm, put } from "../../helpers/api_helper";
+import { del, formpost, post, postForm, put } from "../../helpers/api_helper";
 import {
   CREATE_OPPORTUNITY_URL,
   CREATE_TICKET,
@@ -8,6 +8,7 @@ import {
   GET_TICKET,
   REMOVE_OPPORTUNITY_IMAGE_URL,
   UPDATE_TICKET,
+  UPLOAD_CSV_URL,
   UPLOAD_OPPORTUNITY_IMAGE_URL,
 } from "./routes";
 
@@ -119,6 +120,15 @@ export const deleteTicketUrl = async (ticketId, token) => {
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
+    },
+  });
+};
+
+export const uploadCsvUrl = (formData, token) => {  
+  return formpost(UPLOAD_CSV_URL, formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "multipart/form-data",
     },
   });
 };

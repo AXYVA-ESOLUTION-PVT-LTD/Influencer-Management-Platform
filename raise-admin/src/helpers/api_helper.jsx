@@ -75,3 +75,10 @@ export async function patch(url, data, config = {}) {
     .patch(url, { ...data }, { ...config })
     .then((response) => response.data);
 }
+
+export async function formpost(url, data, config = {}) {
+
+  return axiosApi
+    .post(url, data, { ...config })
+    .then((response) => response.data);
+}

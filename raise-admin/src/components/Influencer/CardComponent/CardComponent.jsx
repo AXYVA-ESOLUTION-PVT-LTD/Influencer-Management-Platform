@@ -1,9 +1,24 @@
+import React from "react";
+import {
+  Card,
+  CardBody,
+  CardTitle,
+  CardImg,
+  CardText,
+  Row,
+  Col,
+} from "reactstrap";
+import "./CardComponent.css";
 
-import React from 'react';
-import { Card, CardBody, CardTitle, CardImg, CardText, Row, Col } from 'reactstrap';
-import './CardComponent.css';
-
-const CardComponent = ({ image, title, uploadTime, views, likes, comments }) => {
+const CardComponent = ({
+  image,
+  title,
+  uploadTime,
+  views,
+  likes,
+  comments,
+  share_url,
+}) => {
   return (
     <Col md="2" className="mb-4">
       <Card className="h-100">
@@ -13,14 +28,25 @@ const CardComponent = ({ image, title, uploadTime, views, likes, comments }) => 
           <CardText className="text-muted">{uploadTime}</CardText>
           <Row>
             <Col className="d-flex align-items-center">
-            <i className="bx bxs-eye icon"></i> 
-              {views}
+              <i class="bx bx-show"></i>&nbsp;{views}
             </Col>
             <Col className="d-flex align-items-center">
-            <i class='bx bxs-like'></i>{likes}
+              <i class="bx bxs-like"></i>&nbsp;{likes}
             </Col>
             <Col className="d-flex align-items-center">
-            <i class='bx bxs-comment'></i>{comments}
+              <i class="bx bxs-comment"></i>&nbsp;{comments}
+            </Col>
+          </Row>
+          <Row className="mt-2">
+            <Col>
+              <a
+                href={share_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-primary"
+              >
+                Watch Video
+              </a>
             </Col>
           </Row>
         </CardBody>

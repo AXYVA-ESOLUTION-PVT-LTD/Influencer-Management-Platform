@@ -1,0 +1,14 @@
+export const TRANSACTION_API_URL = "/transaction/getTransactions"; 
+export const GET_WALLET_API_URL = "/wallet/getWalletByInfluencerId";
+export const CREAT_TRANSACTION_API_URL = "/transaction/createTransaction"; 
+export const REMOVE_TRANSACTION_API_URL = "/transaction/removeTransactionById";
+export const UPDATE_TRANSACTION_API_URL = "/transaction/updateTransactionDetailById";
+export const GET_WALLET_API = "/wallet/getWallets";
+export const UPDATE_WALLET_BY_ID_API = "/wallet/updateWalletById";
+export const GET_PAYMENT_METHOD_URL = "/payment/getPaymentMethod";
+export const GET_PAYMENT_DETAIL_URL = "/payment/getPaymentDetail";
+export const ADD_PAYMENT_DETAIL_URL = "/payment/addPaymentDetails";
+export const UPDATE_PAYMENT_DETAIL_URL = "/payment/updatePaymentDetails";
+export const GET_ALL_PAYMENT_DETAILS_URL = "/payment/getAllPaymentDetail";
+export const DELETE_PAYMENT_DETAILS_URL = "/payment/removePaymentDetails";
+export const GET_ALL_SECURE_PAYMENT_DETAILS_URL = "/payment/getAllSecurePaymentDetail";

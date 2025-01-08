@@ -14,7 +14,8 @@ import {
   NavItem,
   NavLink,
   TabContent,
-  TabPane
+  TabPane,
+  Alert,
 } from "reactstrap";
 import classnames from "classnames";
 // Formik Validation
@@ -28,6 +29,8 @@ import { useDispatch } from "react-redux";
 import { updateProfile } from "../../store/user/actions";
 import { API_URL } from "../../helpers/api_helper";
 import ResetPassword from "../Authentication/ResetPassword";
+import { BankDetails } from "../BankDetails";
+import ROLES from "../../constants/role";
 
 const validationSchema = Yup.object({
   oldPassword: Yup.string().required("Old password is required"),
@@ -50,7 +53,7 @@ const ProfilePage = () => {
   const [email, setEmail] = useState("");
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [activeTab, setActiveTab] = useState("1");
-  
+  const [roleName, setRoleName] = useState(null);
 
   const toggle = (tab) => {
     if (activeTab !== tab) setActiveTab(tab);
@@ -62,6 +65,7 @@ const ProfilePage = () => {
       setLastName(user.lastName);
       setEmail(user.email);
       setProfilePhoto(user.profilePhoto);
+      setRoleName(user.roleId.name);
     }
   }, []);
 
@@ -96,7 +100,6 @@ const ProfilePage = () => {
     }
   };
 
-
   return (
     <React.Fragment>
       <div className="page-content">
@@ -126,6 +129,18 @@ const ProfilePage = () => {
                     Security
                   </NavLink>
                 </NavItem>
+                {roleName === ROLES.INFLUENCER && (
+                  <NavItem>
+                    <NavLink
+                      className={classnames({ active: activeTab === "3" })}
+                      onClick={() => {
+                        toggle("3");
+                      }}
+                    >
+                      Bank Account
+                    </NavLink>
+                  </NavItem>
+                )}
               </Nav>
               <TabContent activeTab={activeTab}>
                 <TabPane tabId="1">
@@ -248,8 +263,13 @@ const ProfilePage = () => {
                   </Card>
                 </TabPane>
                 <TabPane tabId="2">
-                      <ResetPassword />
+                  <ResetPassword />
                 </TabPane>
+                {roleName === ROLES.INFLUENCER && (
+                  <TabPane tabId="3">
+                    <BankDetails />
+                  </TabPane>
+                )}
               </TabContent>
             </Col>
           </Row>

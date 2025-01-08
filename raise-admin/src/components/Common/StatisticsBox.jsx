@@ -10,7 +10,7 @@ const StatisticsBox = ({ box }) => {
       >
         <CardBody className="d-flex flex-column justify-content-center align-items-center text-center">
           <div style={{ marginBottom: "10px" }}>
-            <p
+            {/* <p
               style={{
                 fontSize: "0.85rem",
                 color: box.isIncrease ? "var(--status-green-dark)" : "var(--secondary-red)",
@@ -26,7 +26,7 @@ const StatisticsBox = ({ box }) => {
                 <i className="bx bxs-down-arrow"></i>
               )}
               {box.rate > 0 ? `+${box.rate}%` : `${box.rate}%`}
-            </p>
+            </p> */}
             <p
               style={{
                 fontSize: "1.4rem",

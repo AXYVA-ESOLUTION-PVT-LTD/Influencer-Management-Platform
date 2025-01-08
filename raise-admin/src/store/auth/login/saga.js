@@ -21,22 +21,32 @@ function* loginUser({ payload: { user, history } }) {
     
     if (response?.status === STATUS.SUCCESS) {
       localStorage.setItem("authUser", response.result.data.token);
-      localStorage.setItem("user", JSON.stringify(response.result.data.user));
+      
       yield put(loginSuccess(response.result.data));
-      const user = JSON.parse(localStorage.getItem("user"));
-      const role = user.roleId.name;
-      switch (role) {
-        case ROLES.ADMIN:
-          history("/overview/admin");
-          break;
-        case ROLES.BRAND:
-          history("/overview/brand");
-          break;
-        case ROLES.INFLUENCER:
-          history("/overview/influencer");
-          break;
-        default:
-          history('/404')
+      // const user = JSON.parse(localStorage.getItem("user"));
+      const role = response.result.data.user.roleId.name;
+      const platform = response.result?.data?.user?.platform;
+      const username = response.result?.data?.user?.username;
+      if (role === 'Influencer' && (!platform || platform === '') && (!username || username === '')) {
+        localStorage.setItem('authUserId',response.result.data.user._id);
+        history("/onboarding");
+      }
+      else{
+        localStorage.setItem("user", JSON.stringify(response.result.data.user));
+        
+        switch (role) {
+          case ROLES.ADMIN:
+            history("/overview/admin");
+            break;
+          case ROLES.BRAND:
+            history("/overview/brand");
+            break;
+          case ROLES.INFLUENCER:
+            history("/overview/influencer");
+            break;
+          default:
+            history('/404')
+        }
       }
     } else {
       throw new Error(response?.result?.message || "Login failed. Please try again.");
@@ -57,9 +67,9 @@ function* logoutUser({ payload: { history } }) {
   }
 }
 
-function* authSaga() {
+function* AuthSaga() {
   yield takeEvery(LOGIN_USER, loginUser);
   yield takeEvery(LOGOUT_USER, logoutUser);
 }
 
-export default authSaga;
+export default AuthSaga;

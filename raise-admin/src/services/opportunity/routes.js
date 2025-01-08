@@ -4,6 +4,7 @@ export const UPDATE_OPPORTUNITY_URL = "/opportunity";
 export const DELETE_OPPORTUNITY_URL = "/opportunity";
 export const UPLOAD_OPPORTUNITY_IMAGE_URL = "/opportunity/uploadOpportunityImage";
 export const REMOVE_OPPORTUNITY_IMAGE_URL = "/opportunity/removeOpportunityImage";
+export const UPLOAD_CSV_URL ="/opportunity/csvupload";
 export const GET_TICKET = "/ticket/getTickets";
 export const CREATE_TICKET = "/ticket/createTicket";
 export const UPDATE_TICKET = "/ticket/updateTicketById";
