@@ -17,7 +17,7 @@ exports.generatePassword = _generatePassword;
 exports.uploadSingleFile = _uploadSingleFile;
 exports.excelCSVToJson = _excelCSVToJson;
 exports.isUndefinedOrNull = _isUndefinedOrNull;
-
+exports.isArrayEmpty = _isArrayEmpty;
 function _encryptPassword(text) {
   let iv = crypto.randomBytes(IV_LENGTH);
   let newIV = iv.toString("hex").slice(0, 16);
@@ -55,8 +55,9 @@ function _isOtpValid(otpTime, time) {
 
 async function _sendEmail(mailOptions) {
   let transporter = nodemailer.createTransport({
-    host: "smtp.ethereal.email",
-    port: 587,
+    // host: "smtp.ethereal.email",
+    // port: 587,
+   service: "gmail",
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
@@ -170,4 +171,8 @@ function _excelCSVToJson(file, ext, callback) {
 
 function _isUndefinedOrNull(value) {
 	return (typeof value == 'undefined' || value == null || value.trim() == "")
+}
+
+function _isArrayEmpty(array) {
+	return (array == null || array.length <= 0);
 }

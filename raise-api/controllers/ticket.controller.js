@@ -211,8 +211,8 @@ async function _getTickets(req, res) {
         opportunity: ticket.opportunityId,
         opportunityId: undefined,
         influencerData: {
-          firstName: ticket.influencerId.firstName,
-          lastName: ticket.influencerId.lastName,
+          firstName: ticket?.influencerId?.firstName,
+          lastName: ticket?.influencerId?.lastName,
         },
       };
     });

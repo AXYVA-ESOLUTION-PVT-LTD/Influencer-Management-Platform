@@ -3,14 +3,25 @@ const USER_COLLECTION = require("../module/user.module");
 const CONSTANT = require("../config/constant");
 
 const validateCreateChat = [
-  check("ticketId")
+  check("type")
     .exists()
-    .withMessage("Ticket Id is required!")
+    .withMessage("Type is required!")
     .bail()
     .trim()
     .isString()
     .notEmpty()
-    .withMessage("Ticket Id cannot be empty!"),
+    .withMessage("Type cannot be empty!")
+    .bail()
+    .isIn(["Transaction", "Ticket"])
+    .withMessage("Type must be one of the following: Transaction, Ticket"),
+  // check("ticketId")
+  //   .exists()
+  //   .withMessage("Ticket Id is required!")
+  //   .bail()
+  //   .trim()
+  //   .isString()
+  //   .notEmpty()
+  //   .withMessage("Ticket Id cannot be empty!"),
   check("message")
     .exists()
     .withMessage("Message is required!")
@@ -19,7 +30,25 @@ const validateCreateChat = [
     .isString()
     .notEmpty()
     .withMessage("Message cannot be empty!"),
+  check("ticketId").custom((value, { req }) => {
+    if (req.body.type === "Ticket") {
+      if (!value || value.trim() === "") {
+        throw new Error("Ticket Id is required when type is ticket!");
+      }
+    }
+    return true;
+  }),
+  check("transactionId").custom((value, { req }) => {
+    if (req.body.type === "Transaction") {
+      if (!value || value.trim() === "") {
+        throw new Error("Transaction id is required when type is transaction!");
+      }
+    }
+    return true;
+  }),
+  
 ];
+
 const validateGetChat = [
   check("ticketId")
     .exists()

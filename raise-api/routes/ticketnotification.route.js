@@ -42,4 +42,10 @@ router.delete(
   TicketNotification.deleteTicketNotification
 );
 
+router.get(
+  "/getTicketEngagementStatistics",
+  auth,
+  TicketNotification.getTicketEngagementStatistics
+);
+
 module.exports = router;

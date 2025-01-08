@@ -25,13 +25,15 @@ async function _createChat(req, res) {
       return res.send(json);
     }
 
-    const { message, ticketId } = req.body;
+    const { message, type, ticketId, transactionId } = req.body;
     const user = req.user;
 
     const chat = await CHAT_COLLECTION.create({
       message,
       sender: user._id,
+      type,
       ticketId,
+      transactionId
     });
     if (!chat) {
       json.status = CONSTANT.FAIL;
@@ -75,13 +77,16 @@ async function _getChat(req, res) {
       };
       return res.send(json);
     }
+    var query = {};
+    const { type, ticketId, transactionId } = req.body;
+    if(type == "Transaction"){
+      query = { transactionId: transactionId };
+    }
+    if(type == "Ticket"){
+      query = { ticketId: ticketId };
+    }
 
-    const { ticketId } = req.body;
-    const user = req.user;
-
-    const chats = await CHAT_COLLECTION.find({
-      ticketId,
-    }).sort({ createdAt: 1 });
+    const chats = await CHAT_COLLECTION.find(query).sort({ createdAt: 1 });
     if (!chats) {
       json.status = CONSTANT.FAIL;
       json.result = {

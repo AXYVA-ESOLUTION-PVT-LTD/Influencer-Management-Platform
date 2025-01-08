@@ -12,8 +12,8 @@ const ticketNotificationSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "completed", "read"],
-      default: "pending",
+      enum: ["Approved", "Declined", "On Hold"],
+      default: "On Hold",
     },
     from: {
       type: mongoose.Schema.Types.ObjectId,

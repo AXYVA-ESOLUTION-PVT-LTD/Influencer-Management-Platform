@@ -39,6 +39,7 @@ router.post("/resetPassword", auth, validateResetPassword, User.resetPassword);
 router.post("/getUsers", auth, User.getUsers);
 router.get("/getUserById/:id", auth, User.getUserById);
 router.post("/updateUserById/:id", auth, updateUser, User.updateUserById);
+router.post("/updateUserNameById/:id", User.updateUserNameById);
 router.get("/deleteUserById/:id", auth, User.deleteUserById);
 
 module.exports = router;
