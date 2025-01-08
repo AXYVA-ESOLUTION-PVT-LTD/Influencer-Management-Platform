@@ -26,6 +26,12 @@ const Chat = require("./routes/chat.route");
 const Ticket = require("./routes/ticket.route");
 const Notification = require("./routes/notification.route");
 const Tiktok = require("./routes/tiktok.route");
+const Platform = require("./routes/platform.route");
+const Publication = require("./routes/publication.route");
+const Wallet = require("./routes/wallet.route");
+const Transaction = require("./routes/transaction.route");
+const Payment = require("./routes/payment.route");
+
 const path = require("path");
 const { getRefreshToken } = require("./controllers/tokengenerator");
 
@@ -83,11 +89,15 @@ app.use("/v1/ticket", Ticket);
 app.use("/v1/notification", Notification);
 app.post('/v1/refresh-token', getRefreshToken);
 app.use('/v1/tiktok', Tiktok);
+app.use('/v1/platform', Platform);
+app.use('/v1/publication', Publication);
+app.use('/v1/wallet', Wallet);
+app.use('/v1/transaction', Transaction);
+app.use('/v1/payment', Payment);
 
 app.get("/testing",(req,res)=>{
 	return res.status(200).json({msg:"server is up an running"});
 })
-
 
 mongoose
   .connect(DB_URL)

@@ -1,5 +1,6 @@
 const { validationResult } = require("express-validator");
 const USER_COLLECTION = require("../module/user.module");
+const WALLET_COLLECTION = require("../module/wallet.module");
 const CONSTANT = require("../config/constant.js");
 const COMMON = require("../config/common.js");
 const jwt = require("jsonwebtoken");
@@ -30,7 +31,7 @@ exports.getUserById = _getUserById;
 exports.getUsers = _getUsers;
 exports.updateUserById = _updateUserById;
 exports.deleteUserById = _deleteUserById;
-
+exports.updateUserNameById = _updateUserNameById;
 /*
 TYPE: Post
 TODO: Add new user
@@ -47,16 +48,28 @@ async function _signUp(req, res) {
       };
       return res.send(json);
     }
-    const { firstName, lastName, email, password, roleCode } = req.body;
-    const existUser = await USER_COLLECTION.findOne({
-      email: email,
-      isDeleted: false,
-    });
-    if (existUser) {
+    // const { firstName, lastName, email, password, roleCode } = req.body;
+    const { firstName, lastName, email, password, phoneNumber, city, country, roleCode, platform, username } = req.body;
+    // Check if any of the unique fields already exist in the database
+    const isEmailExisting = await USER_COLLECTION.findOne({ email });
+    const isPhoneNumberExisting = await USER_COLLECTION.findOne({ phoneNumber });
+
+    // If any field exists, return errors
+    if (isEmailExisting || isPhoneNumberExisting ) {
+      let errors = [];
+
+      if (isEmailExisting) {
+        errors.push("This email is already in use. Try another.");
+      }
+      
+      if (isPhoneNumberExisting) {
+        errors.push("This phone number is taken. Please choose a different one.");
+      }
+
       json.status = CONSTANT.FAIL;
       json.result = {
-        message: "User already exists with this email!",
-        error: "User already exists with this email!",
+        error: "Fail to create user",
+        details: errors, 
       };
       return res.send(json);
     }
@@ -69,13 +82,37 @@ async function _signUp(req, res) {
       lastName: lastName,
       email: email,
       password: encPassword,
+      phoneNumber: phoneNumber,
+      city: city,
+      country: country,
       roleId: role._id,
+      platform: platform,
+      username: username
     });
     user
       .save()
-      .then((result) => {
+      .then(async (result) => {
+
+        let userObj = {
+          id: result._id,
+          email: result.email,
+          firstName: result.firstName,
+          lastName: result.lastName,
+          roleId: result.roleId
+        };
+  
+        let token = jwt.sign(userObj, process.env.superSecret, {
+          expiresIn: 86400,
+        });
+
+        const wallet = new WALLET_COLLECTION({
+          influencerId: result._id,
+          balance: 0
+        });
+        await wallet.save();
+
         json.status = CONSTANT.SUCCESS;
-        json.result = { message: "User added successfully!", data: result };
+        json.result = { message: "User added successfully!", data: result ,token: token};
         return res.send(json);
       })
       .catch((error) => {
@@ -141,7 +178,10 @@ async function _login(req, res) {
           firstName: existUser.firstName,
           lastName: existUser.lastName,
           roleId: existUser.roleId,
-          loginType : existUser.loginType
+          accessToken: existUser.accessToken,
+          platform: existUser.platform,
+          username: existUser.username, 
+          loginType: existUser.loginType,
         };
   
         let token = jwt.sign(userObj, process.env.superSecret, {
@@ -180,6 +220,9 @@ async function _login(req, res) {
               lastName: result.lastName,
               roleId: result.roleId,
               loginType: result.loginType,
+              accessToken: result.accessToken,
+              platform: result.platform,
+              username: result.username, 
             };
       
             let token = jwt.sign(userObj, process.env.superSecret, {
@@ -197,6 +240,13 @@ async function _login(req, res) {
               updatedAt,
               ...userWithoutSensitiveInfo
             } = createdUser.toObject();
+
+            const wallet = new WALLET_COLLECTION({
+              influencerId: result._id,
+              balance: 0
+            });
+            await wallet.save();
+
             json.status = CONSTANT.SUCCESS;
             json.result = {
               message: "User login successfully!",
@@ -252,6 +302,10 @@ async function _login(req, res) {
           firstName: existUser.firstName,
           lastName: existUser.lastName,
           roleId: existUser.roleId,
+          loginType: existUser.loginType,
+          accessToken: existUser.accessToken,
+          platform: existUser.platform,
+          username: existUser.username, 
         };
   
         let token = jwt.sign(userObj, process.env.superSecret, {
@@ -329,12 +383,106 @@ async function _forgotPassword(req, res) {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     let mailOptions = {
-      from: '"Your App Name" <your_email@example.com>',
+      from: '"RAISE" <raise@raise.com>',
       to: email,
       subject: "Password Reset OTP",
       text: `Your OTP for password reset is: ${otp}`,
-      html: `<b>Your OTP for password reset is: ${otp}</b>`,
+      html: `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Password Reset OTP</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          margin: 0;
+          padding: 0;
+          background-color: #f9f9f9;
+        }
+        .email-container {
+          max-width: 600px;
+          margin: 20px auto;
+          background: #ffffff;
+          border: 1px solid #e5e5e5;
+          border-radius: 8px;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+          overflow: hidden;
+        }
+        .header {
+          background: #8832E6;
+          color: #fff;
+          padding: 20px;
+          text-align: center;
+        }
+        .header h1 {
+          margin: 0;
+          font-size: 24px;
+        }
+        .content {
+          padding: 20px;
+        }
+        .content h2 {
+          font-size: 20px;
+          margin-bottom: 10px;
+        }
+        .content p {
+          margin: 10px 0;
+        }
+        .otp-container {
+          background: #f4f4f4;
+          padding: 15px;
+          margin: 20px 0;
+          border: 1px dashed #ccc;
+          border-radius: 5px;
+          text-align: center;
+        }
+        .otp-container p {
+          font-size: 18px;
+          font-weight: bold;
+          margin: 5px 0;
+        }
+        .footer {
+          background: #333;
+          color: #fff;
+          padding: 15px;
+          text-align: center;
+          font-size: 12px;
+        }
+        .footer a {
+          color: #8832E6;
+          text-decoration: none;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="email-container">
+        <div class="header">
+          <h1>Password Reset OTP</h1>
+        </div>
+        <div class="content">
+          <h2>Dear User,</h2>
+          <p>We received a request to reset your password. Use the OTP below to complete the process:</p>
+          <div class="otp-container">
+            <p>${otp}</p>
+          </div>
+          <p><strong>Note:</strong> This OTP is valid for a limited time. Do not share it with anyone.</p>
+          <p>If you did not request a password reset, please contact our support team at <a href="mailto:support@raise.com">support@raise.com</a>.</p>
+        </div>
+        <div class="footer">
+          <p>&copy; 2024 RAISE. All rights reserved.</p>
+          <p>
+            <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a>
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>
+    `,
     };
+    
 
     if (previousOTPRecord) {
       await ForgotPassword.updateOne({ userId: existUser._id }, { otp });
@@ -858,3 +1006,94 @@ async function _updateProfile(req, res) {
   }
 }
 
+async function _updateUserNameById(req, res) {
+  try {
+    const id = req.params.id;
+    const { username, platform } = req.body;
+    const query = { _id: id, isDeleted: false };
+    const existUser = await USER_COLLECTION.findOne(query);
+    if (!existUser) {
+      json.status = CONSTANT.FAIL;
+      json.result = {
+        message: "User does not exists!",
+        error: "User does not exists!",
+      };
+      return res.send(json);
+    }
+
+    const isUsernameExisting = await USER_COLLECTION.findOne({ username });
+
+    if (isUsernameExisting) {
+      let errors = [];
+
+      if (isUsernameExisting) {
+        errors.push("This username is already taken. Pick another.");
+      }
+      
+      json.status = CONSTANT.FAIL;
+      json.result = {
+        error: "Fail to Update User Details",
+        details: errors, 
+      };
+      return res.send(json);
+    }
+
+    const userObj = {
+      username: username,
+      platform: platform,
+    };
+    USER_COLLECTION.findByIdAndUpdate(id, userObj, { new: true })
+      .then(async (result) => {
+
+        let userObj = {
+          id: result._id,
+          email: result.email,
+          firstName: result.firstName,
+          lastName: result.lastName,
+          roleId: result.roleId
+        };
+  
+        let token = jwt.sign(userObj, process.env.superSecret, {
+          expiresIn: 86400,
+        });
+        
+        const createdUser = await USER_COLLECTION.findById(result._id).populate({
+          path: "roleId",
+          model: "Role",
+          select: ["name"],
+        });
+
+        if (!createdUser) {
+          json.status = CONSTANT.FAIL;
+          json.result = { message: "Failed to retrieve the updated user!" };
+          return res.send(json);
+        }
+
+        const {
+          password: _,
+          createdAt,
+          updatedAt,
+          ...userWithoutSensitiveInfo
+        } = createdUser.toObject();
+
+        json.status = CONSTANT.SUCCESS;
+        json.result = {
+          message: "User Update successfully!",
+          data: { token: token, user: userWithoutSensitiveInfo },
+        };
+        return res.send(json);
+      })
+      .catch((error) => {
+        json.status = CONSTANT.FAIL;
+        json.result = {
+          message: "An error occurred while update user!",
+          error: error,
+        };
+        return res.send(json);
+      });
+  } catch (e) {
+    json.status = CONSTANT.FAIL;
+    json.result = { message: "An error occurred while update user!", error: e };
+    return res.send(json);
+  }
+}

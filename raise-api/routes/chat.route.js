@@ -17,7 +17,7 @@ router.post(
 router.post(
   "/getChat",
   auth,
-  ChatMiddleware.validateGetChat,
+  // ChatMiddleware.validateGetChat,
   ChatMiddleware.validateUser,
   Chat.getChat
 );

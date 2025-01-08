@@ -6,8 +6,6 @@ const Notification = require("../controllers/notification.controller");
 
 const auth = require("../config/authentication");
 
-
-
 // Create notification
 router.post(
   "/createNotification",

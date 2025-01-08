@@ -3,12 +3,14 @@ const CONSTANT = require("../config/constant.js");
 const COMMON = require("../config/common.js");
 const TICKET_NOTIFICATION_COLLECTION = require("../module/ticketnotification.module.js");
 const USER_COLLECTION = require("../module/user.module.js");
+const moment = require("moment");
 const json = {};
 
 exports.createTicketNotification = _createTicketNotification;
 exports.getTicketNotifications = _getTicketNotifications;
 exports.updateTicketNotification = _updateTicketNotification;
 exports.deleteTicketNotification = _deleteTicketNotification;
+exports.getTicketEngagementStatistics = _getTicketEngagementStatistics;
 
 /*
 TYPE: Post
@@ -274,6 +276,59 @@ async function _deleteTicketNotification(req, res) {
     json.result = {
       message: "An error occurred while deleting notification",
       error: e,
+    };
+    return res.send(json);
+  }
+}
+
+async function _getTicketEngagementStatistics(req, res) {
+  const userId = req.decoded.id;
+  const currentMonth = moment().format('M');
+  const startDate = moment().startOf('year');
+  const endDate = moment().endOf('day');
+  const query = { from: userId, $and: [ {createdAt: { $gte: startDate }}, {createdAt: { $lte: endDate }} ] };
+  try {
+    const approvedCounts = Array(+currentMonth).fill(0);
+    const declinedCounts = Array(+currentMonth).fill(0);
+    const onHoldCounts = Array(+currentMonth).fill(0);
+    const ticketNotifications = await TICKET_NOTIFICATION_COLLECTION.find(query, { _id: 1, status: 1, createdAt: 1 });
+    if(ticketNotifications && ticketNotifications.length > 0){
+      let count = 0;
+      ticketNotifications.forEach((item) => {
+        const month = new Date(item.createdAt).getMonth(); // Get month (0-11)
+        if (item.status == "Approved") {
+          approvedCounts[month]++;
+        } else if (item.status == "Declined") {
+          declinedCounts[month]++;
+        } else if (item.status == "On Hold") {
+          onHoldCounts[month]++;
+        }
+        count++;
+        if(count == ticketNotifications.length) {
+          json.status = CONSTANT.SUCCESS;
+          json.result = {
+            message: "Ticket engagement statistics fetched successfully",
+            data: {
+              approvedCounts: approvedCounts,
+              declinedCounts: declinedCounts,
+              onHoldCounts: onHoldCounts
+            },
+          };
+          return res.send(json);
+        }
+      });
+    } else {
+      json.status = CONSTANT.FAIL;
+      json.result = {
+        error: "Fail to get ticket engagement statistics",
+      };
+      return res.send(json);
+    }
+  } catch (error) {
+    json.status = CONSTANT.FAIL;
+    json.result = {
+      message: "Failed to fetch ticket engagement statistics",
+      error: error.message,
     };
     return res.send(json);
   }

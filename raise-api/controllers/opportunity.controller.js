@@ -6,6 +6,7 @@ const COMMON = require("../config/common");
 const { getSortOption } = require("../helper/getSortOption");
 const path = require("path");
 const fs = require("fs");
+const csv = require("csv-parser");
 const json = {};
 
 exports.addOpportunity = _addOpportunity;
@@ -14,7 +15,7 @@ exports.deleteOpportunity = _deleteOpportunity;
 exports.updateOpportunity = _updateOpportunity;
 exports.uploadOpportunityImage = _uploadOpportunityImage;
 exports.removeOpportunityImage = _removeOpportunityImage;
-
+exports.csvupload = _csvupload;
 /*
 TYPE: Get
 TODO: Get all opportunities
@@ -466,5 +467,84 @@ async function _importOpportunity(req, res) {
       error: e,
     };
     return res.send(json);
+  }
+}
+
+async function _csvupload(req, res) {
+  if (!req.file) {
+    return res.status(400).json({
+      message: "No file uploaded. Please upload a CSV file.",
+    });
+  }
+  const filePath = path.join(__dirname, "../", req.file.path); 
+  const results = [];
+
+  try {
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on("data", (data) => results.push(data))
+      .on("end", async () => {
+        try {
+          const opportunities = [];
+          
+          for (let row of results) {
+            const {
+              title,
+              description,
+              type,
+              imageUrl,
+              location,
+              status,
+              brand,
+              endDate,
+            } = row;
+
+            if (!title || !description || !type || !brand || !endDate) {
+              throw new Error(
+                `Missing required fields in CSV row: ${JSON.stringify(row)}`
+              );
+            }
+
+            const opportunity = await OPPORTUNITY_COLLECTION.create({
+              title,
+              description,
+              type,
+              imageUrl,
+              location,
+              status,
+              brand,
+              endDate,
+            });
+
+            opportunities.push(opportunity);
+          }
+
+          fs.unlinkSync(filePath);
+
+          return res.status(200).json({
+            message: "CSV file uploaded and opportunities created successfully",
+            data: opportunities,
+          });
+        } catch (err) {
+          console.error("Error processing CSV rows:", err);
+          return res.status(500).json({
+            message: "Error processing CSV rows",
+            error: err.message,
+          });
+        }
+      })
+      .on("error", (err) => {
+        console.error("Error parsing CSV:", err);
+        return res.status(500).json({
+          message: "Error parsing CSV file",
+          error: err.message,
+        });
+      });
+  } catch (err) {
+    console.error("Error handling CSV upload:", err);
+    return res.status(500).json({
+      message: "An error occurred while processing the CSV file",
+      error: err.message,
+    });
   }
 }
