@@ -13,7 +13,7 @@ const INIT_STATE = {
   error: {},
 };
 
-const chats = (state = INIT_STATE, action) => {
+const Chats = (state = INIT_STATE, action) => {
   switch (action.type) {
     case GET_CHAT:
       return {
@@ -60,4 +60,4 @@ const chats = (state = INIT_STATE, action) => {
   }
 };
 
-export default chats;
+export default Chats;

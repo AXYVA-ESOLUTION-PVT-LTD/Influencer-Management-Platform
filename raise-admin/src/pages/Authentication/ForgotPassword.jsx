@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Row,
   Col,
@@ -17,7 +17,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import withRouter from "../../components/Common/withRouter";
 // import logo from "../../assets/images/favicon/logo-sm.png";
-import profile from "../../assets/images/profile-img.png"; 
+import profile from "../../assets/images/profile-img.png";
 
 import * as Yup from "yup";
 import { useFormik } from "formik";
@@ -28,6 +28,14 @@ import { userForgetPassword } from "../../store/actions";
 const ForgotPassword = (props) => {
   document.title = "Forget Password | Brandraise";
 
+  const { forgetError, forgetSuccessMsg } = useSelector((state) => ({
+    forgetError: state.ForgetPassword.forgetError,
+    forgetSuccessMsg: state.ForgetPassword.forgetSuccessMsg,
+  }));
+
+  const [localForgetError, setLocalForgetError] = useState(null);
+  const [localForgetSuccessMsg, setLocalForgetSuccessMsg] = useState(null);
+
   const dispatch = useDispatch();
 
   const validation = useFormik({
@@ -36,18 +44,32 @@ const ForgotPassword = (props) => {
       email: "",
     },
     validationSchema: Yup.object({
-      email: Yup.string() .email("Invalid email address").required("Please Enter Your Email"),
+      email: Yup.string()
+        .email("Invalid email address")
+        .required("Please Enter Your Email"),
     }),
     onSubmit: (values) => {
-      localStorage.setItem('email', values.email);
+      localStorage.setItem("email", values.email);
       dispatch(userForgetPassword(values, props.router.navigate));
     },
   });
 
-  const { forgetError, forgetSuccessMsg } = useSelector((state) => ({
-    forgetError: state.ForgetPassword.forgetError,
-    forgetSuccessMsg: state.ForgetPassword.forgetSuccessMsg,
-  }));
+  
+  useEffect(() => {
+    if (forgetError) {
+      setLocalForgetError(forgetError);
+    }
+    if (forgetSuccessMsg) {
+      setLocalForgetSuccessMsg(forgetSuccessMsg);
+    }
+  }, [forgetError, forgetSuccessMsg]);
+
+  useEffect(() => {
+    return () => {
+      setLocalForgetError(null);
+      setLocalForgetSuccessMsg(null);
+    };
+  }, []);
 
   return (
     <React.Fragment>
@@ -85,16 +107,18 @@ const ForgotPassword = (props) => {
                     </Link>
                   </div>
                   <div className="p-2">
-                    {forgetError && forgetError ? (
-                      <Alert color="danger" style={{ marginTop: "13px" }}>
-                        {forgetError}
+                    {localForgetError && (
+                      <Alert color="danger" className="section-space-top">
+                        {localForgetError}
                       </Alert>
-                    ) : null}
-                    {forgetSuccessMsg ? (
-                      <Alert color="success" style={{ marginTop: "13px" }}>
-                        {forgetSuccessMsg}
+                    )}
+
+                    {/* Display success message */}
+                    {localForgetSuccessMsg && (
+                      <Alert color="success" className="section-space-top">
+                        {localForgetSuccessMsg}
                       </Alert>
-                    ) : null}
+                    )}
 
                     <Form
                       className="form-horizontal"
@@ -154,7 +178,7 @@ const ForgotPassword = (props) => {
       </div>
     </React.Fragment>
   );
-};  
+};
 
 ForgotPassword.propTypes = {
   history: PropTypes.object,

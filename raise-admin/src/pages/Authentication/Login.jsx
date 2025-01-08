@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import withRouter from "../../components/Common/withRouter";
@@ -21,12 +21,16 @@ import {
   Input,
   FormFeedback,
   Label,
+  InputGroupText,
+  InputGroup,
+  FormGroup,
+  Button,
 } from "reactstrap";
 // Google Login
 import { GoogleLogin } from "@react-oauth/google";
 
 // Facebook Login
-import FacebookLogin from 'react-facebook-login';
+import FacebookLogin from "react-facebook-login";
 
 // Role code
 import ROLECODE from "../../constants/rolecode";
@@ -39,6 +43,7 @@ import { loginUser } from "../../store/actions";
 
 // import images
 import profile from "../../assets/images/profile-img.png";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 // import logo from "../../assets/images/favicon/logo-sm.png";
 
 const Login = (props) => {
@@ -47,6 +52,8 @@ const Login = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const [showPassword, setShowPassword] = useState(false);
+
   useEffect(() => {
     const token = localStorage.getItem("authUser");
     const user = localStorage.getItem("user");
@@ -62,11 +69,11 @@ const Login = (props) => {
     const payload = {
       token,
       mode: AUTH_MODE.GOOGLE,
-      roleCode: ROLECODE["Brand"],
+      roleCode: ROLECODE["Influencer"],
       email: "",
       password: "",
     };
-    
+
     dispatch(loginUser(payload, props.router.navigate));
   };
 
@@ -94,10 +101,10 @@ const Login = (props) => {
   //   console.error("Facebook login failed", error);
   // };
 
-
   const handleTikTokLogin = () => {
+    const jwtToken = localStorage.getItem("authUserId");
     const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
-    const TIKTOK_AUTH_ENDPOINT = "/tiktok/auth";  
+    const TIKTOK_AUTH_ENDPOINT = `/tiktok/auth/`;
     const tiktokAuthUrl = `${BASE_URL}${TIKTOK_AUTH_ENDPOINT}`;
     window.location.href = tiktokAuthUrl;
   };
@@ -113,8 +120,9 @@ const Login = (props) => {
         .email("Invalid email address")
         .required("Please Enter Your Email"),
       password: Yup.string()
-        .min(6, "Password must be at least 6 characters")
-        .required("Please Enter Your Password"),
+        .min(6, "Password must be at least 8 characters")
+        .max(20, "Password cannot exceed 20 characters")
+        .required("Please enter your password"),
     }),
     onSubmit: (values) => {
       const payload = {
@@ -124,7 +132,7 @@ const Login = (props) => {
         email: values.email,
         password: values.password,
       };
-      
+
       dispatch(loginUser(payload, props.router.navigate));
     },
   });
@@ -133,175 +141,210 @@ const Login = (props) => {
     error: state.Login.error,
   }));
 
+  const handleNavigateToRegister = () => {
+    navigate("/register");
+  };
+
   return (
     <React.Fragment>
-      <div className="account-pages my-5 pt-sm-5 login-page">
-        <Container>
-          <Row className="justify-content-center">
-            <Col md={8} lg={6} xl={5}>
-              <Card className="overflow-hidden">
-                <div className="bg-primary bg-soft">
-                  <Row>
-                    <Col xs={7}>
-                      <div className="text-primary p-4">
-                        <h5 className="text-primary">Welcome Back !</h5>
-                        <p>Sign in to continue to Brandraise.</p>
-                      </div>
-                    </Col>
-                    <Col className="col-5 align-self-end">
-                      <img src={profile} alt="" className="img-fluid" />
-                    </Col>
-                  </Row>
-                </div>
-                <CardBody className="pt-0">
-                  <div>
-                    <Link to="/" className="auth-logo-light">
-                      <div className="avatar-md profile-user-wid mb-4">
-                        <span className="avatar-title rounded-circle bg-light">
-                          {/* <img
-                            src={logo}
-                            alt=""
-                            className="rounded-circle"
-                            height="34"
-                          /> */}
-                        </span>
-                      </div>
+      <div
+        className="d-flex min-vh-100 align-items-center justify-content-center bg-light w-100"
+      >
+        <Card
+          className="shadow-lg login-page"
+        >
+          <Row className="g-0 h-100">
+            <Col
+              xs={12}
+              md={6}
+              className="bg-primary text-white p-4 d-flex flex-column align-items-start justify-content-between d-none d-md-flex"
+            >
+              <h1 className="fw-bold mb-3 text-center text-md-start">
+                BrandRaise
+              </h1>
+
+              <div className="text-center text-md-start mt-5">
+                <h1 className="fw-bold mb-3">Empowering Creators Worldwide</h1>
+                <h1 className="fw-bold mb-3 text-center text-md-start">
+                  Partnered with Leading Brands
+                </h1>
+              </div>
+
+              <div className="company-logo-slider">
+                <h5 className="mb-1 text-center text-md-start">
+                  Our partners include:
+                </h5>
+                <ul className="list-inline mt-2 text-center text-md-start">
+                  <li className="list-inline-item">
+                    <img
+                      src="path-to-amazon-logo.png"
+                      alt="Amazon logo"
+                      height="30"
+                    />
+                  </li>
+                  <li className="list-inline-item">
+                    <img
+                      src="path-to-nike-logo.png"
+                      alt="Nike logo"
+                      height="30"
+                    />
+                  </li>
+                  <li className="list-inline-item">
+                    <img
+                      src="path-to-coca-cola-logo.png"
+                      alt="Coca-Cola logo"
+                      height="30"
+                    />
+                  </li>
+                  <li className="list-inline-item">
+                    <img
+                      src="path-to-apple-logo.png"
+                      alt="Apple logo"
+                      height="30"
+                    />
+                  </li>
+                  <li className="list-inline-item">
+                    <img
+                      src="path-to-microsoft-logo.png"
+                      alt="Microsoft logo"
+                      height="30"
+                    />
+                  </li>
+                </ul>
+              </div>
+            </Col>
+
+            <Col
+              xs={12}
+              md={6}
+              className="d-flex flex-column align-items-center justify-content-between h-100"
+            >
+              <div className="w-100 d-flex justify-content-end  text-right shadow-sm p-3">
+                <Button
+                  color="primary"
+                  className="w-auto rounded-0"
+                  onClick={handleNavigateToRegister}
+                  style={{
+                    borderColor: "var(--primary-purple)",
+                    color: "var(--primary-purple)",
+                    backgroundColor: "var(--primary-white)",
+                  }}
+                  size="lg"
+                >
+                  Influencer Register
+                </Button>
+              </div>
+              <CardBody className="d-flex flex-column align-items-center justify-content-center">
+                <div>
+                  <h2 className="text-left mb-3">Login to Account</h2>
+                  <h6 className="text-left mb-4">
+                    Don’t have an account?{" "}
+                    <Link to="/register" className="text-primary fw-bold">
+                      Register
                     </Link>
-                  </div>
-                  <div className="p-2">
-                    <Form
-                      className="form-horizontal"
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        if (
-                          e.nativeEvent.submitter &&
-                          e.nativeEvent.submitter.name === "login"
-                        ) {
-                          validation.handleSubmit(); 
+                  </h6>
+
+                  {error && <Alert color="danger">{error}</Alert>}
+
+                  <Form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      validation.handleSubmit();
+                    }}
+                  >
+                    <FormGroup>
+                      <Label for="email">Email</Label>
+                      <Input
+                        type="email"
+                        id="email"
+                        placeholder="Enter email"
+                        value={validation.values.email || ""}
+                        onChange={validation.handleChange}
+                        onBlur={validation.handleBlur}
+                        invalid={
+                          validation.touched.email && validation.errors.email
                         }
-                        return false;
-                      }}
-                    >
-                      {error ? <Alert color="danger">{error}</Alert> : null}
+                      />
+                      {validation.touched.email && validation.errors.email && (
+                        <Alert color="danger" className="mt-2 p-1">
+                          {validation.errors.email}
+                        </Alert>
+                      )}
+                    </FormGroup>
 
-                      <div className="mb-3">
-                        <Label className="form-label">Email</Label>
+                    <FormGroup>
+                      <Label for="password">Password</Label>
+                      <InputGroup>
                         <Input
-                          name="email"
-                          className="form-control"
-                          placeholder="Enter email"
-                          type="email"
-                          onChange={validation.handleChange}
-                          onBlur={validation.handleBlur}
-                          value={validation.values.email || ""}
-                          invalid={
-                            validation.touched.email && validation.errors.email
-                              ? true
-                              : false
-                          }
-                        />
-                        {validation.touched.email && validation.errors.email ? (
-                          <FormFeedback type="invalid">
-                            {validation.errors.email}
-                          </FormFeedback>
-                        ) : null}
-                      </div>
-
-                      <div className="mb-3">
-                        <Label className="form-label">Password</Label>
-                        <Input
-                          name="password"
+                          type={showPassword ? "text" : "password"}
+                          id="password"
+                          placeholder="Enter password"
                           value={validation.values.password || ""}
-                          type="password"
-                          placeholder="Enter Password"
                           onChange={validation.handleChange}
                           onBlur={validation.handleBlur}
                           invalid={
                             validation.touched.password &&
                             validation.errors.password
-                              ? true
-                              : false
                           }
                         />
-                        {validation.touched.password &&
-                        validation.errors.password ? (
-                          <FormFeedback type="invalid">
+                        <InputGroupText
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </InputGroupText>
+                      </InputGroup>
+                      {validation.touched.password &&
+                        validation.errors.password && (
+                          <Alert color="danger" className="mt-2 p-1">
                             {validation.errors.password}
-                          </FormFeedback>
-                        ) : null}
-                      </div>
+                          </Alert>
+                        )}
+                    </FormGroup>
 
-                      <div className="form-check">
-                        <input
-                          type="checkbox"
-                          className="form-check-input"
-                          id="customControlInline"
-                        />
-                        <label
-                          className="form-check-label"
-                          htmlFor="customControlInline"
-                        >
+                    <div className="d-flex justify-content-between align-items-center">
+                      <FormGroup check>
+                        <Input type="checkbox" id="remember" />
+                        <Label for="remember" check>
                           Remember me
-                        </label>
-                      </div>
+                        </Label>
+                      </FormGroup>
+                      <Link to="/forgot-password" className="text-primary">
+                        Forgot password?
+                      </Link>
+                    </div>
 
-                      <div className="mt-3 d-grid">
-                        <button
-                          className="btn btn-primary btn-block"
-                          type="submit"
-                          name="login"
-                        >
-                          Log In
-                        </button>
-                      </div>
-                      <div className="mt-4 text-center">
-                        <p className="me-2">Or login with:</p>
-                        <div className="d-flex flex-column justify-content-center align-items-center gap-3">
-                          <GoogleLogin
-                            onSuccess={handleGoogleLoginSuccess}
-                            onError={handleGoogleLoginFailure}
-                          />
-                          {/* <FacebookLogin
-                              appId="946726573608245"
-                              fields="name,email,picture"
-                              callback={handleFacebookLoginSuccess}
-                              onFailure={handleFacebookLoginFailure} 
-                            /> */}
-                          <button
-                            onClick={handleTikTokLogin}
-                            type="button"
-                            className="tiktok-login-button"
-                          >
-                            <img
-                              src={logo}
-                              alt="tiktok"
-                            />
-                            Sign in with TikTok
-                          </button>
-                        </div>
-                      </div>
-                      <div className="mt-4 text-center">
-                        <Link to="/forgot-password" className="text-muted">
-                          <i className="mdi mdi-lock me-1" />
-                          Forgot your password?
-                        </Link>
-                      </div>
-                    </Form>
-                  </div>
-                </CardBody>
-              </Card>
-              <div className="mt-5 text-center">
-                <p>
-                  Don&#39;t have an account ?{" "}
-                  <Link to="/register" className="fw-medium text-primary">
-                    {" "}
-                    Signup now{" "}
-                  </Link>{" "}
-                </p>
+                    {/* <Button color="primary" block className="mt-4" type="submit">
+                    Log In
+                  </Button> */}
+                  </Form>
+
+                  {/* <div className="text-center mt-4">
+                    <p className="mb-3">OR</p>
+                    <div className="d-flex justify-content-center">
+                      <GoogleLogin
+                        onSuccess={handleGoogleLoginSuccess}
+                        onError={handleGoogleLoginFailure}
+                      />
+                    </div>
+                  </div> */}
+                </div>
+              </CardBody>
+              {/* Footer */}
+              <div className="w-100 d-flex justify-content-end text-right shadow-lg p-3">
+                <Button
+                  color="primary"
+                  className="w-auto rounded-0"
+                  onClick={() => {
+                    validation.handleSubmit();
+                  }}
+                  size="lg"
+                >
+                  Login
+                </Button>
               </div>
             </Col>
           </Row>
-        </Container>
+        </Card>
       </div>
     </React.Fragment>
   );

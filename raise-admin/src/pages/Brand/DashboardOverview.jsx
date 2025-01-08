@@ -50,7 +50,7 @@ const DashboardOverview = (props) => {
             breadcrumbItem={props.t("Brand Dashboard")}
           /> */}
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h4 className="font-size-18" style={{ textTransform: "uppercase" }}>
+            <h4 className="font-size-18 text-uppercase">
             Brand Dashboard
             </h4>
           </div>

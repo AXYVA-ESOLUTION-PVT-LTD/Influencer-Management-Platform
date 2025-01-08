@@ -5,7 +5,7 @@ const initialState = {
   resetError: null,
 };
 
-const resetPassword = (state = initialState, action) => {
+const ResetPassword = (state = initialState, action) => {
   switch (action.type) {
     case RESET_PASSWORD_SUCCESS:
       return {
@@ -30,4 +30,4 @@ const resetPassword = (state = initialState, action) => {
   }
 };
 
-export default resetPassword;
+export default ResetPassword;

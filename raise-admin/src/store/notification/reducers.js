@@ -28,7 +28,7 @@ const INIT_STATE = {
   error: {},
 };
 
-const notification = (state = INIT_STATE, action) => {
+const Notification = (state = INIT_STATE, action) => {
   switch (action.type) {
     case GET_TICKET_NOTIFICATION:
       return {
@@ -164,4 +164,4 @@ const notification = (state = INIT_STATE, action) => {
   }
 };
 
-export default notification;
+export default Notification;

@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { withTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  Alert,
   Button,
   Container,
   Input,
@@ -24,14 +25,15 @@ import {
 import ROLES from "../../constants/role";
 import Pagination from "../../components/Common/Pagination";
 import InfluencerFiltering from "../../components/Common/InfluencerFiltering";
-import '../../assets/themes/colors.scss'
+import "../../assets/themes/colors.scss";
 const InfluencerManagement = (props) => {
   // State for modals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedInfluencer, setSelectedInfluencer] = useState(null);
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionError, setSubmissionError] = useState(null);
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(0);
 
@@ -52,7 +54,7 @@ const InfluencerManagement = (props) => {
   const dispatch = useDispatch();
 
   const { influencers, loading, error, totalInfluencers, currentPage } =
-    useSelector((state) => state.influencer);
+    useSelector((state) => state.Influencer);
 
   const createInfluncerValidation = useFormik({
     enableReinitialize: true,
@@ -60,26 +62,125 @@ const InfluencerManagement = (props) => {
       firstName: "",
       lastName: "",
       email: "",
+      phoneNumber: "",
+      city: "",
+      country: "",
+      platform: "",
+      username: "",
     },
     validationSchema: Yup.object({
-      firstName: Yup.string().required("First Name is required"),
-      lastName: Yup.string().required("Last Name is required"),
+      firstName: Yup.string()
+        .matches(
+          /^[A-Za-z\s]+$/,
+          "First Name should only contain letters and spaces"
+        )
+        .min(2, "First Name must be at least 2 characters long")
+        .max(50, "First Name can't be longer than 50 characters")
+        .required("First Name is required"),
+
+      lastName: Yup.string()
+        .matches(
+          /^[A-Za-z\s]+$/,
+          "Last Name should only contain letters and spaces"
+        )
+        .min(2, "Last Name must be at least 2 characters long")
+        .max(50, "Last Name can't be longer than 50 characters")
+        .required("Last Name is required"),
+
       email: Yup.string()
         .email("Invalid email address")
         .required("Email is required"),
+
+      city: Yup.string()
+        .matches(/^[A-Za-z\s]+$/, "City should only contain letters and spaces")
+        .min(2, "City must be at least 2 characters long")
+        .max(50, "City can't be longer than 50 characters")
+        .required("City is required"),
+
+      country: Yup.string()
+        .matches(
+          /^[A-Za-z\s]+$/,
+          "Country should only contain letters and spaces"
+        )
+        .min(2, "Country must be at least 2 characters long")
+        .max(50, "Country can't be longer than 50 characters")
+        .required("Country is required"),
+
+      phoneNumber: Yup.string()
+              .transform((value) => {
+                return value.replace(/[^\d\+\-]/g, ""); 
+              })
+              .matches(
+                /^\+(\d{1,2})[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4}$/,
+                "Phone number must start with a country code (e.g., +1 00000 00000) and contain only digits and dashes"
+              )
+              .required("Please enter your phone number"),
+
+      platform: Yup.string()
+        .oneOf(
+          ["Youtube", "Instagram", "Tiktok"],
+          "Platform must be one of: youtube, instagram, tiktok"
+        )
+        .required("Platform is required"),
+
+        username: Yup.string()
+        .matches(
+          /^[A-Za-z0-9_]+$/,
+          "Username can only contain letters, numbers, and underscores"
+        )
+        .min(3, "Username must be at least 3 characters long")
+        .max(20, "Username can't be longer than 20 characters")
+        .required("Username is required"),
     }),
+
     onSubmit: (values, { resetForm }) => {
       const payload = {
-        firstName: values.firstName,
-        lastName: values.lastName,
-        email: values.email,
+        firstName: values.firstName.trim(),
+        lastName: values.lastName.trim(),
+        email: values.email.trim(),
+        city: values.city.trim(),
+        country: values.country.trim(),
+        phoneNumber: values.phoneNumber.trim(),
+        platform: values.platform.trim(),
+        username: values.username.trim(),
         roleName: ROLES.INFLUENCER,
+        status: false,
       };
+      setIsSubmitting(true);
       dispatch(addNewInfluencer(payload));
-      resetForm();
-      toggleCreateModal();
     },
   });
+
+  useEffect(() => {
+    if (!loading && isSubmitting) {
+      if (!error) {
+        createInfluncerValidation.resetForm();
+        toggleCreateModal();
+      } else {
+        setSubmissionError(error);
+        console.error("Error creating brand:", error);
+      }
+      setIsSubmitting(false);
+    }
+  }, [loading, error, isSubmitting]);
+
+  const formatErrorMessage = (error) => {
+    if (!error) return null;
+
+    const errorMessage =
+      typeof error === "string" ? error : JSON.stringify(error);
+
+    if (errorMessage.includes("This")) {
+      return errorMessage.split(/(?=This)/g).map((msg, index) => (
+        <p key={index} className="text-danger m-0">
+          {msg.trim()}
+        </p>
+      ));
+    }
+
+    return <p className="text-danger">{errorMessage}</p>;
+  };
+
   const updateInfluncerValidation = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -110,6 +211,7 @@ const InfluencerManagement = (props) => {
         ...filterFields,
         sortBy,
         sortOrder,
+        allrecord: false,
       })
     );
   }, [dispatch, limit, pageCount, isSearching, sortOrder, sortBy]);
@@ -118,7 +220,12 @@ const InfluencerManagement = (props) => {
   const toggleUpdateModal = () => {
     setIsUpdateModalOpen(!isUpdateModalOpen);
   };
+
   const toggleCreateModal = () => {
+    if (isCreateModalOpen) {
+      createInfluncerValidation.resetForm();
+      setSubmissionError(null);
+    }
     setIsCreateModalOpen(!isCreateModalOpen);
   };
 
@@ -152,14 +259,29 @@ const InfluencerManagement = (props) => {
         accessor: "email",
       },
       {
+        Header: "Phone Number",
+        accessor: "phoneNumber",
+        Cell: ({ value }) => (value ? value : "-"),
+      },
+      {
+        Header: "City",
+        accessor: "city",
+        Cell: ({ value }) => (value ? value : "-"),
+      },
+      {
+        Header: "Country",
+        accessor: "country",
+        Cell: ({ value }) => (value ? value : "-"),
+      },
+      {
         Header: "Status",
         accessor: "status",
         Cell: ({ value }) => (
-          <span 
-          className={`badge ${value ? "badge-active" : "badge-inactive"}`}
-        >
-          {value ? "Active" : "Inactive"}
-        </span>
+          <span
+            className={`badge ${value ? "badge-active" : "badge-inactive"}`}
+          >
+            {value ? "Active" : "Inactive"}
+          </span>
         ),
       },
       {
@@ -173,7 +295,10 @@ const InfluencerManagement = (props) => {
               className="p-0 me-2"
               onClick={() => handleViewDetails(original)}
             >
-              <i className="bx bx-show" style={{ color: "var(--secondary-blue)" }}></i>
+              <i
+                className="bx bx-show"
+                style={{ color: "var(--secondary-blue)" }}
+              ></i>
             </Button>
             <Button
               color="link"
@@ -181,7 +306,10 @@ const InfluencerManagement = (props) => {
               className="p-0 me-2"
               onClick={() => handleUpdateInfluencer(original)}
             >
-              <i className="bx bx-edit" style={{ color:"var(--secondary-yellow)" }}></i>
+              <i
+                className="bx bx-edit"
+                style={{ color: "var(--secondary-yellow)" }}
+              ></i>
             </Button>
           </>
         ),
@@ -195,11 +323,16 @@ const InfluencerManagement = (props) => {
       <div className="page-content">
         <Container fluid>
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h4 className="font-size-18" style={{ textTransform: "uppercase" }}>
-              Influencers
-            </h4>
+            <h4 className="font-size-18 text-uppercase">Influencers</h4>
             <div>
-              <Button className="border-none" onClick={toggleCreateModal} style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}>
+              <Button
+                className="border-none"
+                onClick={toggleCreateModal}
+                style={{
+                  backgroundColor: "var(--primary-purple)",
+                  color: "var(--primary-white)",
+                }}
+              >
                 Add Influencer
               </Button>
             </div>
@@ -212,8 +345,8 @@ const InfluencerManagement = (props) => {
           />
 
           {loading ? (
-            <div className="text-center" style={{ marginTop: 50 }}>
-              <Spinner style={{ color: "var(--primary-purple)" }}  />{" "}
+            <div className="text-center space-top">
+              <Spinner style={{ color: "var(--primary-purple)" }} />{" "}
             </div>
           ) : (
             <>
@@ -243,9 +376,7 @@ const InfluencerManagement = (props) => {
                   />
                 </>
               ) : (
-                <h1 className="text-center" style={{ marginTop: 50 }}>
-                  No Influencer Found
-                </h1>
+                <h1 className="text-center space-top">No Influencer Found</h1>
               )}
             </>
           )}
@@ -259,19 +390,38 @@ const InfluencerManagement = (props) => {
         </ModalHeader>
         <ModalBody>
           {selectedInfluencer && (
-            <>
-              <p>
-                <strong>First Name:</strong> {selectedInfluencer.firstName}
-              </p>
-              <p>
-                <strong>Last Name:</strong> {selectedInfluencer.lastName}
-              </p>
-              <p>
-                <strong>Email:</strong> {selectedInfluencer.email}
-              </p>
-            </>
+            <div className="model-format">
+              <strong>First Name</strong>
+              <span>: {selectedInfluencer.firstName}</span>
+
+              <strong>Last Name</strong>
+              <span>: {selectedInfluencer.lastName}</span>
+
+              <strong>Email</strong>
+              <span>: {selectedInfluencer.email}</span>
+
+              <strong>Phone Number</strong>
+              <span>
+                :{" "}
+                {selectedInfluencer.phoneNumber
+                  ? selectedInfluencer.phoneNumber
+                  : "-"}
+              </span>
+
+              <strong>City</strong>
+              <span>
+                : {selectedInfluencer.city ? selectedInfluencer.city : "-"}
+              </span>
+
+              <strong>Country</strong>
+              <span>
+                :{" "}
+                {selectedInfluencer.country ? selectedInfluencer.country : "-"}
+              </span>
+            </div>
           )}
         </ModalBody>
+
         <ModalFooter>
           <Button color="secondary" onClick={toggleDetailsModal}>
             Close
@@ -282,6 +432,12 @@ const InfluencerManagement = (props) => {
       {/* Create Modal */}
       <Modal isOpen={isCreateModalOpen} toggle={toggleCreateModal}>
         <ModalHeader toggle={toggleCreateModal}>Add Influencer</ModalHeader>
+
+        {submissionError && (
+          <Alert color="danger" className="m-3">
+            {formatErrorMessage(submissionError)}
+          </Alert>
+        )}
         <form onSubmit={createInfluncerValidation.handleSubmit}>
           <ModalBody>
             <div className="mb-2">
@@ -292,6 +448,7 @@ const InfluencerManagement = (props) => {
                 id="firstName"
                 name="firstName"
                 type="text"
+                placeholder="Enter first name"
                 onChange={createInfluncerValidation.handleChange}
                 onBlur={createInfluncerValidation.handleBlur}
                 value={createInfluncerValidation.values.firstName}
@@ -317,6 +474,7 @@ const InfluencerManagement = (props) => {
                 id="lastName"
                 name="lastName"
                 type="text"
+                placeholder="Enter last name"
                 onChange={createInfluncerValidation.handleChange}
                 onBlur={createInfluncerValidation.handleBlur}
                 value={createInfluncerValidation.values.lastName}
@@ -342,6 +500,7 @@ const InfluencerManagement = (props) => {
                 id="email"
                 name="email"
                 type="email"
+                placeholder="Enter email address"
                 onChange={createInfluncerValidation.handleChange}
                 onBlur={createInfluncerValidation.handleBlur}
                 value={createInfluncerValidation.values.email}
@@ -359,10 +518,152 @@ const InfluencerManagement = (props) => {
                 </div>
               ) : null}
             </div>
+            <div className="mb-2">
+              <Label htmlFor="phoneNumber" className="block mb-1">
+                Phone Number:
+              </Label>
+              <Input
+                id="phoneNumber"
+                name="phoneNumber"
+                type="text"
+                placeholder="Enter phone number"
+                onChange={createInfluncerValidation.handleChange}
+                onBlur={createInfluncerValidation.handleBlur}
+                value={createInfluncerValidation.values.phoneNumber}
+                invalid={
+                  createInfluncerValidation.touched.phoneNumber &&
+                  createInfluncerValidation.errors.phoneNumber
+                    ? true
+                    : false
+                }
+              />
+              {createInfluncerValidation.touched.phoneNumber &&
+              createInfluncerValidation.errors.phoneNumber ? (
+                <div className="invalid-feedback">
+                  {createInfluncerValidation.errors.phoneNumber}
+                </div>
+              ) : null}
+            </div>
+            <div className="mb-2">
+              <Label htmlFor="city" className="block mb-1">
+                City:
+              </Label>
+              <Input
+                id="city"
+                name="city"
+                type="text"
+                placeholder="Enter city"
+                onChange={createInfluncerValidation.handleChange}
+                onBlur={createInfluncerValidation.handleBlur}
+                value={createInfluncerValidation.values.city}
+                invalid={
+                  createInfluncerValidation.touched.city &&
+                  createInfluncerValidation.errors.city
+                    ? true
+                    : false
+                }
+              />
+              {createInfluncerValidation.touched.city &&
+              createInfluncerValidation.errors.city ? (
+                <div className="invalid-feedback">
+                  {createInfluncerValidation.errors.city}
+                </div>
+              ) : null}
+            </div>
+            <div className="mb-2">
+              <Label htmlFor="country" className="block mb-1">
+                Country:
+              </Label>
+              <Input
+                id="country"
+                name="country"
+                type="text"
+                placeholder="Enter country"
+                onChange={createInfluncerValidation.handleChange}
+                onBlur={createInfluncerValidation.handleBlur}
+                value={createInfluncerValidation.values.country}
+                invalid={
+                  createInfluncerValidation.touched.country &&
+                  createInfluncerValidation.errors.country
+                    ? true
+                    : false
+                }
+              />
+              {createInfluncerValidation.touched.country &&
+              createInfluncerValidation.errors.country ? (
+                <div className="invalid-feedback">
+                  {createInfluncerValidation.errors.country}
+                </div>
+              ) : null}
+            </div>
+            <div className="mb-2">
+              <Label htmlFor="platform" className="block mb-1">
+                Platform:
+              </Label>
+              <select
+                id="platform"
+                name="platform"
+                onChange={createInfluncerValidation.handleChange}
+                onBlur={createInfluncerValidation.handleBlur}
+                value={createInfluncerValidation.values.platform}
+                className={`form-select ${
+                  createInfluncerValidation.touched.platform &&
+                  createInfluncerValidation.errors.platform
+                    ? "is-invalid"
+                    : ""
+                }`}
+              >
+                <option value="">Select a platform</option>
+                <option value="Youtube">Youtube</option>
+                <option value="Instagram">Instagram</option>
+                <option value="Tiktok">Tiktok</option>
+              </select>
+              {createInfluncerValidation.touched.platform &&
+              createInfluncerValidation.errors.platform ? (
+                <div className="invalid-feedback">
+                  {createInfluncerValidation.errors.platform}
+                </div>
+              ) : null}
+            </div>
+
+            {/* Username */}
+            <div className="mb-2">
+              <Label htmlFor="username" className="block mb-1">
+                Username:
+              </Label>
+              <Input
+                id="username"
+                name="username"
+                type="text"
+                placeholder="Enter username"
+                onChange={createInfluncerValidation.handleChange}
+                onBlur={createInfluncerValidation.handleBlur}
+                value={createInfluncerValidation.values.username}
+                invalid={
+                  createInfluncerValidation.touched.username &&
+                  createInfluncerValidation.errors.username
+                    ? true
+                    : false
+                }
+              />
+              {createInfluncerValidation.touched.username &&
+              createInfluncerValidation.errors.username ? (
+                <div className="invalid-feedback">
+                  {createInfluncerValidation.errors.username}
+                </div>
+              ) : null}
+            </div>
           </ModalBody>
           <ModalFooter>
-            <Button style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }} type="submit">
-              Save
+            <Button
+              style={{
+                backgroundColor: "var(--primary-purple)",
+                color: "var(--primary-white)",
+              }}
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Submitting..." : "Save"}
             </Button>
             <Button color="secondary" onClick={toggleCreateModal}>
               Cancel
@@ -405,7 +706,13 @@ const InfluencerManagement = (props) => {
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }} type="submit">
+            <Button
+              style={{
+                backgroundColor: "var(--primary-purple)",
+                color: "var(--primary-white)",
+              }}
+              type="submit"
+            >
               Save
             </Button>
             <Button color="secondary" onClick={toggleUpdateModal}>

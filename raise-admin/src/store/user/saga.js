@@ -38,8 +38,8 @@ function* onUpdateProfile(action) {
   }
 }
 
-function* userSaga() {
+function* UserSaga() {
   yield takeEvery(UPDATE_PROFILE_REQUEST, onUpdateProfile);
 }
 
-export default userSaga;
+export default UserSaga;

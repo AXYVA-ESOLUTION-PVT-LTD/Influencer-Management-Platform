@@ -47,8 +47,8 @@ function ResetPassword() {
   });
 
   const { resetSuccessMsg, resetError } = useSelector((state) => ({
-    resetSuccessMsg: state.resetPassword.resetSuccessMsg,
-    resetError: state.resetPassword.resetError,
+    resetSuccessMsg: state.ResetPassword.resetSuccessMsg,
+    resetError: state.ResetPassword.resetError,
   }));
 
   return (

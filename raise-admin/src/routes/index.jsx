@@ -30,12 +30,14 @@ import {
 import {
   InfluencerDashboardOverview,
   OpportunitiesListPage,
-  InfluencerPayment
+  InfluencerPayment,
+  PublicationPage
 } from "../pages/Influencer";
 import { ProfilePage } from "../pages/Profile";
 import { Notifications } from "../pages/Notification";
 import TicketManagement from "../pages/Admin/TicketManagement";
 import LoginCallback from "../pages/Authentication/LoginCallback";
+import OnBoarding from "../pages/Authentication/OnBoarding";
 
 const authProtectedRoutes = [
   {
@@ -76,33 +78,33 @@ const authProtectedRoutes = [
   {
     path: "/overview/brand",
     component: <BrandDashboardOverview />,
-    allowedRoles: [ROLES.ADMIN, ROLES.BRAND],
+    allowedRoles: [ROLES.BRAND],
   },
   {
     path: "/influencers",
     component: <InfluencerListPage />,
-    allowedRoles: [ROLES.ADMIN, ROLES.BRAND],
+    allowedRoles: [ROLES.BRAND],
   },
   {
     path: "/influencers/:id",
     component: <InfluencerDetailsPage />,
-    allowedRoles: [ROLES.ADMIN, ROLES.BRAND],
+    allowedRoles: [ROLES.BRAND],
   },
   {
     path: "/publications/brand",
     component: <PublicationsListPage />,
-    allowedRoles: [ROLES.ADMIN, ROLES.BRAND],
+    allowedRoles: [ROLES.BRAND],
   },
 
   {
     path: "/overview/influencer",
     component: <InfluencerDashboardOverview />,
-    allowedRoles: [ROLES.ADMIN, ROLES.INFLUENCER],
+    allowedRoles: [ROLES.INFLUENCER],
   },
   {
     path: "/opportunities/influencer",
     component: <OpportunitiesListPage />,
-    allowedRoles: [ROLES.ADMIN, ROLES.INFLUENCER],
+    allowedRoles: [ROLES.INFLUENCER],
   },
   {
     path: "/profile",
@@ -120,8 +122,13 @@ const authProtectedRoutes = [
     allowedRoles: [ROLES.ADMIN],
   },
   {
-    path: "/payment/influencer",
+    path: "/wallet/influencer",
     component: <InfluencerPayment />,
+    allowedRoles: [ROLES.INFLUENCER],
+  },
+  {
+    path: "/publications/influencer",
+    component: <PublicationPage />,
     allowedRoles: [ROLES.INFLUENCER],
   },
 ];
@@ -135,6 +142,7 @@ const publicRoutes = [
   { path: "/set-new-password", component: <ChangePassword /> },
   { path: "/change-password", component: <ResetPasswordForm /> },
   { path: "/register", component: <Register /> },
+  { path: "/onboarding", component: <OnBoarding /> },
   { path: "/", component: <Navigate to="/login" /> },
 ];
 

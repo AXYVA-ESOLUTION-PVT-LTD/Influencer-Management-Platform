@@ -17,7 +17,7 @@ const INIT_STATE = {
   error: {},
 };
 
-const brand = (state = INIT_STATE, action) => {
+const Brand = (state = INIT_STATE, action) => {
   switch (action.type) {
     case GET_BRAND:
       return {
@@ -86,4 +86,4 @@ const brand = (state = INIT_STATE, action) => {
   }
 };
 
-export default brand;
+export default Brand;

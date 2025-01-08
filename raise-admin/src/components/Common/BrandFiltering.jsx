@@ -66,6 +66,19 @@ function BrandFiltering({ filterFields, setFilterFields, setIsSearching }) {
             />
           </FormGroup>
         </Col>
+        <Col  xs="12" sm="6" md="2">
+          <FormGroup>
+            <Label for="companyName">Company</Label>
+            <Input
+              type="text"
+              placeholder="Enter Company Name"
+              className="form-control"
+              name="companyName"
+              value={filterFields.companyName}
+              onChange={handleFilter}
+            />
+          </FormGroup>
+        </Col>
         <Col  xs="12" sm="6"  md="2">
           <FormGroup>
             <Label for="status">Status</Label>

@@ -18,7 +18,7 @@ const INIT_STATE = {
   error: {},
 };
 
-const influencer = (state = INIT_STATE, action) => {
+const Influencer = (state = INIT_STATE, action) => {
   switch (action.type) {
     case GET_INFLUENCERS:
       return {
@@ -89,4 +89,4 @@ const influencer = (state = INIT_STATE, action) => {
   }
 };
 
-export default influencer;
+export default Influencer;

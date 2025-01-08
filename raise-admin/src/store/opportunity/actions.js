@@ -26,6 +26,9 @@ import {
   UPDATE_TICKET_ERROR,
   UPDATE_TICKET_REQUEST,
   UPDATE_TICKET_SUCCESS,
+  UPLOAD_CSV_ERROR,
+  UPLOAD_CSV_REQUEST,
+  UPLOAD_CSV_SUCCESS,
   UPLOAD_OPPORTUNITY_IMAGE_ERROR,
   UPLOAD_OPPORTUNITY_IMAGE_REQUEST,
   UPLOAD_OPPORTUNITY_IMAGE_SUCCESS,
@@ -210,3 +213,26 @@ export const deleteTicketError = (error) => ({
   type: DELETE_TICKET_ERROR,
   payload: error,
 });
+
+// CSV Upload
+export const uploadCsvRequest = (payload) => {
+  return {
+    type: UPLOAD_CSV_REQUEST,
+    payload: payload,
+  };
+};
+
+export const uploadCsvSuccess = (data) => {
+  return {
+    type: UPLOAD_CSV_SUCCESS,
+    payload: data,
+  };
+};
+
+export const uploadCsvError = (error) => {
+  return {
+    type: UPLOAD_CSV_ERROR,
+    payload: error,
+  };
+};
+

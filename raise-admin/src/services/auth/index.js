@@ -1,5 +1,5 @@
 import { del, get, post, put } from "../../helpers/api_helper";
-import { CREATE_INFLUENCER_API, CREATE_ROLE_API, DELETE_INFLUENCER_API, DELETE_ROLE_API, FORGET_PASSWORD_API, LOGIN_API, OTP_VERIFICATION_API, READ_INFLUENCERS_API, READ_ROLE_API, READ_ROLE_DETAIL_API, READ_SPECIFIC_INFLUENCER_API, RESET_PASSWORD_API, SET_NEW_PASSWORD_API, SIGNUP_API, UPDATE_INFLUENCER_API, UPDATE_ROLE_API } from "../constants";
+import { CREATE_INFLUENCER_API, CREATE_ROLE_API, DELETE_INFLUENCER_API, DELETE_ROLE_API, FORGET_PASSWORD_API, LOGIN_API, OTP_VERIFICATION_API, READ_INFLUENCERS_API, READ_ROLE_API, READ_ROLE_DETAIL_API, READ_SPECIFIC_INFLUENCER_API, RESET_PASSWORD_API, SET_NEW_PASSWORD_API, SIGNUP_API, UPDATE_INFLUENCER_API, UPDATE_ROLE_API, UPDATE_USERNAME_API } from "../constants";
 
 // const baseUrl = import.meta.env.VITE_APP_base_url;
 export const SignupApi = data => post(SIGNUP_API, data);
@@ -11,6 +11,8 @@ export const ForgetPasswordApi = data => post(FORGET_PASSWORD_API, data);
 export const OTPVerificationApi = data => post(OTP_VERIFICATION_API, data);
 
 export const SetNewPasswordApi = data => post(SET_NEW_PASSWORD_API, data);
+
+export const updateUserNameApi = (userId, username, platform) => post(UPDATE_USERNAME_API(userId),  { username, platform });
 
 export const ResetPasswordApi = (token, data) => {
     return post(
@@ -42,4 +44,7 @@ export const updateInfluencers = (data) => post(UPDATE_INFLUENCER_API(data._id),
 
 export const deleteInfluencers = (id) => get(DELETE_INFLUENCER_API(id));
 
+// API calls for Countries and Cities
+export const fetchCountriesApi = () => get("https://restcountries.com/v3.1/all");
 
+export const fetchCitiesApi = (countryCode) => get(`http://api.geonames.org/searchJSON?username=ksuhiyp&country=${countryCode}&maxRows=1000&style=SHORT`);

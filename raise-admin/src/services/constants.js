@@ -21,6 +21,8 @@ export const READ_ROLE_DETAIL_API = (id) => `/role/getRoleById/${id}`;
 
 export const UPDATE_ROLE_API = (id) => `/role/updateRoleById/${id}`;
 
+export const UPDATE_USERNAME_API = (id) => `/user/updateUserNameById/${id}`;
+
 export const DELETE_ROLE_API = (id) => `/role/deleteRoleById/${id}`;
 
 // Influencers CRUD methods

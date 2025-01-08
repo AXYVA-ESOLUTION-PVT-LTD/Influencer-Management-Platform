@@ -89,9 +89,8 @@ const CouponManagement = (props) => {
   };
 
   document.title = "Coupon Management | Brandraise ";
-  
-  
-  const { opportunitiesData ,loading ,totalRecords} = useSelector((state) => state.opportunity);
+
+  const { opportunitiesData ,loading ,totalRecords} = useSelector((state) => state.Opportunity);
 
   useEffect(() => {
     dispatch(
@@ -103,25 +102,26 @@ const CouponManagement = (props) => {
     );
   }, [dispatch, limit, pageCount ,isSearching]);
 
+  const getImageUrl = (value, basePath = import.meta.env.VITE_APP_BASE_IMAGE_URL) => {
+    return value.startsWith("http") || value.startsWith("https") ? value : `${basePath}${value}`;
+  };
+
   const columns = useMemo(
     () => [
       {
         Header: "Image",
         accessor: "opportunity.imageUrl",
-        Cell: ({ value }) => (
-          <img
-            src={`${
-              import.meta.env.VITE_APP_BASE_URL
-            }/uploads/opportunityImage/${value}`}
-            alt="Opportunity"
-            style={{
-              width: "50px",
-              height: "50px",
-              objectFit: "cover",
-              borderRadius: "5px",
-            }}
-          />
-        ),
+        Cell: ({ value }) => {
+          const imageUrl = getImageUrl(value);
+        
+          return (
+            <img
+              src={imageUrl}
+              alt="Opportunity Image"
+              className="influencer-image"
+            />
+          );
+        }
       },
       {
         Header: "Brand",
@@ -147,14 +147,10 @@ const CouponManagement = (props) => {
         Cell: ({ row }) => (
           <>
             <Button
-              onClick={() => handleEdit(row.original)}
+              color="link"
               size="lg"
-              style={{
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-                color: "var(--primary-purple)",
-              }}
+              className="p-0 me-2"
+              onClick={() => handleEdit(row.original)}
             >
               <i
                 className="bx bx-edit"
@@ -184,7 +180,7 @@ const CouponManagement = (props) => {
       <div className="page-content">
         <Container fluid>
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h4 className="font-size-18" style={{ textTransform: "uppercase" }}>
+            <h4 className="font-size-18 text-uppercase">
               Manage Coupons
             </h4>
           </div>
@@ -194,7 +190,7 @@ const CouponManagement = (props) => {
             setIsSearching={setIsSearching}
           />
           {loading ? (
-            <div className="text-center" style={{ marginTop: 50 }}>
+            <div className="text-center space-top">
               <Spinner style={{ color: "var(--primary-purple)" }} />
             </div>
           ) : (
@@ -221,7 +217,7 @@ const CouponManagement = (props) => {
                   />
                 </>
               ) : (
-                <h1 className="text-center" style={{ marginTop: 50 }}>
+                <h1 className="text-center space-top" >
                   No Coupon Ticket Found
                 </h1>
               )}
@@ -240,7 +236,7 @@ const CouponManagement = (props) => {
             <>
               <div className="mb-3 text-left">
                 <img
-                  src={`${import.meta.env.VITE_APP_BASE_URL}/uploads/opportunityImage/${selectedOpportunity.opportunity.imageUrl}`}
+                  src={getImageUrl(selectedOpportunity.opportunity.imageUrl)}
                   alt="Opportunity"
                   className="coupon-image"
                 />
@@ -275,9 +271,7 @@ const CouponManagement = (props) => {
       <Modal isOpen={isDeleteModalOpen} toggle={toggleDeleteModal}>
         <ModalHeader toggle={toggleDeleteModal}>Delete Coupon</ModalHeader>
         <ModalBody>
-          Are you sure you want to delete the coupon{" "}
-          {/* <strong>{selectedCoupon ? selectedCoupon.couponCode : ""}</strong> */}
-          ?
+          Are you sure you want to delete the coupon ?
         </ModalBody>
         <ModalFooter>
           <Button
@@ -285,7 +279,7 @@ const CouponManagement = (props) => {
               backgroundColor: "var(--secondary-red)",
               color: "var(--primary-white)",
             }}
-            onClick={confirmDeleteCoupon} // Trigger coupon deletion
+            onClick={confirmDeleteCoupon} 
           >
             Delete
           </Button>

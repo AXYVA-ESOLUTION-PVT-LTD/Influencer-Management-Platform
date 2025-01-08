@@ -1,6 +1,4 @@
 export * from "./layout/actions";
-
-// Authentication module
 export * from "./auth/register/actions";
 export * from "./auth/login/actions";
 export * from "./auth/forgetpwd/actions";
@@ -12,3 +10,6 @@ export * from "./influencers/actions";
 export * from "./brand/actions";
 export * from "./notification/actions";
 export * from "./chats/actions";
+export * from "./dashboard/actions";
+export * from "./publication/actions";
+export * from "./payment/actions";

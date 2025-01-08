@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  Badge,
   Button,
   Container,
   FormGroup,
@@ -10,169 +10,240 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
-  Spinner,
+  Spinner
 } from "reactstrap";
-import Breadcrumb from "../../components/Common/Breadcrumb";
 import TableContainer from "../../components/Common/TableContainer";
-import ROLES from "../../constants/role";
-import { staticPayments } from "../../data/PaymentData";
+import Pagination from "../../components/Common/Pagination";
+import { getWallet, updateWallet } from "../../store/payment/actions";
 import "../../assets/themes/colors.scss";
 
 const PaymentPage = () => {
-  document.title = "Payments | Brandraise";
+  document.title = "Wallet | Brandraise";
 
-  const [role, setRole] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [selectedPayment, setSelectedPayment] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [status, setStatus] = useState("");
-
-  const toggleModal = () => setModalOpen(!modalOpen);
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-      2,
-      "0"
-    )}-${String(date.getDate()).padStart(2, "0")}`;
-  };
-  const columns = (role) =>
-    [
-      {
-        Header: "Name",
-        accessor: "name",
-      },
-      {
-        Header: "Email",
-        accessor: "email",
-      },
-      {
-        Header: "Commission",
-        accessor: "commission",
-      },
-      {
-        Header: "Deduction",
-        accessor: "deduction",
-      },
-      {
-        Header: "Status",
-        accessor: "status",
-        Cell: ({ value }) => (
-          <span
-            className={`status-badge ${
-              value === "Completed"
-                ? "status-badge-completed"
-                : "status-badge-pending"
-            }`}
-          >
-            {value}
-          </span>
-        ),
-      },
-      //   {
-      //     Header: "Created At",
-      //     accessor: "createdAt",
-      //     Cell: ({ value }) => formatDate(value),
-      //   },
-      role === ROLES.ADMIN && {
-        Header: "Actions",
-        accessor: "actions",
-        Cell: ({ row: { original } }) => (
-          <>
-            <Button color="link" size="lg" onClick={() => handleEdit(original)}>
-              <i
-                className="bx bx-edit"
-                style={{ color: "var(--secondary-yellow)" }}
-              ></i>
-            </Button>
-          </>
-        ),
-      },
-    ].filter(Boolean);
-
-  const handleEdit = (payment) => {
-    setSelectedPayment(payment);
-    setStatus(payment.status);
-    toggleModal();
+  const [selectedWallet, setSelectedWallet] = useState(null);
+  const [limit, setLimit] = useState(10);
+  const [pageCount, setPageCount] = useState(0);
+  const [sortBy, setSortBy] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    amount: 0,
+    transactionType: "deposit",
+  });
+  const [errors, setErrors] = useState({});
+  
+  const toggleAmountModal = () => {
+    setIsUpdateModalOpen(!isUpdateModalOpen);
+    if (isUpdateModalOpen) {
+      setErrors({}); 
+    }
   };
 
-  const handleStatusChange = (e) => {
-    setStatus(e.target.value);
+  const dispatch = useDispatch();
+
+  const { wallets, loading, error, totalWallets } = useSelector(
+    (state) => state.Payment
+  );
+  
+  const toggleUpdateModal = () => {
+    setIsUpdateModalOpen(!isUpdateModalOpen);
   };
 
-  const handleSave = () => {
-    const updatedPayments = staticPayments.map((payment) =>
-      payment.id === selectedPayment.id ? { ...payment, status } : payment
+  const handleUpdateWallet = (wallet) => {
+    setFormData({
+      amount: 0,
+      transactionType: "deposit",
+    });
+    setSelectedWallet(wallet);
+    toggleUpdateModal();
+  };
+
+  const columns = useMemo(
+      () => [
+        {
+          Header: "Name",
+          accessor: "influencerId.username",
+        },
+        {
+          Header: "Email",
+          accessor: "influencerId.email",
+        },
+        {
+          Header: "Balance",
+          accessor: "balance",
+          Cell: ({ value }) => value.toFixed(2),
+        },
+        {
+          Header: "Actions",
+          accessor: "actions",
+          Cell: ({ row: { original } }) => (
+            <>
+              <Button
+                color="link"
+                size="lg"
+                className="p-0 me-2"
+                onClick={() => handleUpdateWallet(original)}
+              >
+                <i className="bx bx-edit" style={{ color:"var(--secondary-yellow)" }}></i>
+              </Button>
+            </>
+          ),
+        },
+      ],
+      [handleUpdateWallet]
     );
-    toggleModal();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleTransactionTypeChange = (e) => {
+    setFormData({ ...formData, transactionType: e.target.value });
+  };
+
+  const handleSubmit = () => {
+    const validationErrors = {};
+    if (!formData.amount || formData.amount < 0) {
+      validationErrors.amount = "Please enter a valid amount.";
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setErrors({});
+
+    dispatch(
+      updateWallet({
+        id: selectedWallet._id,
+        payload: {
+          influencerId: selectedWallet.influencerId._id, 
+          balance: formData.amount,
+          transactionType: formData.transactionType
+        },
+      })
+    );
+    toggleAmountModal();
   };
 
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("user"));
-    setRole(data?.roleId?.name || "User");
-  }, []);
+    dispatch(
+      getWallet({
+        limit,
+        pageCount,
+        sortBy,
+        sortOrder
+      })
+    );
+  }, [dispatch, limit, pageCount, sortBy, sortOrder]);
 
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          {/* <Breadcrumb title="Payments" breadcrumbItem="Payment Management" /> */}
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h4 className="font-size-18" style={{ textTransform: "uppercase" }}>
-            Payments
+            <h4 className="font-size-18 text-uppercase">
+              Wallet
             </h4>
           </div>
           {loading ? (
-            <div className="text-center" style={{ marginTop: 50 }}>
+            <div className="text-center space-top">
               <Spinner color="primary" />
             </div>
           ) : (
-            <TableContainer
-              columns={columns(role)}
-              data={staticPayments}
-              isGlobalFilter={true}
-              isAddOptions={false}
-              customPageSize={10}
-              className="custom-header-css"
-              isPagination={true}
-            />
+            <>
+              <TableContainer
+                columns={columns}
+                data={wallets}
+                isGlobalFilter={false}
+                isAddOptions={false}
+                customPageSize={10}
+                className="custom-header-css"
+                isPagination={false}
+                setSortBy={setSortBy}
+                sortBy={sortBy}
+                setSortOrder={setSortOrder}
+                sortOrder={sortOrder}
+              />
+              <Pagination
+                totalData={totalWallets}
+                setLimit={setLimit}
+                setPageCount={setPageCount}
+                limit={limit}
+                pageCount={pageCount}
+                currentPage={pageCount}
+              />
+            </>
           )}
         </Container>
       </div>
 
-      <Modal isOpen={modalOpen} toggle={toggleModal}>
-        <ModalHeader toggle={toggleModal}>Edit Payment Status</ModalHeader>
-        <ModalBody>
+      <Modal isOpen={isUpdateModalOpen} toggle={toggleUpdateModal}>
+        <ModalHeader toggle={toggleUpdateModal}>Update Wallet</ModalHeader>
+          <ModalBody>
           <FormGroup>
-            <Label for="paymentStatus">Status</Label>
+            <Label for="amount">Amount</Label>
             <Input
-              type="select"
-              name="status"
-              id="paymentStatus"
-              value={status}
-              onChange={handleStatusChange}
-            >
-              <option value="Pending">Pending</option>
-              <option value="Completed">Completed</option>
-              <option value="Failed">Failed</option>
-            </Input>
+              id="amount"
+              name="amount"
+              type="number"
+              min="0"
+              placeholder="Enter amount"
+              value={formData.amount}
+              onChange={handleChange}
+            />
+            {errors.amount && <p className="text-danger">{errors.amount}</p>}
           </FormGroup>
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            className="border-none"
-            style={{
-              backgroundColor: "var(--primary-purple)",
-              color: "var(--primary-white)",
-            }}
-            onClick={handleSave}
-          >
-            Save
-          </Button>
-          <Button color="secondary" onClick={toggleModal}>
-            Cancel
-          </Button>
-        </ModalFooter>
+
+          <FormGroup tag="fieldset" className="transaction-type-fieldset">
+            <Label for="type">Transaction Type</Label>
+            <div className="radio-container">
+              <FormGroup check>
+                <Label check className="radio-option">
+                  <Input
+                    type="radio"
+                    name="transactionType"
+                    value="withdraw"
+                    checked={formData.transactionType === "withdraw"}
+                    onChange={handleTransactionTypeChange}
+                  />
+                  Withdraw
+                </Label>
+              </FormGroup>
+              <FormGroup check>
+                <Label check className="radio-option">
+                  <Input
+                    type="radio"
+                    name="transactionType"
+                    value="deposit"
+                    checked={formData.transactionType === "deposit"}
+                    onChange={handleTransactionTypeChange}
+                  />
+                  Deposit
+                </Label>
+              </FormGroup>
+            </div>
+          </FormGroup>
+
+          </ModalBody>
+        
+          <ModalFooter>
+            <Button color="secondary" onClick={toggleAmountModal}>
+              Cancel
+            </Button>
+            <Button
+              className="border-none"
+              style={{
+                backgroundColor: "var(--primary-purple)",
+                color: "var(--primary-white)",
+              }}
+              onClick={handleSubmit}
+            >
+              Submit
+            </Button>
+          </ModalFooter>
       </Modal>
     </React.Fragment>
   );

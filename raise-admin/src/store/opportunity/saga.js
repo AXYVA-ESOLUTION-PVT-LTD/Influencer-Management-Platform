@@ -9,6 +9,7 @@ import {
   removeOpportunityImageUrl,
   updateOpportunityUrl,
   updateTicketUrl,
+  uploadCsvUrl,
   uploadOpportunityImageUrl,
 } from "../../services/opportunity/index";
 import { addRoleFail } from "../actions";
@@ -31,6 +32,8 @@ import {
   updateOpportunitySuccess,
   updateTicketError,
   updateTicketSuccess,
+  uploadCsvError,
+  uploadCsvSuccess,
   uploadOpportunityImageError,
   uploadOpportunityImageSuccess,
 } from "./actions";
@@ -44,6 +47,7 @@ import {
   REMOVE_OPPORTUNITY_IMAGE_REQUEST,
   UPDATE_OPPORTUNITY_REQUEST,
   UPDATE_TICKET_REQUEST,
+  UPLOAD_CSV_REQUEST,
   UPLOAD_OPPORTUNITY_IMAGE_REQUEST,
 } from "./actionTypes";
 import { toast } from "react-toastify";
@@ -52,14 +56,21 @@ import STATUS from "../../constants/status";
 function* fetchOpportunity(action) {
   try {
     const token = localStorage.getItem("authUser");
-    const response = yield call(readOpportunityUrl, token, action.payload);  // TODO: Error handling
+    const response = yield call(readOpportunityUrl, token, action.payload); // TODO: Error handling
     if (response?.status === STATUS.SUCCESS) {
       yield put(getOpportunitySuccess(response?.result?.data));
     } else {
-      throw new Error(response?.result?.error || 'Failed to fetch opportunity. Please try again later.');
+      throw new Error(
+        response?.result?.error ||
+          "Failed to fetch opportunity. Please try again later."
+      );
     }
   } catch (error) {
-    yield put(getOpportunityError(error.message || 'Failed to fetch opportunity. Please try again later.'));
+    yield put(
+      getOpportunityError(
+        error.message || "Failed to fetch opportunity. Please try again later."
+      )
+    );
   }
 }
 
@@ -71,20 +82,27 @@ function* onAddOpportunity(action) {
 
     if (response?.status === STATUS.SUCCESS) {
       toast.update(id, {
-        render: response?.result?.message || 'Opportunity added successfully',
+        render: response?.result?.message || "Opportunity added successfully",
         type: "success",
         isLoading: false,
         autoClose: true,
       });
       yield put(createOpportunitySuccess(response?.result?.data));
-      yield put(getOpportunity()); 
+      yield put(getOpportunity());
     } else {
-      throw new Error(response?.result?.error || 'Failed to add opportunity. Please try again later.');
+      throw new Error(
+        response?.result?.error ||
+          "Failed to add opportunity. Please try again later."
+      );
     }
   } catch (error) {
-    yield put(addRoleFail(error.message || 'Failed to add opportunity. Please try again later.'));
+    yield put(
+      addRoleFail(
+        error.message || "Failed to add opportunity. Please try again later."
+      )
+    );
     toast.update(id, {
-      render: error.message || 'Failed to add opportunity',
+      render: error.message || "Failed to add opportunity",
       type: "error",
       isLoading: false,
       autoClose: true,
@@ -100,20 +118,27 @@ function* onDeleteOpportunity(action) {
 
     if (response?.status === STATUS.SUCCESS) {
       toast.update(id, {
-        render: response?.result?.message || 'Opportunity deleted successfully',
+        render: response?.result?.message || "Opportunity deleted successfully",
         type: "success",
         isLoading: false,
         autoClose: true,
       });
       yield put(deleteOpportunitySuccess(response?.result?.data));
-      yield put(getOpportunity()); 
+      yield put(getOpportunity());
     } else {
-      throw new Error(response?.result?.error || 'Failed to delete opportunity. Please try again later.');
+      throw new Error(
+        response?.result?.error ||
+          "Failed to delete opportunity. Please try again later."
+      );
     }
   } catch (error) {
-    yield put(deleteOpportunityError(error.message || 'Failed to delete opportunity. Please try again later.'));
+    yield put(
+      deleteOpportunityError(
+        error.message || "Failed to delete opportunity. Please try again later."
+      )
+    );
     toast.update(id, {
-      render: error.message || 'Failed to delete opportunity',
+      render: error.message || "Failed to delete opportunity",
       type: "error",
       isLoading: false,
       autoClose: true,
@@ -130,7 +155,7 @@ function* onUpdateOpportunity(action) {
 
     if (response?.status === STATUS.SUCCESS) {
       toast.update(toastId, {
-        render: response?.result?.message || 'Opportunity updated successfully',
+        render: response?.result?.message || "Opportunity updated successfully",
         type: "success",
         isLoading: false,
         autoClose: true,
@@ -138,12 +163,19 @@ function* onUpdateOpportunity(action) {
       yield put(updateOpportunitySuccess(response?.result?.data));
       yield put(getOpportunity()); // Refresh opportunities list
     } else {
-      throw new Error(response?.result?.error || 'Failed to update opportunity. Please try again later.');
+      throw new Error(
+        response?.result?.error ||
+          "Failed to update opportunity. Please try again later."
+      );
     }
   } catch (error) {
-    yield put(updateOpportunityError(error.message || 'Failed to update opportunity. Please try again later.'));
+    yield put(
+      updateOpportunityError(
+        error.message || "Failed to update opportunity. Please try again later."
+      )
+    );
     toast.update(toastId, {
-      render: error.message || 'Failed to update opportunity',
+      render: error.message || "Failed to update opportunity",
       type: "error",
       isLoading: false,
       autoClose: true,
@@ -157,7 +189,7 @@ function* onUploadOpportunityImage(action) {
     const token = localStorage.getItem("authUser");
     const formData = new FormData();
     formData.append("file", action.payload);
-    
+
     const response = yield call(uploadOpportunityImageUrl, token, formData);
 
     if (response?.status === STATUS.SUCCESS) {
@@ -187,7 +219,11 @@ function* onRemoveOpportunityImage(action) {
   const toastId = toast.loading("Removing image...");
   try {
     const token = localStorage.getItem("authUser");
-    const response = yield call(removeOpportunityImageUrl, token, action.payload);
+    const response = yield call(
+      removeOpportunityImageUrl,
+      token,
+      action.payload
+    );
 
     if (response?.status === STATUS.SUCCESS) {
       toast.update(toastId, {
@@ -212,10 +248,15 @@ function* onRemoveOpportunityImage(action) {
 }
 
 function* onFetchTickets(action) {
-  const { influencerId, limit, pageCount, brand, title ,influencerName } = action.payload;
+  const { influencerId, limit, pageCount, brand, title, influencerName } =
+    action.payload;
   const token = localStorage.getItem("authUser");
   try {
-    const response = yield call(fetchTicketsUrl, { influencerId, limit, pageCount, brand, title ,influencerName }, token);
+    const response = yield call(
+      fetchTicketsUrl,
+      { influencerId, limit, pageCount, brand, title, influencerName },
+      token
+    );
     if (response?.status === STATUS.SUCCESS) {
       yield put(fetchTicketsSuccess(response?.result));
     }
@@ -228,7 +269,11 @@ function* onCreateTicket(action) {
   const { influencerId, opportunityId, description } = action.payload;
   const token = localStorage.getItem("authUser");
   try {
-    const response = yield call(createTicketUrl, { influencerId, opportunityId, description }, token);
+    const response = yield call(
+      createTicketUrl,
+      { influencerId, opportunityId, description },
+      token
+    );
     yield put(createTicketSuccess(response.data.result));
   } catch (error) {
     yield put(createTicketError(error.message || "Failed to create ticket"));
@@ -236,28 +281,72 @@ function* onCreateTicket(action) {
 }
 
 function* onUpdateTicket(action) {
-  const { influencerId, opportunityId, couponCode ,id } = action.payload;
+  const { influencerId, opportunityId, couponCode, id } = action.payload;
   const token = localStorage.getItem("authUser");
   try {
-    const response = yield call(updateTicketUrl, { influencerId, opportunityId, couponCode ,id }, token);
+    const response = yield call(
+      updateTicketUrl,
+      { influencerId, opportunityId, couponCode, id },
+      token
+    );
     yield put(updateTicketSuccess(response.data));
   } catch (error) {
-    yield put(updateTicketError(error.response?.data || "Failed to update ticket"));
+    yield put(
+      updateTicketError(error.response?.data || "Failed to update ticket")
+    );
   }
 }
 
 function* onDeleteTicket(action) {
-  const { ticketId } = action.payload; 
-  const token = localStorage.getItem("authUser"); 
+  const { ticketId } = action.payload;
+  const token = localStorage.getItem("authUser");
   try {
-    yield call(deleteTicketUrl, ticketId, token); 
+    yield call(deleteTicketUrl, ticketId, token);
     yield put(deleteTicketSuccess({ id: ticketId }));
   } catch (error) {
-    yield put(deleteTicketError(error.response?.data || "Failed to delete ticket")); // Dispatch error action
+    yield put(
+      deleteTicketError(error.response?.data || "Failed to delete ticket")
+    ); // Dispatch error action
   }
 }
 
-function* opportunitySaga() {
+function* onUploadCsv(action) {
+  const file = action.payload.file;
+  const toastId = toast.loading("CSV Uploading...");
+  if (!file) {
+    console.error("No file selected.");
+    return;
+  }
+
+  try {
+   const formData = new FormData();
+   formData.append("file", file);
+
+   const token = localStorage.getItem("authUser");
+   
+   const response = yield call(uploadCsvUrl, formData, token);
+    toast.update(toastId, {
+      render: "CSV uploaded successfully",
+      type: "success",
+      isLoading: false,
+      autoClose: true,
+    });
+    yield put(uploadCsvSuccess(response.data));
+    yield put(getOpportunity());
+  } catch (error) {
+    console.log("error", error);
+    yield put(uploadCsvError(error.message || "Failed to upload CSV"));
+    toast.update(toastId, {
+      render: 'Failed to upload CSV',
+      type: "error",
+      isLoading: false,
+      autoClose: true,
+    });
+  }
+}
+
+
+function* OpportunitySaga() {
   yield takeEvery(GET_OPPORTUNITY_REQUEST, fetchOpportunity);
   yield takeEvery(CREATE_OPPORTUNITY_REQUEST, onAddOpportunity);
   yield takeEvery(DELETE_OPPORTUNITY_REQUEST, onDeleteOpportunity);
@@ -268,6 +357,7 @@ function* opportunitySaga() {
   yield takeEvery(CREATE_TICKET_REQUEST, onCreateTicket);
   yield takeEvery(UPDATE_TICKET_REQUEST, onUpdateTicket);
   yield takeEvery(DELETE_TICKET_REQUEST, onDeleteTicket);
+  yield takeEvery(UPLOAD_CSV_REQUEST, onUploadCsv);
 }
 
-export default opportunitySaga;
+export default OpportunitySaga;

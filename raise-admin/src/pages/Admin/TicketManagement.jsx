@@ -11,7 +11,12 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
+  Nav,
+  NavItem,
+  NavLink,
   Spinner,
+  TabContent,
+  TabPane,
 } from "reactstrap";
 import Breadcrumb from "../../components/Common/Breadcrumb";
 import Pagination from "../../components/Common/Pagination";
@@ -19,17 +24,28 @@ import TableContainer from "../../components/Common/TableContainer";
 import Chat from "../../components/Notification/Chat";
 import ROLES from "../../constants/role";
 import {
-  createTicketNotification, getTicketNotification,
-  updateTicketNotification
+  createTicketNotification,
+  getTicketNotification,
+  updateTicketNotification,
 } from "../../store/notification/actions";
-import '../../assets/themes/colors.scss';
+import "../../assets/themes/colors.scss";
 import TicketFiltering from "../../components/Common/TicketFiltering";
+import classnames from "classnames";
+import { getTransaction, updateTransaction } from "../../store/actions";
+
 const TicketManagement = () => {
   document.title = "Tickets | Brandraise";
   const dispatch = useDispatch();
   const { notifications, error, loading, totalNotifications } = useSelector(
-    (state) => state.notification
+    (state) => state.Notification
   );
+  const {
+    transaction,
+    loading: transactionLoading,
+    walletAmount,
+    totalTransactions,
+  } = useSelector((state) => state.Payment);
+
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(0);
 
@@ -41,6 +57,18 @@ const TicketManagement = () => {
   const [role, setRole] = useState("");
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [newLimit, setNewLimit] = useState(10);
+  const [newPageCount, setNewPageCount] = useState(0);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [isTransactionChatOpen, setIsTransactionChatOpen] = useState(false);
+  const [editTransactionModal, setEditTransactionModal] = useState(false);
+  const [currentTransaction, setCurrentTransaction] = useState(null);
+  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({
+    transactionId: false,
+    status: false,
+  });
+
   const [newTicket, setNewTicket] = useState({
     title: "",
     description: "",
@@ -56,6 +84,11 @@ const TicketManagement = () => {
     title: "",
     description: "",
   });
+  const [activeTab, setActiveTab] = useState("1");
+
+  const toggle = (tab) => {
+    if (activeTab !== tab) setActiveTab(tab);
+  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -130,11 +163,13 @@ const TicketManagement = () => {
       Header: "Status",
       accessor: "status",
       Cell: ({ value }) => (
-        <span 
-        className={`ticket-badge ticket-badge-${value}`}
-      >
-        {value}
-      </span>
+        <span
+          className={`ticket-badge ticket-badge-${value
+            .replace(" ", "-")
+            .toLowerCase()}`}
+        >
+          {value}
+        </span>
       ),
     },
     {
@@ -150,7 +185,10 @@ const TicketManagement = () => {
                 className="p-0 me-2"
                 onClick={() => handleViewTicket(original)}
               >
-                <i className="bx bx-show" style={{ color: "var(--secondary-blue)" }}></i>
+                <i
+                  className="bx bx-show"
+                  style={{ color: "var(--secondary-blue)" }}
+                ></i>
               </Button>
               <Button
                 color="link"
@@ -158,7 +196,10 @@ const TicketManagement = () => {
                 className="p-0 me-2"
                 onClick={() => handleEditTicket(original)}
               >
-                <i className="bx bx-edit" style={{ color:"var(--secondary-yellow)" }}></i>
+                <i
+                  className="bx bx-edit"
+                  style={{ color: "var(--secondary-yellow)" }}
+                ></i>
               </Button>
               {/* <Button
                 color="link"
@@ -174,7 +215,10 @@ const TicketManagement = () => {
                 className="p-0"
                 onClick={() => handleOpenChat(original)}
               >
-                <i className="bx bx-message" style={{ color: "var(--primary-purple)" }}></i>
+                <i
+                  className="bx bx-message"
+                  style={{ color: "var(--primary-purple)" }}
+                ></i>
               </Button>
             </>
           )}
@@ -186,7 +230,10 @@ const TicketManagement = () => {
                 className="p-0 me-2"
                 onClick={() => handleViewTicket(original)}
               >
-                <i className="bx bx-show" style={{ color: "blue" }}></i>
+                <i
+                  className="bx bx-show"
+                  style={{ color: "var(--primary-purple)" }}
+                ></i>
               </Button>
               <Button
                 color="link"
@@ -194,7 +241,10 @@ const TicketManagement = () => {
                 className="p-0"
                 onClick={() => handleOpenChat(original)}
               >
-                <i className="bx bx-message" style={{ color: "blue" }}></i>
+                <i
+                  className="bx bx-message"
+                  style={{ color: "var(--primary-purple)" }}
+                ></i>
               </Button>
             </>
           ) : null}
@@ -249,53 +299,238 @@ const TicketManagement = () => {
   };
 
   useEffect(() => {
-    dispatch(getTicketNotification({ limit, pageCount ,...filterFields }));
-  }, [dispatch, limit, pageCount ,isSearching]);
+    if (activeTab === "1") {
+      dispatch(getTicketNotification({ limit, pageCount, ...filterFields }));
+    }
+  }, [dispatch, limit, pageCount, isSearching, activeTab]);
+
+  const handleTransactionOpenChat = (transaction) => {
+    setSelectedTransaction(transaction);
+    setIsTransactionChatOpen(true);
+  };
+
+  const handleTransactionCloseChat = () => setIsTransactionChatOpen(false);
+
+  const Transactioncolumns = () =>
+    [
+      {
+        Header: "Transaction ID",
+        accessor: (row) => row.transactionId || "-",
+      },
+      {
+        Header: "Name",
+        accessor: "influencerId.firstName",
+        Cell: ({ value, row }) =>
+          `${value} ${row.original.influencerId.lastName}`,
+      },
+      {
+        Header: "Username",
+        accessor: "influencerId.username",
+      },
+      {
+        Header: "Amount",
+        accessor: "amount",
+        Cell: ({ value }) => value.toFixed(2),
+      },
+      {
+        Header: "Status",
+        accessor: "status",
+        Cell: ({ value }) => (
+          <span
+            className={`ticket-badge ${
+              value === "Pending"
+                ? "ticket-badge-pending"
+                : value === "Approved"
+                ? "ticket-badge-approved"
+                : "ticket-badge-declined"
+            }`}
+          >
+            {value}
+          </span>
+        ),
+      },
+      {
+        Header: "Actions",
+        accessor: "actions",
+        Cell: ({ row: { original } }) => {
+          const isApproved = original.status == "Approved";
+          return (
+            <>
+              <Button
+                color="link"
+                size="lg"
+                className="p-0 me-2"
+                onClick={() => handleEditTransaction(original)}
+                disabled={isApproved}
+              >
+                <i
+                  className="bx bx-edit"
+                  style={{ color: "var(--secondary-yellow)" }}
+                ></i>
+              </Button>
+              <Button
+                color="link"
+                size="lg"
+                className="p-0"
+                onClick={() => handleTransactionOpenChat(original)}
+                disabled={isApproved}
+              >
+                <i
+                  className="bx bx-message"
+                  style={{ color: "var(--primary-purple)" }}
+                ></i>
+              </Button>
+            </>
+          );
+        },
+      },
+    ].filter(Boolean);
+
+  const handleEditTransaction = (transaction) => {
+    setCurrentTransaction(transaction);
+    setEditTransactionModal(true);
+  };
+
+  const handleTransactionSaveEdit = () => {
+    const payload = {
+      id: currentTransaction._id,
+      transactionId: currentTransaction.transactionId,
+      status: currentTransaction.status,
+    };
+    // Update transaction
+    dispatch(updateTransaction(payload));
+    // get Transaction
+    dispatch(
+      getTransaction({
+        limit: newLimit,
+        pageCount: newPageCount,
+      })
+    );
+
+    setIsFormSubmitted(false);
+    setValidationErrors({ transactionId: false, status: false });
+    handleCloseEditTransactionModal();
+  };
+
+  const handleCloseEditTransactionModal = () => setEditTransactionModal(false);
+
+  useEffect(() => {
+    if (activeTab === "2") {
+      dispatch(
+        getTransaction({
+          limit: newLimit,
+          pageCount: newPageCount,
+        })
+      );
+    }
+  }, [dispatch, newLimit, newPageCount, activeTab]);
 
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumb title="Ticket Management" breadcrumbItem="Ticket Management" />
-          <TicketFiltering
-            setFilterFields={setFilterFields}
-            filterFields={filterFields}
-            setIsSearching={setIsSearching}
+          <Breadcrumb
+            title="Ticket Management"
+            breadcrumbItem="Ticket Management"
           />
-          {loading ? (
-            <div className="text-center" style={{ marginTop: 50 }}>
-              <Spinner color="primary" />
-            </div>
-          ) : (
-            <>
-              {/* notifications Table */}
-              {notifications.length ? (
-                <>
-                  <TableContainer
-                    columns={columns}
-                    data={notifications}
-                    isGlobalFilter={true}
-                    isAddOptions={false}
-                    customPageSize={10}
-                    className="custom-header-css"
-                    isPagination={false}
-                  />
-                  <Pagination
-                    totalData={totalNotifications}
-                    limit={limit}
-                    pageCount={pageCount}
-                    setLimit={setLimit}
-                    setPageCount={setPageCount}
-                    currentPage={pageCount}
-                  />
-                </>
+          <Nav tabs>
+            <NavItem>
+              <NavLink
+                className={classnames({ active: activeTab === "1" })}
+                onClick={() => {
+                  toggle("1");
+                }}
+              >
+                Ticket Management
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                className={classnames({ active: activeTab === "2" })}
+                onClick={() => {
+                  toggle("2");
+                }}
+              >
+                Transaction Management
+              </NavLink>
+            </NavItem>
+          </Nav>
+          <TabContent activeTab={activeTab}>
+            <TabPane tabId="1" className="mt-3">
+              <TicketFiltering
+                setFilterFields={setFilterFields}
+                filterFields={filterFields}
+                setIsSearching={setIsSearching}
+              />
+              {loading ? (
+                <div className="text-center space-top">
+                  <Spinner color="primary" />
+                </div>
               ) : (
-                <h1 className="text-center" style={{ marginTop: 50 }}>
-                  No Ticket Found
-                </h1>
+                <>
+                  {/* notifications Table */}
+                  {notifications.length ? (
+                    <>
+                      <TableContainer
+                        columns={columns}
+                        data={notifications}
+                        isGlobalFilter={true}
+                        isAddOptions={false}
+                        customPageSize={10}
+                        className="custom-header-css"
+                        isPagination={false}
+                      />
+                      <Pagination
+                        totalData={totalNotifications}
+                        limit={limit}
+                        pageCount={pageCount}
+                        setLimit={setLimit}
+                        setPageCount={setPageCount}
+                        currentPage={pageCount}
+                      />
+                    </>
+                  ) : (
+                    <h1 className="text-center space-top">No Ticket Found</h1>
+                  )}
+                </>
               )}
-            </>
-          )}
+            </TabPane>
+            <TabPane tabId="2" className="mt-3">
+              {transactionLoading ? (
+                <div className="text-center space-top mt-4">
+                  <Spinner color="primary" />
+                </div>
+              ) : (
+                <>
+                  {transaction.length ? (
+                    <>
+                      <TableContainer
+                        columns={Transactioncolumns()}
+                        data={transaction}
+                        isGlobalFilter={true}
+                        isAddOptions={false}
+                        customPageSize={10}
+                        className="custom-header-css"
+                        isPagination={false}
+                      />
+                      <Pagination
+                        totalData={totalTransactions}
+                        setLimit={setNewLimit}
+                        setPageCount={setNewPageCount}
+                        limit={newLimit}
+                        pageCount={newPageCount}
+                        currentPage={newPageCount}
+                      />
+                    </>
+                  ) : (
+                    <h1 className="text-center space-top">
+                      No Transaction Found
+                    </h1>
+                  )}
+                </>
+              )}
+            </TabPane>
+          </TabContent>
         </Container>
       </div>
 
@@ -303,15 +538,16 @@ const TicketManagement = () => {
       <Modal isOpen={viewModal} toggle={handleCloseViewModal}>
         <ModalHeader toggle={handleCloseViewModal}>View Ticket</ModalHeader>
         <ModalBody>
-          <p>
-            <strong>Time:</strong> {currentTicket?.createdAt}
-          </p>
-          <p>
-            <strong>Title:</strong> {currentTicket?.title}
-          </p>
-          <p>
-            <strong>Description:</strong> {currentTicket?.description}
-          </p>
+          <div className="model-format">
+            <strong>Time</strong>
+            <span>: {currentTicket?.createdAt}</span>
+
+            <strong>Title</strong>
+            <span>: {currentTicket?.title}</span>
+
+            <strong>Description</strong>
+            <span>: {currentTicket?.description}</span>
+          </div>
         </ModalBody>
         <ModalFooter>
           <Button color="secondary" onClick={handleCloseViewModal}>
@@ -335,15 +571,21 @@ const TicketManagement = () => {
                   setCurrentTicket({ ...currentTicket, status: e.target.value })
                 }
               >
-                <option value="pending">Pending</option>
-                <option value="read">Read</option>
-                <option value="completed">Completed</option>
+                <option value="On Hold">On Hold</option>
+                <option value="Approved">Approved</option>
+                <option value="Declined">Declined</option>
               </Input>
             </FormGroup>
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }} onClick={handleSaveEdit}>
+          <Button
+            style={{
+              backgroundColor: "var(--primary-purple)",
+              color: "var(--primary-white)",
+            }}
+            onClick={handleSaveEdit}
+          >
             Save
           </Button>
           <Button color="secondary" onClick={handleCloseEditModal}>
@@ -413,7 +655,102 @@ const TicketManagement = () => {
         </ModalFooter>
       </Modal>
 
-      {isChatOpen && <Chat ticket={selectedTicket} onClose={handleCloseChat} />}
+      {isChatOpen && (
+        <Chat type="Ticket" ticket={selectedTicket} onClose={handleCloseChat} />
+      )}
+
+      {isTransactionChatOpen && (
+        <Chat
+          type="Transaction"
+          ticket={selectedTransaction}
+          onClose={handleTransactionCloseChat}
+        />
+      )}
+
+      {/* Edit Transaction Modal */}
+      <Modal
+        isOpen={editTransactionModal}
+        toggle={handleCloseEditTransactionModal}
+      >
+        <ModalHeader toggle={handleCloseEditTransactionModal}>
+          Edit Transaction
+        </ModalHeader>
+        <ModalBody>
+          <Form>
+            <FormGroup>
+              <Label for="editTransactionId">Transaction ID</Label>
+              <Input
+                type="text"
+                id="editTransactionId"
+                value={currentTransaction?.transactionId || ""}
+                onChange={(e) =>
+                  setCurrentTransaction({
+                    ...currentTransaction,
+                    transactionId: e.target.value,
+                  })
+                }
+                placeholder="Enter transaction ID"
+                invalid={!currentTransaction?.transactionId}
+              />
+              {isFormSubmitted && validationErrors.transactionId && (
+                <div className="text-danger mt-1">
+                  Transaction ID is required.
+                </div>
+              )}
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="editStatus">Status</Label>
+              <Input
+                type="select"
+                id="editStatus"
+                value={currentTransaction?.status}
+                onChange={(e) =>
+                  setCurrentTransaction({
+                    ...currentTransaction,
+                    status: e.target.value,
+                  })
+                }
+                invalid={!currentTransaction?.status}
+              >
+                <option value="">Select Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Declined">Declined</option>
+                <option value="Approved">Approved</option>
+              </Input>
+              {!currentTransaction?.status && (
+                <div className="text-danger">Status is required.</div>
+              )}
+            </FormGroup>
+          </Form>
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            style={{
+              backgroundColor: "var(--primary-purple)",
+              color: "var(--primary-white)",
+            }}
+            onClick={() => {
+              const errors = {
+                transactionId: !currentTransaction?.transactionId?.trim(),
+                status: !currentTransaction?.status,
+              };
+              setIsFormSubmitted(true);
+              setValidationErrors(errors);
+
+              // If there are no errors, proceed
+              if (!errors.transactionId && !errors.status) {
+                handleTransactionSaveEdit();
+              }
+            }}
+          >
+            Save
+          </Button>
+          <Button color="secondary" onClick={handleCloseEditTransactionModal}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
     </React.Fragment>
   );
 };

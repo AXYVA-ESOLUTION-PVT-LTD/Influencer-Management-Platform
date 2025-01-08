@@ -71,7 +71,7 @@ function* fetchRoleDetail({ roleId }) {
   }
 }
 
-function* rolesSaga() {
+function* RolesSaga() {
   yield takeEvery(GET_ROLE, fetchRoles);
   yield takeEvery(ADD_ROLE, onAddNewRole);
   yield takeEvery(UPDATE_ROLE, onUpdateRole);
@@ -79,4 +79,4 @@ function* rolesSaga() {
   yield takeEvery(GET_SPECIFIC_ROLE, fetchRoleDetail);
 }
 
-export default rolesSaga;
+export default RolesSaga;

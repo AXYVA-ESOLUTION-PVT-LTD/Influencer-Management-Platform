@@ -13,26 +13,30 @@ import {
 } from "reactstrap";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { verifyOtp } from "../../store/actions"; 
+import { verifyOtp } from "../../store/actions";
 
 import profile from "../../assets/images/profile-img.png";
 // import logo from "../../assets/images/favicon/logo-sm.png";
 import withRouter from "../../components/Common/withRouter";
 
 const VerifyOTP = (props) => {
-
   document.title = "Verify OTP | Brandraise";
 
-  const dispatch = useDispatch();
-  const [otp, setOtp] = useState("");
-  const email = localStorage.getItem('email') || ""; 
-  const { verifyOtpError, verifyOtpSuccessMsg } = useSelector(state => ({
+  const { verifyOtpError, verifyOtpSuccessMsg } = useSelector((state) => ({
     verifyOtpError: state.ForgetPassword.verifyOtpError,
     verifyOtpSuccessMsg: state.ForgetPassword.verifyOtpSuccessMsg,
   }));
+  const dispatch = useDispatch();
+  const [otp, setOtp] = useState("");
+  const [localVerifyOtpError, setLocalVerifyOtpError] = useState(null);
+  const [localVerifyOtpSuccessMsg, setLocalVerifyOtpSuccessMsg] =
+    useState(null);
+
+  const email = localStorage.getItem("email") || "";
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     const data = {
       email: email,
       otp: otp,
@@ -40,6 +44,22 @@ const VerifyOTP = (props) => {
 
     dispatch(verifyOtp(data, props.router.navigate));
   };
+
+  useEffect(() => {
+    if (verifyOtpError) {
+      setLocalVerifyOtpError(verifyOtpError);
+    }
+    if (verifyOtpSuccessMsg) {
+      setLocalVerifyOtpSuccessMsg(verifyOtpSuccessMsg);
+    }
+  }, [verifyOtpError, verifyOtpSuccessMsg]);
+
+  useEffect(() => {
+    return () => {
+      setLocalVerifyOtpError(null);
+      setLocalVerifyOtpSuccessMsg(null);
+    };
+  }, []);
 
   return (
     <React.Fragment>
@@ -77,11 +97,15 @@ const VerifyOTP = (props) => {
                     </Link>
                   </div>
                   <div className="p-2">
-                    {verifyOtpError && (
-                      <Alert color="danger">{verifyOtpError}</Alert>
+                    {localVerifyOtpError && (
+                      <Alert color="danger" className="section-space-top">
+                        {localVerifyOtpError}
+                      </Alert>
                     )}
-                    {verifyOtpSuccessMsg && (
-                      <Alert color="success">{verifyOtpSuccessMsg}</Alert>
+                    {localVerifyOtpSuccessMsg && (
+                      <Alert color="success" className="section-space-top">
+                        {localVerifyOtpSuccessMsg}
+                      </Alert>
                     )}
                     <Form className="form-horizontal" onSubmit={handleSubmit}>
                       <div className="mb-3">
