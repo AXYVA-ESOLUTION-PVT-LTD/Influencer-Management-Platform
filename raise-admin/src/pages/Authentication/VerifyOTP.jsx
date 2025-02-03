@@ -55,6 +55,9 @@ const VerifyOTP = (props) => {
   }, [verifyOtpError, verifyOtpSuccessMsg]);
 
   useEffect(() => {
+    setLocalVerifyOtpError(null);
+    setLocalVerifyOtpSuccessMsg(null);
+
     return () => {
       setLocalVerifyOtpError(null);
       setLocalVerifyOtpSuccessMsg(null);

@@ -17,10 +17,10 @@ export const readPublicationUrl = (token, params) => {
   );
 };
 
-export const createPublicationUrl = (token, formData) => {
+export const createPublicationUrl = (token, payload) => {
   return postForm(
     CREATE_PUBLICATION_URL,
-    formData,
+    payload,
     {
       headers: { Authorization: `Bearer ${token}` },
     }

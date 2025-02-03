@@ -32,7 +32,6 @@ function* updateUserName({ payload: { userId, username, platform , history } }) 
     
     if (response?.status === "Success") {
       yield put(updateUserNameSuccessful(response?.result?.data?.user));
-      // localStorage.removeItem("authUserId");
       localStorage.setItem("authUser", response.result.data.token);
       localStorage.setItem("user", JSON.stringify(response.result.data.user));
       history("/overview/influencer");

@@ -3,6 +3,10 @@ import {
   GET_MONTHLY_PERFORMANCE_ANALYTICS_API,
   GET_TICKET_ENGAGEMENT_STATISTICS_API,
   GET_TIKTOK_USER_DATA_API,
+  GET_FACEBOOK_USER_DATA_API,
+  GET_FACEBOOK_MONTHLY_PERFORMANCE_ANALYTICS_API,
+  GET_INSTAGRAM_USER_DATA_API,
+  GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS_API
 } from "./routes";
 
 
@@ -25,6 +29,25 @@ export const getMonthlyPerformanceAnalyticsUrl = (token) => {
   );
 };
 
+export const getFacebookUserDataUrl = (token) => {
+  return post(
+    GET_FACEBOOK_USER_DATA_API,
+    {},
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+};
+
+export const getFacebookMonthlyPerformanceAnalyticsUrl = (token) => {
+  return get(
+    GET_FACEBOOK_MONTHLY_PERFORMANCE_ANALYTICS_API,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+};
+
 export const getTicketEngagementStatisticsUrl = (token) => {
   return get(
     GET_TICKET_ENGAGEMENT_STATISTICS_API,
@@ -33,3 +56,23 @@ export const getTicketEngagementStatisticsUrl = (token) => {
     }
   );
 };
+
+export const getInstagramUserDataUrl = (token) => {
+  return post(
+    GET_INSTAGRAM_USER_DATA_API,
+    {},
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+};
+
+export const getInstagramMonthlyPerformanceAnalyticsUrl = (token) => {
+  return get(
+    GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS_API,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+};
+

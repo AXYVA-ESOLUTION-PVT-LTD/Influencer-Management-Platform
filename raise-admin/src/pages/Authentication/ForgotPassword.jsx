@@ -65,6 +65,9 @@ const ForgotPassword = (props) => {
   }, [forgetError, forgetSuccessMsg]);
 
   useEffect(() => {
+    setLocalForgetError(null);
+    setLocalForgetSuccessMsg(null);
+
     return () => {
       setLocalForgetError(null);
       setLocalForgetSuccessMsg(null);

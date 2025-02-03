@@ -38,7 +38,7 @@ const BankDetails = () => {
     loading,
     isPaymentDeleted,
     paymentSecureDetails,
-    paymentMethodsloading
+    paymentMethodsloading,
   } = useSelector((state) => state.Payment);
   const dispatch = useDispatch();
   const [paymentMethod, setPaymentMethod] = useState("Bank");
@@ -102,14 +102,13 @@ const BankDetails = () => {
   };
 
   useEffect(() => {
-    if (paymentMethods && !paymentMethodsloading ) {
+    if (paymentMethods && !paymentMethodsloading) {
       setViewPaymentMethod(paymentMethods);
+      if(paymentMethods !== null) {
+        getAllSecurePaymentDetail(paymentMethods);
+      }
     }
-  }, [paymentMethods ,paymentMethodsloading]);
-
-  useEffect(()=>{
-    getAllSecurePaymentDetail(viewPaymentMethod);
-  },[viewPaymentMethod]);
+  }, [paymentMethods, paymentMethodsloading]);
 
   const validateField = (name, value) => {
     let formErrors = { ...errors };
@@ -237,20 +236,20 @@ const BankDetails = () => {
     ) {
       // setSuccessMessage(successMessages);
       // setTimeout(() => {
-        setSuccessMessage("");
-        setShowPaymentForm(false);
-        setUpdatePaymentForm(false);
-        setFormData({
-          accountHolderName: "",
-          accountNumber: "",
-          ifscCode: "",
-          bankName: "",
-          branchName: "",
-          upiId: "",
-          phoneNumber: "",
-        });
-        setPaymentDetails(true);
-        getAllSecurePaymentDetail(viewPaymentMethod);
+      setSuccessMessage("");
+      setShowPaymentForm(false);
+      setUpdatePaymentForm(false);
+      setFormData({
+        accountHolderName: "",
+        accountNumber: "",
+        ifscCode: "",
+        bankName: "",
+        branchName: "",
+        upiId: "",
+        phoneNumber: "",
+      });
+      setPaymentDetails(true);
+      getAllSecurePaymentDetail(viewPaymentMethod);
       // }, 2000);
     }
     if (errorMessages) {
@@ -326,7 +325,6 @@ const BankDetails = () => {
       });
       setShowPaymentForm(true);
       setPaymentDetails(false);
-
     }
     setIsDeleteModalOpen(false);
   }, [isPaymentDeleted]);
@@ -374,7 +372,7 @@ const BankDetails = () => {
     if (paymentDetail && !loading) {
       setFormData(paymentDetail);
     }
-  }, [paymentDetail ,loading]);
+  }, [paymentDetail, loading]);
 
   useEffect(() => {
     if (paymentSecureDetails) {
@@ -580,135 +578,122 @@ const BankDetails = () => {
       )}
 
       {/* Display Data */}
-      {paymentMethodsloading ? (
-        <div className="text-center mt-3">
-          <Spinner />
-        </div>
-      ) : (
-        paymentDetails && (
-          <div className="mt-3">
-            <h5>Payment Details</h5>
-            {viewPaymentMethod === "Bank" && (
-              <>
-                {renderField(
-                  "Account Holder Name",
-                  "accountHolderName",
-                  errors.accountHolderName
-                )}
-                {renderField(
-                  "Account Number",
-                  "accountNumber",
-                  errors.accountNumber
-                )}
-                {renderField("IFSC Code", "ifscCode", errors.ifscCode)}
-                {renderField("Bank Name", "bankName", errors.bankName)}
-                {renderField("Branch Name", "branchName", errors.branchName)}
-              </>
-            )}
-            {viewPaymentMethod === "GPay" &&
-              renderField("UPI ID", "upiId", errors.upiId)}
+      {paymentDetails && (
+        <div className="mt-3">
+          <h5>Payment Details</h5>
+          {viewPaymentMethod === "Bank" && (
+            <>
+              {renderField(
+                "Account Holder Name",
+                "accountHolderName",
+                errors.accountHolderName
+              )}
+              {renderField(
+                "Account Number",
+                "accountNumber",
+                errors.accountNumber
+              )}
+              {renderField("IFSC Code", "ifscCode", errors.ifscCode)}
+              {renderField("Bank Name", "bankName", errors.bankName)}
+              {renderField("Branch Name", "branchName", errors.branchName)}
+            </>
+          )}
+          {viewPaymentMethod === "GPay" &&
+            renderField("UPI ID", "upiId", errors.upiId)}
 
-            {viewPaymentMethod === "PayPal" &&
-              renderField("Phone Number", "phoneNumber", errors.phoneNumber)}
+          {viewPaymentMethod === "PayPal" &&
+            renderField("Phone Number", "phoneNumber", errors.phoneNumber)}
 
-            <div className="d-flex gap-2">
-              <Button type="submit" onClick={toggleUpdateForm}>
-                Update Payment Details
-              </Button>
-              <Button type="submit" color="danger" onClick={toggleDeleteModal}>
-                Remove Payment Details
-              </Button>
-            </div>
+          <div className="d-flex gap-2">
+            <Button type="submit" onClick={toggleUpdateForm}>
+              Update Payment Details
+            </Button>
+            <Button type="submit" color="danger" onClick={toggleDeleteModal}>
+              Remove Payment Details
+            </Button>
           </div>
-        )
+        </div>
       )}
 
       {/* Update From */}
-      {loading ? (
-        <div className="text-center mt-3">
-          <Spinner />
-        </div>
-      ) : (
-        updatePaymentForm &&
-        !paymentDetails && (
-          <>
-            <div className="mt-3">
-              <h5>Update Payment Details</h5>
+      {updatePaymentForm && !paymentDetails && (
+        <>
+          <div className="mt-3">
+            <h5>Update Payment Details</h5>
 
-              {/* Alert Messages */}
-              {successMessage && (
-                <Alert color="success" className="mt-3">
-                  {successMessage}
-                </Alert>
-              )}
-              {errorMessage && (
-                <Alert color="danger" className="mt-3">
-                  {errorMessage}
-                </Alert>
-              )}
+            {/* Alert Messages */}
+            {successMessage && (
+              <Alert color="success" className="mt-3">
+                {successMessage}
+              </Alert>
+            )}
+            {errorMessage && (
+              <Alert color="danger" className="mt-3">
+                {errorMessage}
+              </Alert>
+            )}
 
-              <form onSubmit={handleUpdateSubmit}>
-                {viewPaymentMethod === "Bank" && (
-                  <>
-                    {renderUpdateField(
-                      "Account Holder Name",
-                      "accountHolderName",
-                      formData.accountHolderName
-                    )}
-                    {renderUpdateField(
-                      "Account Number",
-                      "accountNumber",
-                      formData.accountNumber
-                    )}
-                    {renderUpdateField(
-                      "IFSC Code",
-                      "ifscCode",
-                      formData.ifscCode
-                    )}
-                    {renderUpdateField(
-                      "Bank Name",
-                      "bankName",
-                      formData.bankName
-                    )}
-                    {renderUpdateField(
-                      "Branch Name",
-                      "branchName",
-                      formData.branchName
-                    )}
-                  </>
-                )}
-                {viewPaymentMethod === "GPay" &&
-                  renderUpdateField("UPI ID", "upiId", formData.upiId)}
-
-                {viewPaymentMethod === "PayPal" &&
-                  renderUpdateField(
-                    "Phone Number",
-                    "phoneNumber",
-                    formData.phoneNumber
+            <form onSubmit={handleUpdateSubmit}>
+              {viewPaymentMethod === "Bank" && (
+                <>
+                  {renderUpdateField(
+                    "Account Holder Name",
+                    "accountHolderName",
+                    formData.accountHolderName
                   )}
+                  {renderUpdateField(
+                    "Account Number",
+                    "accountNumber",
+                    formData.accountNumber
+                  )}
+                  {renderUpdateField(
+                    "IFSC Code",
+                    "ifscCode",
+                    formData.ifscCode
+                  )}
+                  {renderUpdateField(
+                    "Bank Name",
+                    "bankName",
+                    formData.bankName
+                  )}
+                  {renderUpdateField(
+                    "Branch Name",
+                    "branchName",
+                    formData.branchName
+                  )}
+                </>
+              )}
+              {viewPaymentMethod === "GPay" &&
+                renderUpdateField("UPI ID", "upiId", formData.upiId)}
 
-                {/* Buttons */}
-                <div className="button-container d-flex gap-2">
-                  <Button type="submit" color="primary">
-                    Update Payment Details
-                  </Button>
-                  <Button
-                    type="button"
-                    color="secondary"
-                    onClick={() => {
-                      setPaymentDetails(true);
-                      setShowPaymentForm(false);
-                      setUpdatePaymentForm(false);
-                      getAllSecurePaymentDetail(viewPaymentMethod);
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </>
-        )
+              {viewPaymentMethod === "PayPal" &&
+                renderUpdateField(
+                  "Phone Number",
+                  "phoneNumber",
+                  formData.phoneNumber
+                )}
+
+              {/* Buttons */}
+              <div className="button-container d-flex gap-2">
+                <Button type="submit" color="primary">
+                  Update Payment Details
+                </Button>
+                <Button
+                  type="button"
+                  color="secondary"
+                  onClick={() => {
+                    setPaymentDetails(true);
+                    setShowPaymentForm(false);
+                    setUpdatePaymentForm(false);
+                    getAllSecurePaymentDetail(viewPaymentMethod);
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </div>
+        </>
       )}
 
       {/* Delete Model */}

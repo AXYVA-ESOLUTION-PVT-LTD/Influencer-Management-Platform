@@ -74,7 +74,8 @@ const OpportunitiesPage = (props) => {
   const [screenshot, setScreenshot] = useState(null);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [errors, setErrors] = useState({});
-
+  const USER_ID = import.meta.env.VITE_ADMIN_ID;
+  
   document.title = "Opportunity | Brandraise ";
 
   useEffect(() => {
@@ -103,6 +104,13 @@ const OpportunitiesPage = (props) => {
       })
     );
 
+    dispatch(
+      getOpportunity({
+        limit,
+        pageCount,
+      })
+    );
+
     const newTicket = {
       title: `Applied for ${selectedOpportunity.title}`,
       description: description,
@@ -110,26 +118,18 @@ const OpportunitiesPage = (props) => {
 
     dispatch(createTicketNotification(newTicket));
 
-    // userId: "6719f9714d317f459da508d7", //server
     const newNotification = {
-      userId: "67334a52373c3328068f9157", //local server
+      userId: USER_ID,
       title: `Applied for ${selectedOpportunity.title}`,
       message: description,
     };
-
+    
     dispatch(createNotification(newNotification));
-
+    
     setAppliedOpportunities((prevApplied) => [
       ...prevApplied,
       selectedOpportunity._id,
     ]);
-
-    dispatch(
-      getOpportunity({
-        limit,
-        pageCount,
-      })
-    );
 
     setModalOpen(false);
   };
@@ -212,9 +212,6 @@ const OpportunitiesPage = (props) => {
     } else if (!publicationLink.startsWith("https://")) {
       newErrors.link = "Publication link must start with 'https://'";
     }
-    if (!screenshot) {
-      newErrors.screenshot = "Screenshot upload is required.";
-    }
     return newErrors;
   };
   const handleSubmit = () => {
@@ -228,16 +225,14 @@ const OpportunitiesPage = (props) => {
       selectedTicket,
       publicationType,
       publicationLink,
-      screenshot,
     };
 
     dispatch(createPublication(payload));
-    // userId: "6719f9714d317f459da508d7", //server
     const influencerName = `${selectedTicket.influencerData?.firstName || ""} ${
       selectedTicket.influencerData?.lastName || ""
     }`.trim();
     const newNotification = {
-      userId: "67334a52373c3328068f9157", // Local server or dynamically get userId
+      userId: USER_ID,
       title: `Add new Publication by ${influencerName}`,
       message: `A new publication has been added by the influencer ${influencerName}.`,
     };
@@ -728,7 +723,7 @@ const OpportunitiesPage = (props) => {
                 />
                 <FormFeedback>{errors.link}</FormFeedback>
               </FormGroup>
-              <FormGroup>
+              {/* <FormGroup>
                 <Label for="screenshot">Upload Screenshot</Label>
                 <Input
                   type="file"
@@ -737,7 +732,7 @@ const OpportunitiesPage = (props) => {
                   invalid={!!errors.screenshot}
                 />
                 <FormFeedback>{errors.screenshot}</FormFeedback>
-              </FormGroup>
+              </FormGroup> */}
             </ModalBody>
             <ModalFooter>
               <Button color="secondary" onClick={publicationToggleModal}>

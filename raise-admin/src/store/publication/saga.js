@@ -47,13 +47,14 @@ function* createPublicationSaga(action) {
   const id = toast.loading("Creating Publication...");
   try {
     const token = localStorage.getItem("authUser");
-    const formData = new FormData();
-    formData.append("opportunityId", action.payload.selectedTicket.opportunity._id);
-    formData.append("type", action.payload.publicationType);
-    formData.append("publicationLink", action.payload.publicationLink);
-    formData.append("image", action.payload.screenshot);
-
-    const response = yield call(createPublicationUrl, token, formData);
+ 
+    const payload = {
+      opportunityId: action.payload.selectedTicket.opportunity._id,
+      type: action.payload.publicationType,
+      publicationLink: action.payload.publicationLink,
+    };
+    
+    const response = yield call(createPublicationUrl, token, payload);
 
     if (response?.status === STATUS.SUCCESS) {
       toast.update(id, {

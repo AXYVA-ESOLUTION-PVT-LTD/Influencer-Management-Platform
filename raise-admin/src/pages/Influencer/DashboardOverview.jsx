@@ -1,60 +1,92 @@
 import React, { useEffect, useState } from "react";
-import { Container, Row, Col, Spinner, Card } from "reactstrap";
-
+import { Container, Row, Col, Spinner } from "reactstrap";
+import PLATFORMS from '../../constants/platform';
 // Import Breadcrumb
 import StatisticsBox from "../../components/Common/StatisticsBox";
 import Mixchart from "../../components/Common/Chart/Mixchart";
 import Barchart from "../../components/Common/Chart/Barchart";
-import PieChart from "../../components/Common/Chart/PieChart";
-
 // i18n
 import { withTranslation } from "react-i18next";
 
-// Importing Highcharts
 import Highcharts from "highcharts";
 import Highcharts3d from "highcharts/highcharts-3d";
 import {
   areaChartOptions,
-  barChartOptions,
-  donutChartOptions,
-  pieChart1Data,
-  pieChart2Data,
-  pieChart3Data,
+  barChartOptions
 } from "../../data/DashboardData";
 import { useDispatch, useSelector } from "react-redux";
-import { getMonthlyPerformanceAnalytics, getTicketEngagementStatistics, getTikTokUserData } from "../../store/dashboard/actions";
+import {
+  getMonthlyPerformanceAnalytics,
+  getTicketEngagementStatistics,
+  getFacebookUserData,
+  getFacebookMonthlyPerformanceAnalytics,
+  getTikTokUserData,
+  getInstagramUserData,
+  getInstagramMonthlyPerformanceAnalytics,
+} from "../../store/dashboard/actions";
 Highcharts3d(Highcharts);
-import CardComponent from "../../components/Influencer/CardComponent/CardComponent";
-import axios from "axios";
 
 const DashboardOverview = (props) => {
   // Meta title
   document.title = "Influencer Dashboard | Brandraise";
 
   const dispatch = useDispatch();
-  const { loadingUserData, loadingAnalytics, dashboardData, monthlyPostCount, monthlyEngagementRate, monthlyCommentCount, approvedCounts,declinedCounts , onHoldCounts ,loadingTicketStatistics} = useSelector(
-    (state) => state.Dashboard
-  );
-  
+  const {
+    loadingUserData,
+    loadingAnalytics,
+    dashboardData,
+    facebookUserData,
+    instagramUserData,
+    monthlyPostCount,
+    monthlyEngagementRate,
+    monthlyCommentCount,
+    approvedCounts,
+    declinedCounts,
+    onHoldCounts,
+    loadingTicketStatistics,
+  } = useSelector((state) => state.Dashboard);
+
   const [userInfo, setUserInfo] = useState({});
-  const [userVideodata, setUserVideodata] = useState([]);
- 
+
   useEffect(() => {
-    dispatch(getTikTokUserData());
-    dispatch(getMonthlyPerformanceAnalytics());
+    let userDataString = localStorage.getItem("user");
+    const userData = JSON.parse(userDataString);
+
+    if (userData.platform == PLATFORMS.TIKTOK) {
+      dispatch(getTikTokUserData());
+      dispatch(getMonthlyPerformanceAnalytics());
+    } else if (userData.platform == PLATFORMS.FACEBOOK) {
+      dispatch(getFacebookUserData());
+      dispatch(getFacebookMonthlyPerformanceAnalytics());
+    }
+    else if (userData.platform == PLATFORMS.INSTAGRAM) {
+      dispatch(getInstagramUserData());
+      dispatch(getInstagramMonthlyPerformanceAnalytics());
+    }
+    // Common engagement statistics API call
     dispatch(getTicketEngagementStatistics());
   }, [dispatch]);
 
   useEffect(() => {
-    if (dashboardData?.userInfo?.user && dashboardData?.userVideodata) {
-      setUserInfo(dashboardData.userInfo.user);
-      setUserVideodata(dashboardData.userVideodata);
+    let userDataString = localStorage.getItem("user");
+    const userData = JSON.parse(userDataString);
+
+    if (userData.platform == PLATFORMS.TIKTOK) {
+      if (dashboardData?.userInfo?.user && dashboardData?.userVideodata) {
+        setUserInfo(dashboardData.userInfo.user);
+      }
+    } else if (userData.platform == PLATFORMS.FACEBOOK) {
+      setUserInfo(facebookUserData);
     }
-  }, [dashboardData]);
-  
+    else if (userData.platform == PLATFORMS.INSTAGRAM) {
+      setUserInfo(instagramUserData);
+    }
+    
+  }, [dashboardData, facebookUserData ,instagramUserData]);
+
   const formattedEngagementRate = Array.isArray(monthlyEngagementRate)
-  ? monthlyEngagementRate.map(rate => parseFloat(rate.toFixed(1)))
-  : [];
+    ? monthlyEngagementRate.map((rate) => parseFloat(rate.toFixed(1)))
+    : [];
 
   const areaChartSeriesTemplate = [
     {
@@ -74,24 +106,72 @@ const DashboardOverview = (props) => {
     },
   ];
 
-  const dataBoxes = [
-    {
-      title: "Followers",
-      value: userInfo?.follower_count,
-    },
-    {
-      title: "Likes",
-      value: userInfo?.likes_count,
-    },
-    {
-      title: "Videos",
-      value: userInfo?.video_count,
-    },
-    {
-      title: "Following",
-      value: userInfo?.following_count,
-    },
-  ];
+  let userDataString = localStorage.getItem("user");
+  const userData = JSON.parse(userDataString);
+
+  const dataBoxes =
+    userData.platform === PLATFORMS.TIKTOK
+      ? [
+          {
+            title: "Followers",
+            value: userInfo?.follower_count,
+          },
+          {
+            title: "Likes",
+            value: userInfo?.likes_count,
+          },
+          {
+            title: "Videos",
+            value: userInfo?.video_count,
+          },
+          {
+            title: "Following",
+            value: userInfo?.following_count,
+          },
+        ]
+      : userData.platform === PLATFORMS.FACEBOOK
+      ? [
+          {
+            title: "Friends",
+            value: userInfo?.friends_count,
+          },
+          {
+            title: "Likes",
+            value: userInfo?.totalReactions,
+          },
+          {
+            title: "Post",
+            value: userInfo?.post_count,
+          },
+          {
+            title : "Comment",
+            value : userInfo?.totalComments
+          }
+        ]
+        :userData.platform === PLATFORMS.INSTAGRAM
+        ? [
+          {
+            title: "Followers", 
+            value: userInfo?.followers_count,
+          },
+          {
+            title: "Following", 
+            value: userInfo?.follows_count,
+          },
+          {
+            title: "Posts", 
+            value: userInfo?.totalPosts,
+          },
+          {
+            title: "Likes", 
+            value: userInfo?.totalLikes,
+          },
+          {
+            title: "Reach", 
+            value: userInfo?.totalReach,
+          },
+          ]
+      : [];
 
   const barChartSeries = [
     {
@@ -124,14 +204,8 @@ const DashboardOverview = (props) => {
           </div>
           <Row className="mt-4 text-center">
             {loadingUserData ? (
-              <div
-                className="d-flex justify-content-center align-items-center w-100 box-loading-container"
-                
-              >
-                <Spinner
-                  color="primary"
-                  className="chart-loading-spinner"
-                />
+              <div className="d-flex justify-content-center align-items-center w-100 box-loading-container">
+                <Spinner color="primary" className="chart-loading-spinner" />
               </div>
             ) : (
               dataBoxes.map((box, index) => (
@@ -181,7 +255,7 @@ const DashboardOverview = (props) => {
               </Row>
             </Card>
           </Row> */}
-          <Row>
+          {/* <Row>
             <Col md={4}>
               <PieChart
                 chartoptions={donutChartOptions}
@@ -203,7 +277,7 @@ const DashboardOverview = (props) => {
                 title="Language Distribution"
               />
             </Col>
-          </Row>
+          </Row> */}
         </Container>
       </div>
     </React.Fragment>

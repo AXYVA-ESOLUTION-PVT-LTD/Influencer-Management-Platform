@@ -24,10 +24,12 @@ function* loginUser({ payload: { user, history } }) {
       
       yield put(loginSuccess(response.result.data));
       // const user = JSON.parse(localStorage.getItem("user"));
-      const role = response.result.data.user.roleId.name;
+      const role = response?.result?.data?.user?.roleId?.name;
       const platform = response.result?.data?.user?.platform;
       const username = response.result?.data?.user?.username;
-      if (role === 'Influencer' && (!platform || platform === '') && (!username || username === '')) {
+      const isVerified = response.result?.data?.user?.isVerified;
+
+      if (role === 'Influencer' && ((!platform || platform === '') && (!username || username === '') || (!isVerified || isVerified === ''))) {
         localStorage.setItem('authUserId',response.result.data.user._id);
         history("/onboarding");
       }
@@ -60,6 +62,9 @@ function* logoutUser({ payload: { history } }) {
   try {
     localStorage.removeItem("authUser");
     localStorage.removeItem("user");
+    if (localStorage.getItem("authUserId")) {
+      localStorage.removeItem("authUserId");
+    }
     yield put(logoutUserSuccess());
     history("/login");
   } catch (error) {

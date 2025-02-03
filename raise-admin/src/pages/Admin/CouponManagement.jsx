@@ -5,6 +5,7 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import {
   Button,
   Container,
+  FormFeedback,
   Input,
   Label,
   Modal,
@@ -17,7 +18,12 @@ import Pagination from "../../components/Common/Pagination";
 import TableContainer from "../../components/Common/TableContainer";
 import "../../assets/themes/colors.scss";
 import PropTypes from "prop-types";
-import { createNotification, deleteTicketRequest, fetchTicketsRequest, updateTicketRequest } from "../../store/actions";
+import {
+  createNotification,
+  deleteTicketRequest,
+  fetchTicketsRequest,
+  updateTicketRequest,
+} from "../../store/actions";
 import axios from "axios";
 import CouponFiltering from "../../components/Common/CouponFiltering";
 const CouponManagement = (props) => {
@@ -27,6 +33,7 @@ const CouponManagement = (props) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedOpportunity, setSelectedOpportunity] = useState(null);
   const [couponCode, setCouponCode] = useState("");
+  const [isValid, setIsValid] = useState(true);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedCoupon, setSelectedCoupon] = useState(null);
   const [filterFields, setFilterFields] = useState({
@@ -39,7 +46,7 @@ const CouponManagement = (props) => {
 
   const handleEdit = (item) => {
     setSelectedOpportunity(item);
-    setCouponCode(item.couponCode || ""); 
+    setCouponCode(item.couponCode || "");
     setIsEditModalOpen(true);
   };
 
@@ -48,28 +55,33 @@ const CouponManagement = (props) => {
   };
 
   const handleDelete = (coupon) => {
-    setSelectedCoupon(coupon); 
-    toggleDeleteModal(); 
+    setSelectedCoupon(coupon);
+    toggleDeleteModal();
   };
 
   const confirmDeleteCoupon = () => {
     if (selectedCoupon) {
-      dispatch(deleteTicketRequest({ ticketId: selectedCoupon._id })); 
-      dispatch(fetchTicketsRequest({ limit, pageCount, ...filterFields })); 
-      toggleDeleteModal(); 
+      dispatch(deleteTicketRequest({ ticketId: selectedCoupon._id }));
+      dispatch(fetchTicketsRequest({ limit, pageCount, ...filterFields }));
+      toggleDeleteModal();
     }
   };
 
   const handleSubmit = () => {
+    
+    if (!isValid || couponCode.length === 0) {
+      return;
+    }
+
     const payload = {
-      id : selectedOpportunity._id,
+      id: selectedOpportunity._id,
       influencerId: selectedOpportunity.influencerId._id,
       opportunityId: selectedOpportunity.opportunity._id,
-      couponCode
+      couponCode,
     };
-  
+
     dispatch(updateTicketRequest(payload));
-    
+
     const newNotification = {
       userId: selectedOpportunity.influencerId._id,
       title: `Coupon Assigned for ${selectedOpportunity.opportunity.title}`,
@@ -77,7 +89,7 @@ const CouponManagement = (props) => {
     };
 
     dispatch(createNotification(newNotification));
-    
+
     dispatch(
       fetchTicketsRequest({
         limit,
@@ -85,12 +97,15 @@ const CouponManagement = (props) => {
         ...filterFields,
       })
     );
+    setIsValid(true);
     setIsEditModalOpen(false);
   };
 
   document.title = "Coupon Management | Brandraise ";
 
-  const { opportunitiesData ,loading ,totalRecords} = useSelector((state) => state.Opportunity);
+  const { opportunitiesData, loading, totalRecords } = useSelector(
+    (state) => state.Opportunity
+  );
 
   useEffect(() => {
     dispatch(
@@ -100,10 +115,15 @@ const CouponManagement = (props) => {
         ...filterFields,
       })
     );
-  }, [dispatch, limit, pageCount ,isSearching]);
+  }, [dispatch, limit, pageCount, isSearching]);
 
-  const getImageUrl = (value, basePath = import.meta.env.VITE_APP_BASE_IMAGE_URL) => {
-    return value.startsWith("http") || value.startsWith("https") ? value : `${basePath}${value}`;
+  const getImageUrl = (
+    value,
+    basePath = import.meta.env.VITE_APP_BASE_IMAGE_URL
+  ) => {
+    return value.startsWith("http") || value.startsWith("https")
+      ? value
+      : `${basePath}${value}`;
   };
 
   const columns = useMemo(
@@ -113,7 +133,7 @@ const CouponManagement = (props) => {
         accessor: "opportunity.imageUrl",
         Cell: ({ value }) => {
           const imageUrl = getImageUrl(value);
-        
+
           return (
             <img
               src={imageUrl}
@@ -121,7 +141,7 @@ const CouponManagement = (props) => {
               className="influencer-image"
             />
           );
-        }
+        },
       },
       {
         Header: "Brand",
@@ -175,14 +195,24 @@ const CouponManagement = (props) => {
     []
   );
 
+  const handleChange = (e) => {
+    const value = e.target.value.toUpperCase();
+    setCouponCode(value);
+  
+    // Validation for length between 2 and 20 characters
+    if (value.length >= 2 && value.length <= 20) {
+      setIsValid(true);
+    } else {
+      setIsValid(false);
+    }
+  };  
+
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h4 className="font-size-18 text-uppercase">
-              Manage Coupons
-            </h4>
+            <h4 className="font-size-18 text-uppercase">Manage Coupons</h4>
           </div>
           <CouponFiltering
             setFilterFields={setFilterFields}
@@ -217,7 +247,7 @@ const CouponManagement = (props) => {
                   />
                 </>
               ) : (
-                <h1 className="text-center space-top" >
+                <h1 className="text-center space-top">
                   No Coupon Ticket Found
                 </h1>
               )}
@@ -227,7 +257,10 @@ const CouponManagement = (props) => {
       </div>
 
       {/* Update Modal */}
-      <Modal isOpen={isEditModalOpen} toggle={() => setIsEditModalOpen(!isEditModalOpen)}>
+      <Modal
+        isOpen={isEditModalOpen}
+        toggle={() => setIsEditModalOpen(!isEditModalOpen)}
+      >
         <ModalHeader toggle={() => setIsEditModalOpen(!isEditModalOpen)}>
           Manage Coupon
         </ModalHeader>
@@ -250,15 +283,21 @@ const CouponManagement = (props) => {
                   id="couponCode"
                   type="text"
                   value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  onChange={handleChange}
                   placeholder="Enter coupon code"
+                  invalid={!isValid}
                 />
+                {!isValid && couponCode.length > 0 && (
+                  <FormFeedback>
+                    Coupon code must be between 2 and 20 characters.
+                  </FormFeedback>
+                )}
               </div>
             </>
           )}
         </ModalBody>
         <ModalFooter>
-          <Button color="primary" onClick={handleSubmit}>
+          <Button color="primary" onClick={handleSubmit} disabled={!isValid}>
             Submit
           </Button>
           <Button color="secondary" onClick={() => setIsEditModalOpen(false)}>
@@ -270,16 +309,14 @@ const CouponManagement = (props) => {
       {/* Delete Model */}
       <Modal isOpen={isDeleteModalOpen} toggle={toggleDeleteModal}>
         <ModalHeader toggle={toggleDeleteModal}>Delete Coupon</ModalHeader>
-        <ModalBody>
-          Are you sure you want to delete the coupon ?
-        </ModalBody>
+        <ModalBody>Are you sure you want to delete the coupon ?</ModalBody>
         <ModalFooter>
           <Button
             style={{
               backgroundColor: "var(--secondary-red)",
               color: "var(--primary-white)",
             }}
-            onClick={confirmDeleteCoupon} 
+            onClick={confirmDeleteCoupon}
           >
             Delete
           </Button>
@@ -288,7 +325,6 @@ const CouponManagement = (props) => {
           </Button>
         </ModalFooter>
       </Modal>
-
     </React.Fragment>
   );
 };
