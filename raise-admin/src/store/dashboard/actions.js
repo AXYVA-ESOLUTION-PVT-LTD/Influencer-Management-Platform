@@ -9,6 +9,18 @@ import {
   GET_TICKET_ENGAGEMENT_STATISTICS,
   GET_TICKET_ENGAGEMENT_STATISTICS_SUCCESS,
   GET_TICKET_ENGAGEMENT_STATISTICS_FAIL,
+  GET_FACEBOOK_MONTHLY_PERFORMANCE_ANALYTICS_FAIL,
+  GET_FACEBOOK_MONTHLY_PERFORMANCE_ANALYTICS_SUCCESS,
+  GET_FACEBOOK_MONTHLY_PERFORMANCE_ANALYTICS,
+  GET_FACEBOOK_USER_DATA_FAIL,
+  GET_FACEBOOK_USER_DATA_SUCCESS,
+  GET_FACEBOOK_USER_DATA,
+  GET_INSTAGRAM_USER_DATA,
+  GET_INSTAGRAM_USER_DATA_SUCCESS,
+  GET_INSTAGRAM_USER_DATA_FAIL,
+  GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS,
+  GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS_SUCCESS,
+  GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS_FAIL,
 } from "./actionTypes";
 
 export const getTikTokUserData = () => ({
@@ -39,7 +51,34 @@ export const getMonthlyPerformanceAnalyticsFail = (error) => ({
   payload: error,
 });
 
-// actions.js
+export const getFacebookUserData = () => ({
+  type: GET_FACEBOOK_USER_DATA,
+});
+
+export const getFacebookUserDataSuccess = (userData) => ({
+  type: GET_FACEBOOK_USER_DATA_SUCCESS,
+  payload: userData,
+});
+
+export const getFacebookUserDataFail = (error) => ({
+  type: GET_FACEBOOK_USER_DATA_FAIL,
+  payload: error,
+});
+
+export const getFacebookMonthlyPerformanceAnalytics = () => ({
+  type: GET_FACEBOOK_MONTHLY_PERFORMANCE_ANALYTICS,
+});
+
+export const getFacebookMonthlyPerformanceAnalyticsSuccess = (analyticsData) => ({
+  type: GET_FACEBOOK_MONTHLY_PERFORMANCE_ANALYTICS_SUCCESS,
+  payload: analyticsData,
+});
+
+export const getFacebookMonthlyPerformanceAnalyticsFail = (error) => ({
+  type: GET_FACEBOOK_MONTHLY_PERFORMANCE_ANALYTICS_FAIL,
+  payload: error,
+});
+
 export const getTicketEngagementStatistics = () => ({
   type: GET_TICKET_ENGAGEMENT_STATISTICS,
 });
@@ -54,3 +93,31 @@ export const getTicketEngagementStatisticsFail = (error) => ({
   payload: error,
 });
 
+export const getInstagramUserData = () => ({
+  type: GET_INSTAGRAM_USER_DATA,
+});
+
+export const getInstagramUserDataSuccess = (userData) =>  
+  ({
+  type: GET_INSTAGRAM_USER_DATA_SUCCESS,
+  payload: userData,
+});
+
+export const getInstagramUserDataFail = (error) => ({
+  type: GET_INSTAGRAM_USER_DATA_FAIL,
+  payload: error,
+});
+
+export const getInstagramMonthlyPerformanceAnalytics = () => ({
+  type: GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS,
+});
+
+export const getInstagramMonthlyPerformanceAnalyticsSuccess = (analyticsData) => ({
+  type: GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS_SUCCESS,
+  payload: analyticsData,
+});
+
+export const getInstagramMonthlyPerformanceAnalyticsFail = (error) => ({
+  type: GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS_FAIL,
+  payload: error,
+});

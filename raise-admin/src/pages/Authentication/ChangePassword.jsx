@@ -46,12 +46,15 @@ const ChangePassword = (props) => {
     }
   }, [resetError, resetSuccessMsg]);
 
-   useEffect(() => {
-      return () => {
-        setLocalError(null);
-        setLocalSuccessMsg(null);
-      };
-    }, []);
+  useEffect(() => {
+    setLocalError(null);
+    setLocalSuccessMsg(null);
+
+    return () => {
+      setLocalError(null);
+      setLocalSuccessMsg(null);
+    };
+  }, []);
 
   const validation = useFormik({
     enableReinitialize: true,

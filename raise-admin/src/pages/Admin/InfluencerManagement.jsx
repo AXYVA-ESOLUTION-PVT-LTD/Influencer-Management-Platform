@@ -118,8 +118,8 @@ const InfluencerManagement = (props) => {
 
       platform: Yup.string()
         .oneOf(
-          ["Youtube", "Instagram", "Tiktok"],
-          "Platform must be one of: youtube, instagram, tiktok"
+          ["Facebook", "Instagram", "Tiktok"],
+          "Platform must be one of: Facebook, Instagram, Tiktok"
         )
         .required("Platform is required"),
 
@@ -614,7 +614,7 @@ const InfluencerManagement = (props) => {
                 }`}
               >
                 <option value="">Select a platform</option>
-                <option value="Youtube">Youtube</option>
+                <option value="Facebook">Facebook</option>
                 <option value="Instagram">Instagram</option>
                 <option value="Tiktok">Tiktok</option>
               </select>

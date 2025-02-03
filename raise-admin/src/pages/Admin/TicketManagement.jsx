@@ -392,24 +392,35 @@ const TicketManagement = () => {
   };
 
   const handleTransactionSaveEdit = () => {
+    const errors = {
+      transactionId:
+        currentTransaction.status === "Approved" &&
+        !currentTransaction.transactionId.trim(),
+      status: !currentTransaction.status,
+    };
+
+    setIsFormSubmitted(true);
+    setValidationErrors(errors);
+
     const payload = {
       id: currentTransaction._id,
       transactionId: currentTransaction.transactionId,
       status: currentTransaction.status,
     };
-    // Update transaction
-    dispatch(updateTransaction(payload));
-    // get Transaction
-    dispatch(
-      getTransaction({
-        limit: newLimit,
-        pageCount: newPageCount,
-      })
-    );
-
-    setIsFormSubmitted(false);
-    setValidationErrors({ transactionId: false, status: false });
-    handleCloseEditTransactionModal();
+    if (!errors.transactionId && !errors.status) {
+      // Update transaction
+      dispatch(updateTransaction(payload));
+      // get Transaction
+      dispatch(
+        getTransaction({
+          limit: newLimit,
+          pageCount: newPageCount,
+        })
+      );
+      setIsFormSubmitted(false);
+      setValidationErrors({ transactionId: false, status: false });
+      handleCloseEditTransactionModal();
+    }
   };
 
   const handleCloseEditTransactionModal = () => setEditTransactionModal(false);
@@ -690,7 +701,10 @@ const TicketManagement = () => {
                   })
                 }
                 placeholder="Enter transaction ID"
-                invalid={!currentTransaction?.transactionId}
+                invalid={
+                  !currentTransaction?.transactionId &&
+                  currentTransaction?.status === "Approved"
+                }
               />
               {isFormSubmitted && validationErrors.transactionId && (
                 <div className="text-danger mt-1">
@@ -730,19 +744,7 @@ const TicketManagement = () => {
               backgroundColor: "var(--primary-purple)",
               color: "var(--primary-white)",
             }}
-            onClick={() => {
-              const errors = {
-                transactionId: !currentTransaction?.transactionId?.trim(),
-                status: !currentTransaction?.status,
-              };
-              setIsFormSubmitted(true);
-              setValidationErrors(errors);
-
-              // If there are no errors, proceed
-              if (!errors.transactionId && !errors.status) {
-                handleTransactionSaveEdit();
-              }
-            }}
+            onClick={handleTransactionSaveEdit}
           >
             Save
           </Button>

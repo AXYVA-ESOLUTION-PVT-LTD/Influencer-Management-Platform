@@ -1,25 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   Row,
   Col,
   CardBody,
-  Card,
-  Container,
-  Input,
-  Label,
-  Form,
-  FormFeedback,
-  Button,
-  Alert,
+  Card, Label,
+  Form, Button,
+  Alert
 } from "reactstrap";
 import * as Yup from "yup";
 import { useFormik } from "formik";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import withRouter from "../../components/Common/withRouter";
+import { toast } from "react-toastify";
 
 const OnBoarding = (props) => {
   document.title = "Register | Brandraise";
+  const location = useLocation();
   const navigate = useNavigate();
   const validationStep2 = useFormik({
     enableReinitialize: true,
@@ -27,9 +24,23 @@ const OnBoarding = (props) => {
       platform: "",
     },
     validationSchema: Yup.object({
-      platform: Yup.string().required("Please Select a Platform"), // Platform validation
+      platform: Yup.string().required("Please Select a Platform"), 
     }),
   });
+
+   // Check URL parameters for a specific message
+   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const message = params.get("message");
+
+    if (message) {
+      toast.error(message); // Show toast with the message
+
+      // Remove the parameter from the URL after showing the toast
+      params.delete("message");
+      navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+    }
+  }, [location, navigate]);
 
   const handleSubmit = async () => {
     const errorsStep2 = await validationStep2.validateForm();
@@ -38,15 +49,18 @@ const OnBoarding = (props) => {
         ...validationStep2.values,
       };
 
-      // Handle specific actions based on selected platform
       switch (mergedData.platform) {
         case "Tiktok":
-          handleTikTokLogin(); // Call TikTok login if selected
+          handleTikTokLogin(); 
+          break;
+        case "Facebook":
+          handleFacebookLogin(); 
+          break;
+        case "Instagram":
+          handleInstagramLogin(); 
           break;
         default:
-          // dispatch(updateUserName(mergedData, history)); // Handle other platform actions
           console.log("Another Platform");
-
           break;
       }
     } else {
@@ -63,6 +77,22 @@ const OnBoarding = (props) => {
     const tiktokAuthUrl = `${BASE_URL}${TIKTOK_AUTH_ENDPOINT}`;
     window.location.href = tiktokAuthUrl;
   };
+
+  const handleFacebookLogin = () =>{
+    const jwtToken = localStorage.getItem("authUser");
+    const BASE_URL = import.meta.env.VITE_APP_BASE_URL; 
+    const FACEBOOK_AUTH_ENDPOINT = `/facebook/auth/${jwtToken}`;
+    const facebookAuthUrl = `${BASE_URL}${FACEBOOK_AUTH_ENDPOINT}`;
+    window.location.href = facebookAuthUrl;
+  }
+
+  const handleInstagramLogin = () =>{
+    const jwtToken = localStorage.getItem("authUser");
+    const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
+    const INSTAGRAM_AUTH_ENDPOINT = `/instagram/auth/${jwtToken}`;
+    const instagramAuthUrl = `${BASE_URL}${INSTAGRAM_AUTH_ENDPOINT}`;
+    window.location.href = instagramAuthUrl;
+  }
 
   const handleNavigateToLogin = () => {
     navigate("/login");
@@ -183,34 +213,34 @@ const OnBoarding = (props) => {
                           >
                             <div
                               className={`d-flex align-items-center platform-option p-2 w-100 rounded border ${
-                                validationStep2.values.platform === "Youtube"
+                                validationStep2.values.platform === "Facebook"
                                   ? "border-primary border-2"
                                   : "border-dark"
                               }`}
                               onClick={() =>
                                 validationStep2.setFieldValue(
                                   "platform",
-                                  "Youtube"
+                                  "Facebook"
                                 )
                               }
                             >
                               <input
                                 type="radio"
-                                id="youtube"
+                                id="Facebook"
                                 name="platform"
-                                value="Youtube"
+                                value="Facebook"
                                 className="me-2"
                                 onChange={validationStep2.handleChange}
                                 onBlur={validationStep2.handleBlur}
                                 checked={
-                                  validationStep2.values.platform === "Youtube"
+                                  validationStep2.values.platform === "Facebook"
                                 }
                               />
                               <Label
-                                htmlFor="youtube"
+                                htmlFor="Facebook"
                                 className="d-block text-center mb-0"
                               >
-                                YouTube
+                                Facebook
                               </Label>
                             </div>
                           </Col>

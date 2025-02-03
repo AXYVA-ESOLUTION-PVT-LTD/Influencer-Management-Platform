@@ -77,8 +77,22 @@ const ProfilePage = () => {
       profilePhoto: "",
     },
     validationSchema: Yup.object({
-      firstName: Yup.string().required("Please Enter Your First Name"),
-      lastName: Yup.string().required("Please Enter Your Last Name"),
+      firstName: Yup.string()
+        .required("Please Enter Your First Name")
+        .min(2, "First Name must be at least 2 characters long")
+        .max(50, "First Name can't be longer than 50 characters")
+        .matches(
+          /^[A-Za-z\s]+$/,
+          "First Name should not contain numbers or special characters"
+        ),
+      lastName: Yup.string()
+        .required("Please Enter Your Last Name")
+        .min(2, "Last Name must be at least 2 characters long")
+        .max(50, "Last Name can't be longer than 50 characters")
+        .matches(
+          /^[A-Za-z\s]+$/,
+          "Last Name should not contain numbers or special characters"
+        ),
       profilePhoto: Yup.mixed(),
     }),
     onSubmit: (values) => {

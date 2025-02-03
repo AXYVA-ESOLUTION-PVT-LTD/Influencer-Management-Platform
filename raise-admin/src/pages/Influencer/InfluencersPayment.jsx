@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Button,
@@ -90,9 +90,12 @@ const InfluencersPayment = () => {
 
       // Get user Details
       let data = JSON.parse(localStorage.getItem("user"));
+
       // userId: "6719f9714d317f459da508d7", //server
+      // userId: "67334a52373c3328068f9157", //local
+
       const newNotification = {
-        userId: "67334a52373c3328068f9157", //local server
+        userId: "6719f9714d317f459da508d7",
         title: `${data.firstName} applied for a withdrawal request`,
         message: `${data.firstName} has requested to withdraw an amount of ${withdrawAmount}.`,
       };
@@ -135,8 +138,8 @@ const InfluencersPayment = () => {
     handleCloseDeleteModal();
   };
 
-  const columns = () =>
-    [
+  const columns = useMemo(
+    () => [
       {
         Header: "Transaction ID",
         accessor: (row) => row.transactionId || "-",
@@ -179,12 +182,12 @@ const InfluencersPayment = () => {
         Cell: ({ row: { original } }) => {
           const isApproved = original.status == "Approved";
           return (
-            <>
+            <div>
               <Button
                 color="link"
                 size="lg"
-                className="p-0"
-                onClick={() => handleDeleteTicket(original)}
+                className="p-0 me-2"
+                onClick={()=>handleDeleteTicket(original)}
                 disabled={isApproved}
               >
                 <i
@@ -204,11 +207,13 @@ const InfluencersPayment = () => {
                   style={{ color: "var(--primary-purple)" }}
                 ></i>
               </Button>
-            </>
+            </div>
           );
         },
       },
-    ].filter(Boolean);
+    ],
+    []
+  );
 
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("user"));
@@ -238,20 +243,23 @@ const InfluencersPayment = () => {
           </div>
 
           {showAlert && (
-              <Alert color="danger" className="mt-3 d-flex justify-content-between">
-                No Bank Account Added.{" "}
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate("/profile"); 
-                  }}
-                  className="text-primary"
-                >
-                  Add
-                </a>
-              </Alert>
-            )}
+            <Alert
+              color="danger"
+              className="mt-3 d-flex justify-content-between"
+            >
+              No Bank Account Added.{" "}
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/profile");
+                }}
+                className="text-primary"
+              >
+                Add
+              </a>
+            </Alert>
+          )}
 
           {loading ? (
             <div className="text-center space-top">
@@ -262,7 +270,7 @@ const InfluencersPayment = () => {
               {transaction.length ? (
                 <>
                   <TableContainer
-                    columns={columns(role)}
+                    columns={columns}
                     data={transaction}
                     isGlobalFilter={true}
                     isAddOptions={false}

@@ -297,30 +297,6 @@ function PublicationPage() {
         },
       },
       {
-        Header: "Screen Shots",
-        accessor: "screenshot",
-        isVisible: true,
-        Cell: ({ value }) => {
-          // Check if 'value' is a valid string URL for a single image
-          const screenshot = value;
-
-          return (
-            <div>
-              {screenshot && (
-                <div>
-                  <span
-                    onClick={() => handleImageClick(screenshot)}
-                    className="publication-screenshot-link"
-                  >
-                    Image
-                  </span>
-                </div>
-              )}
-            </div>
-          );
-        },
-      },
-      {
         Header: "Engagement Rate (ER)",
         accessor: "engagementRate",
         isVisible: filterHeader.ER,

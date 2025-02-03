@@ -211,7 +211,7 @@ button {
 .model-format {
   display: grid;
   gap: 10px !important;
-  grid-template-columns: 150px auto !important;;
+  grid-template-columns: 150px auto !important;
 }
 
 .brand-dropdown {
@@ -438,4 +438,9 @@ button {
 
 .box-loading-container{
   height: 150px;
+}
+
+.opportunity-description {
+  white-space: pre-wrap;
+  word-break: break-word;
 }

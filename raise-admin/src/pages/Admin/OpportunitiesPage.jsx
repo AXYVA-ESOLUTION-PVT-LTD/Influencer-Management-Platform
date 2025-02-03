@@ -76,7 +76,7 @@ const OpportunitiesPage = (props) => {
   const [csvFile, setCsvFile] = useState(null);
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(0);
-
+  const [brandData,setBrandData] = useState([]);
   // Meta title`
   document.title = "Opportunity | Brandraise ";
 
@@ -139,6 +139,11 @@ const OpportunitiesPage = (props) => {
     );
   }, []);
 
+
+  useEffect(()=>{
+      setBrandData(brands);
+  },[brands]);
+
   useEffect(() => {
     // When updating the record, format the date as YYYY-MM-DD if it's not already.
     if (selectedOpportunity.endDate) {
@@ -180,15 +185,17 @@ const OpportunitiesPage = (props) => {
 
     if (!OpportunityDetails.description.trim()) {
       newErrors.description = "Description is required.";
-    } else if (!/^[A-Za-z\s]+$/.test(OpportunityDetails.description.trim())) {
+    } else if (
+      !/^[A-Za-z0-9\s\-()]+$/.test(OpportunityDetails.description.trim())
+    ) {
       newErrors.description =
-        "Description should only contain letters and spaces.";
+        "Description should only contain letters, numbers, spaces, and the characters '-', '(', ')'.";
     } else if (OpportunityDetails.description.trim().length < 10) {
       newErrors.description =
         "Description must be at least 10 characters long.";
-    } else if (OpportunityDetails.description.trim().length > 500) {
+    } else if (OpportunityDetails.description.trim().length > 1000) {
       newErrors.description =
-        "Description can't be longer than 500 characters.";
+        "Description can't be longer than 1000 characters.";
     }
 
     if (!OpportunityDetails.location.trim()) {
@@ -362,25 +369,29 @@ const OpportunitiesPage = (props) => {
 
     if (!selectedOpportunity.description.trim()) {
       newUpdateErrors.description = "Description is required.";
-    } else if (!/^[A-Za-z\s]+$/.test(selectedOpportunity.description.trim())) {
+    } else if (
+      !/^[A-Za-z0-9\s\-()]+$/.test(selectedOpportunity.description.trim())
+    ) {
       newUpdateErrors.description =
-        "Description should only contain letters and spaces.";
+        "Description should only contain letters, numbers, spaces, and the characters '-', '(', ')'.";
     } else if (selectedOpportunity.description.trim().length < 10) {
       newUpdateErrors.description =
         "Description must be at least 10 characters long.";
-    } else if (selectedOpportunity.description.trim().length > 500) {
+    } else if (selectedOpportunity.description.trim().length > 1000) {
       newUpdateErrors.description =
-        "Description can't be longer than 500 characters.";
+        "Description can't be longer than 1000 characters.";
     }
 
     if (!selectedOpportunity.location.trim()) {
       newUpdateErrors.location = "Location is required.";
     } else if (!/^[A-Za-z\s]+$/.test(selectedOpportunity.location.trim())) {
-      newUpdateErrors.location = "Location should only contain letters and spaces.";
+      newUpdateErrors.location =
+        "Location should only contain letters and spaces.";
     } else if (selectedOpportunity.location.trim().length < 3) {
       newUpdateErrors.location = "Location must be at least 3 characters long.";
     } else if (selectedOpportunity.location.trim().length > 100) {
-      newUpdateErrors.location = "Location can't be longer than 100 characters.";
+      newUpdateErrors.location =
+        "Location can't be longer than 100 characters.";
     }
     if (!selectedOpportunity.brand.trim()) {
       newUpdateErrors.brand = "Company is required.";
@@ -533,8 +544,12 @@ const OpportunitiesPage = (props) => {
       {
         Header: "Description",
         accessor: "description",
+        Cell: ({ value }) => (
+          <div>
+            {value.length > 30 ? `${value.substring(0, 30)}...` : value}
+          </div>
+        ),
       },
-
       {
         Header: "Location",
         accessor: "location",
@@ -744,9 +759,7 @@ const OpportunitiesPage = (props) => {
               <div className="mb-2">
                 <p>Current Image:</p>
                 <img
-                  src={`${import.meta.env.VITE_APP_BASE_IMAGE_URL}${
-                    OpportunityDetails.imageUrl
-                  }`}
+                  src={getImageUrl(OpportunityDetails.imageUrl)}
                   alt="Current"
                   className="influencer-image"
                 />
@@ -850,7 +863,7 @@ const OpportunitiesPage = (props) => {
               onBlur={validateForm}
             >
               <option value="">Select a Company</option>
-              {brands?.map((brand) =>
+              {brandData?.map((brand) =>
                 brand.companyName ? (
                   <option key={brand.id} value={brand.companyName}>
                     {brand.companyName}
@@ -1123,7 +1136,9 @@ const OpportunitiesPage = (props) => {
                 <span>: {selectedOpportunity.type}</span>
 
                 <strong>Description</strong>
-                <span>: {selectedOpportunity.description}</span>
+                <span className="opportunity-description">
+                  : {selectedOpportunity.description}
+                </span>
 
                 <strong>Location</strong>
                 <span>: {selectedOpportunity.location}</span>

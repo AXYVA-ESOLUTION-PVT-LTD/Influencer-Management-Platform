@@ -10,7 +10,7 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
-  Spinner
+  Spinner,
 } from "reactstrap";
 import TableContainer from "../../components/Common/TableContainer";
 import Pagination from "../../components/Common/Pagination";
@@ -59,39 +59,42 @@ const PaymentPage = () => {
   };
 
   const columns = useMemo(
-      () => [
-        {
-          Header: "Name",
-          accessor: "influencerId.username",
-        },
-        {
-          Header: "Email",
-          accessor: "influencerId.email",
-        },
-        {
-          Header: "Balance",
-          accessor: "balance",
-          Cell: ({ value }) => value.toFixed(2),
-        },
-        {
-          Header: "Actions",
-          accessor: "actions",
-          Cell: ({ row: { original } }) => (
-            <>
-              <Button
-                color="link"
-                size="lg"
-                className="p-0 me-2"
-                onClick={() => handleUpdateWallet(original)}
-              >
-                <i className="bx bx-edit" style={{ color:"var(--secondary-yellow)" }}></i>
-              </Button>
-            </>
-          ),
-        },
-      ],
-      [handleUpdateWallet]
-    );
+    () => [
+      {
+        Header: "Name",
+        accessor: "influencerId.username",
+      },
+      {
+        Header: "Email",
+        accessor: "influencerId.email",
+      },
+      {
+        Header: "Balance",
+        accessor: "balance",
+        Cell: ({ value }) => value.toFixed(2),
+      },
+      {
+        Header: "Actions",
+        accessor: "actions",
+        Cell: ({ row: { original } }) => (
+          <>
+            <Button
+              color="link"
+              size="lg"
+              className="p-0 me-2"
+              onClick={() => handleUpdateWallet(original)}
+            >
+              <i
+                className="bx bx-edit"
+                style={{ color: "var(--secondary-yellow)" }}
+              ></i>
+            </Button>
+          </>
+        ),
+      },
+    ],
+    [handleUpdateWallet]
+  );
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -119,9 +122,9 @@ const PaymentPage = () => {
       updateWallet({
         id: selectedWallet._id,
         payload: {
-          influencerId: selectedWallet.influencerId._id, 
+          influencerId: selectedWallet.influencerId._id,
           balance: formData.amount,
-          transactionType: formData.transactionType
+          transactionType: formData.transactionType,
         },
       })
     );
@@ -134,7 +137,7 @@ const PaymentPage = () => {
         limit,
         pageCount,
         sortBy,
-        sortOrder
+        sortOrder,
       })
     );
   }, [dispatch, limit, pageCount, sortBy, sortOrder]);
@@ -144,9 +147,7 @@ const PaymentPage = () => {
       <div className="page-content">
         <Container fluid>
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h4 className="font-size-18 text-uppercase">
-              Wallet
-            </h4>
+            <h4 className="font-size-18 text-uppercase">Wallet</h4>
           </div>
           {loading ? (
             <div className="text-center space-top">
@@ -154,27 +155,33 @@ const PaymentPage = () => {
             </div>
           ) : (
             <>
-              <TableContainer
-                columns={columns}
-                data={wallets}
-                isGlobalFilter={false}
-                isAddOptions={false}
-                customPageSize={10}
-                className="custom-header-css"
-                isPagination={false}
-                setSortBy={setSortBy}
-                sortBy={sortBy}
-                setSortOrder={setSortOrder}
-                sortOrder={sortOrder}
-              />
-              <Pagination
-                totalData={totalWallets}
-                setLimit={setLimit}
-                setPageCount={setPageCount}
-                limit={limit}
-                pageCount={pageCount}
-                currentPage={pageCount}
-              />
+              {wallets.length ? (
+                <>
+                  <TableContainer
+                    columns={columns}
+                    data={wallets}
+                    isGlobalFilter={false}
+                    isAddOptions={false}
+                    customPageSize={10}
+                    className="custom-header-css"
+                    isPagination={false}
+                    setSortBy={setSortBy}
+                    sortBy={sortBy}
+                    setSortOrder={setSortOrder}
+                    sortOrder={sortOrder}
+                  />
+                  <Pagination
+                    totalData={totalWallets}
+                    setLimit={setLimit}
+                    setPageCount={setPageCount}
+                    limit={limit}
+                    pageCount={pageCount}
+                    currentPage={pageCount}
+                  />
+                </>
+              ) : (
+                  <h1 className="text-center space-top">No Wallet Found</h1>
+              )}
             </>
           )}
         </Container>
@@ -182,7 +189,7 @@ const PaymentPage = () => {
 
       <Modal isOpen={isUpdateModalOpen} toggle={toggleUpdateModal}>
         <ModalHeader toggle={toggleUpdateModal}>Update Wallet</ModalHeader>
-          <ModalBody>
+        <ModalBody>
           <FormGroup>
             <Label for="amount">Amount</Label>
             <Input
@@ -226,24 +233,23 @@ const PaymentPage = () => {
               </FormGroup>
             </div>
           </FormGroup>
+        </ModalBody>
 
-          </ModalBody>
-        
-          <ModalFooter>
-            <Button color="secondary" onClick={toggleAmountModal}>
-              Cancel
-            </Button>
-            <Button
-              className="border-none"
-              style={{
-                backgroundColor: "var(--primary-purple)",
-                color: "var(--primary-white)",
-              }}
-              onClick={handleSubmit}
-            >
-              Submit
-            </Button>
-          </ModalFooter>
+        <ModalFooter>
+          <Button color="secondary" onClick={toggleAmountModal}>
+            Cancel
+          </Button>
+          <Button
+            className="border-none"
+            style={{
+              backgroundColor: "var(--primary-purple)",
+              color: "var(--primary-white)",
+            }}
+            onClick={handleSubmit}
+          >
+            Submit
+          </Button>
+        </ModalFooter>
       </Modal>
     </React.Fragment>
   );
