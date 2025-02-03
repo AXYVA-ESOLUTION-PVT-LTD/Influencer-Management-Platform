@@ -118,13 +118,12 @@ const OpportunitiesPage = (props) => {
 
     dispatch(createTicketNotification(newTicket));
 
-    
     const newNotification = {
       userId: USER_ID,
       title: `Applied for ${selectedOpportunity.title}`,
       message: description,
     };
-
+    
     dispatch(createNotification(newNotification));
     
     setAppliedOpportunities((prevApplied) => [
