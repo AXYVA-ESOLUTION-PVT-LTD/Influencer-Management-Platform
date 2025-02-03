@@ -2,6 +2,7 @@ const { validationResult } = require("express-validator");
 const CONSTANT = require("../config/constant");
 const USER_COLLECTION = require("../module/user.module");
 const ROLE_COLLECTION = require("../module/role.module");
+const WALLET_COLLECTION = require("../module/wallet.module");
 const {
   generatePassword,
   sendEmail,
@@ -31,31 +32,45 @@ async function _addInfluencer(req, res) {
       return res.send(json);
     }
 
-    const { firstName, lastName, email, roleName, country, phoneNumber, city, platform, username } = req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      roleName,
+      country,
+      phoneNumber,
+      city,
+      platform,
+      username,
+    } = req.body;
 
     const isEmailExisting = await USER_COLLECTION.findOne({ email });
-    const isPhoneNumberExisting = await USER_COLLECTION.findOne({ phoneNumber });
+    const isPhoneNumberExisting = await USER_COLLECTION.findOne({
+      phoneNumber,
+    });
     const isUsernameExisting = await USER_COLLECTION.findOne({ username });
 
-   if (isEmailExisting || isPhoneNumberExisting || isUsernameExisting) {
+    if (isEmailExisting || isPhoneNumberExisting || isUsernameExisting) {
       let errors = [];
 
       if (isEmailExisting) {
         errors.push("This email is already in use. Try another.");
       }
-      
+
       if (isPhoneNumberExisting) {
-        errors.push("This phone number is taken. Please choose a different one.");
+        errors.push(
+          "This phone number is taken. Please choose a different one."
+        );
       }
 
       if (isUsernameExisting) {
         errors.push("This username is already taken. Pick another.");
       }
-      
+
       json.status = CONSTANT.FAIL;
       json.result = {
-        error: "Fail to create Brand",
-        details: errors, 
+        error: "Fail to create Influencer",
+        details: errors,
       };
       return res.send(json);
     }
@@ -85,6 +100,7 @@ async function _addInfluencer(req, res) {
       platform,
       username,
     });
+
     if (!user) {
       json.status = CONSTANT.FAIL;
       json.result = {
@@ -92,6 +108,13 @@ async function _addInfluencer(req, res) {
       };
       return res.send(json);
     }
+
+    const wallet = new WALLET_COLLECTION({
+      influencerId: user._id,
+      balance: 0
+    });
+
+    await wallet.save();
 
     let mailOptions = {
       from: '"RAISE" <raise@raise.com>',
@@ -214,9 +237,9 @@ async function _addInfluencer(req, res) {
     </body>
     </html>`,
     };
-    
 
-    await sendEmail(mailOptions);
+    const sendMailData = await sendEmail(mailOptions);
+    console.log("sendMailData : ------------------->", sendMailData);
     const { password: userPassword, ...sanitizeUser } = user.toObject();
     json.status = CONSTANT.SUCCESS;
     json.result = {
@@ -227,10 +250,7 @@ async function _addInfluencer(req, res) {
     };
     return res.send(json);
   } catch (e) {
-    console.error(
-      "Controller: influencer | Method: _addInfluencer | Error: ",
-      e
-    );
+    console.log("Controller: influencer | Method: _addInfluencer | Error: ", e);
     json.status = CONSTANT.FAIL;
     json.result = {
       message: "An error occurred while adding new Influencer",
@@ -262,8 +282,16 @@ async function _getInfluencers(req, res) {
     let query = {};
     let sort = {};
 
-    const { roleName, firstName, lastName, email, status, sortBy, sortOrder, allrecord } =
-      req.body;
+    const {
+      roleName,
+      firstName,
+      lastName,
+      email,
+      status,
+      sortBy,
+      sortOrder,
+      allrecord,
+    } = req.body;
 
     const role = await ROLE_COLLECTION.findOne({ name: roleName });
 

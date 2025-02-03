@@ -192,14 +192,14 @@ const _updatePayment = async (req, res) => {
     branchName,
     upiId,
     phoneNumber,
-    paymentMethod,
+    paymentType,
   } = req.body;
 
   const json = {};
   const { id } = req.decoded; // Get the influencerId from decoded JWT
 
   // Validate the payment method and ensure data consistency
-  if (!paymentMethod || !["Bank", "GPay", "PayPal"].includes(paymentMethod)) {
+  if (!paymentType || !["Bank", "GPay", "PayPal"].includes(paymentType)) {
     json.status = CONSTANT.FAIL;
     json.result = {
       message: "Invalid payment method",
@@ -211,20 +211,20 @@ const _updatePayment = async (req, res) => {
   // Prepare the updated payment data based on the payment method
   const updateData = {
     influencerId: id, // Set the influencerId from decoded JWT
-    paymentType: paymentMethod,
-    accountHolderName: paymentMethod === "Bank" ? accountHolderName : undefined,
-    accountNumber: paymentMethod === "Bank" ? accountNumber : undefined,
-    ifscCode: paymentMethod === "Bank" ? ifscCode : undefined,
-    bankName: paymentMethod === "Bank" ? bankName : undefined,
-    branchName: paymentMethod === "Bank" ? branchName : undefined,
-    upiId: paymentMethod === "GPay" ? upiId : undefined,
-    phoneNumber: paymentMethod === "PayPal" ? phoneNumber : undefined,
+    paymentType: paymentType,
+    accountHolderName: paymentType === "Bank" ? accountHolderName : undefined,
+    accountNumber: paymentType === "Bank" ? accountNumber : undefined,
+    ifscCode: paymentType === "Bank" ? ifscCode : undefined,
+    bankName: paymentType === "Bank" ? bankName : undefined,
+    branchName: paymentType === "Bank" ? branchName : undefined,
+    upiId: paymentType === "GPay" ? upiId : undefined,
+    phoneNumber: paymentType === "PayPal" ? phoneNumber : undefined,
   };
 
   try {
     // Update the payment document based on influencerId and paymentType
     const updatedPayment = await PAYMENT_COLLECTION.findOneAndUpdate(
-      { influencerId: id, paymentType: paymentMethod },
+      { influencerId: id, paymentType: paymentType },
       updateData,
       { new: true } // Return the updated document
     );

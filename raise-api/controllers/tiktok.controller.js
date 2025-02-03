@@ -49,8 +49,7 @@ async function _auth(req, res) {
 }
 
 async function _authCallback(req, res) {
-  const FRONTEND_URL = "http://localhost:3000"; //localhost
-  // const FRONTEND_URL = "http://dash.brandraise.io"; //server
+  const FRONTEND_URL = process.env.FRONTEND_URL;
 
   try {
     const fetch = (await import("node-fetch")).default;
@@ -76,6 +75,9 @@ async function _authCallback(req, res) {
 
     const data = await response.json();
     const accessToken = data.access_token;
+    const refreshToken = data.refresh_token;
+    const newExpiresIn = data.expires_in;
+    const newExpiryTime = Date.now() + newExpiresIn * 1000;
 
     const userInfoResponse = await fetch(
       `https://open-api.tiktok.com/v2/user/info/?fields=open_id,union_id,avatar_url,display_name,username`,
@@ -87,57 +89,75 @@ async function _authCallback(req, res) {
         },
       }
     );
+
     const userInfo = await userInfoResponse.json();
 
     const decodedToken = jwt.verify(state, process.env.superSecret);
 
     const userId = decodedToken.id;
 
-    const existingUser = await USER_COLLECTION.findById(userId);
-
-    existingUser.username = userInfo.data.user.username;
-    existingUser.platform = "Tiktok";
-    existingUser.isVerified = true;
-    existingUser.accessToken = accessToken;
-    existingUser.status = true;
-
-    await existingUser.save();
-
-    let userObj = {
-      id: existingUser._id,
-      email: existingUser.email,
-      firstName: existingUser.firstName,
-      lastName: existingUser.lastName,
-      roleId: existingUser.roleId,
-      accessToken: existingUser.accessToken,
-      platform: existingUser.platform,
-      username: existingUser.username,
-    };
-
-    const newToken = jwt.sign(userObj, process.env.superSecret, {
-      expiresIn: 86400,
+    const existUserName = await USER_COLLECTION.findOne({
+      username: userInfo.data.user.username,
+      platform: CONSTANT.TIKTOK,
     });
 
-    const populatedUser = await USER_COLLECTION.findById(
-      existingUser._id
-    ).populate({
-      path: "roleId",
-      model: "Role",
-      select: ["name"],
-    });
+    if (existUserName) {
+      const redirectURL = `${FRONTEND_URL}/onboarding?message=User%20already%20logged%20in%20with%20this%20TikTok%20account`;
+      return res.redirect(redirectURL);
+    } else {
 
-    const {
-      password: _,
-      createdAt,
-      updatedAt,
-      ...userWithoutSensitiveInfo
-    } = populatedUser.toObject();
+      const existingUser = await USER_COLLECTION.findById(userId).populate({
+        path: "roleId",
+        model: "Role",
+        select: ["name"],
+      });
 
-    const datas = { token: newToken, user: userWithoutSensitiveInfo };
-    const encodedData = encodeURIComponent(JSON.stringify(datas));
-    const redirectURL = `${FRONTEND_URL}/login/callback?data=${encodedData}`;
+      existingUser.username = userInfo.data.user.username;
+      existingUser.platform = CONSTANT.TIKTOK;
+      existingUser.isVerified = true;
+      existingUser.accessToken = accessToken;
+      existingUser.status = true;
+      existingUser.refreshToken = refreshToken;
+      existingUser.expiresIn = newExpiryTime;
 
-    return res.redirect(redirectURL);
+      await existingUser.save();
+
+      let userObj = {
+        id: existingUser._id,
+        email: existingUser.email,
+        firstName: existingUser.firstName,
+        lastName: existingUser.lastName,
+        roleId: existingUser.roleId,
+        accessToken: existingUser.accessToken,
+        platform: existingUser.platform,
+        username: existingUser.username,
+      };
+
+      const newToken = jwt.sign(userObj, process.env.superSecret, {
+        expiresIn: 86400,
+      });
+
+      const populatedUser = await USER_COLLECTION.findById(
+        existingUser._id
+      ).populate({
+        path: "roleId",
+        model: "Role",
+        select: ["name"],
+      });
+
+      const {
+        password: _,
+        createdAt,
+        updatedAt,
+        ...userWithoutSensitiveInfo
+      } = populatedUser.toObject();
+
+      const datas = { token: newToken, user: userWithoutSensitiveInfo };
+      const encodedData = encodeURIComponent(JSON.stringify(datas));
+      const redirectURL = `${FRONTEND_URL}/login/callback?data=${encodedData}`;
+
+      return res.redirect(redirectURL);
+    }
   } catch (error) {
     console.log(error);
 
@@ -150,16 +170,101 @@ async function _authCallback(req, res) {
   }
 }
 
-async function _getTikTokUserData(req, res) {
-  const accessToken = req.headers.authorization?.split(" ")[1];
+async function handleUserToken(accessToken) {
+  try {
+    const existingUser = await USER_COLLECTION.findOne({
+      accessToken: accessToken,
+    });
+    
+    if (!existingUser) {
+      throw new Error("User not found");
+    }
 
+    const expireTokenTime = existingUser.expiresIn;
+    const refreshToken = existingUser.refreshToken;
+
+    if (isTokenExpired(expireTokenTime)) {
+      // Refresh the token if expired
+      const { newAccessToken, newExpiryTime, newRefreshToken } =
+        await refreshAccessToken(refreshToken);
+
+      try {
+        const result = await USER_COLLECTION.updateOne(
+          { _id: existingUser._id },
+          {
+            $set: {
+              accessToken: newAccessToken,
+              expiresIn: newExpiryTime,
+              refreshToken: newRefreshToken,
+            },
+          }
+        );
+
+        return newAccessToken;
+      } catch (error) {
+        console.error("Error updating user:", error);
+      }
+    } else {
+      // Token is still valid
+      return accessToken;
+    }
+  } catch (error) {
+    console.error("Error handling token:", error);
+  }
+}
+
+function isTokenExpired(expiryTime) {
+  return Date.now() > expiryTime;
+}
+
+async function refreshAccessToken(refreshToken) {
+  try {
+    const refreshURL = "https://open.tiktokapis.com/v2/oauth/token/";
+    const body = qs.stringify({
+      client_key: CLIENT_ID,
+      client_secret: CLIENT_SECRET,
+      refresh_token: refreshToken,
+      grant_type: "refresh_token",
+    });
+
+    const response = await fetch(refreshURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: body,
+    });
+
+    const data = await response.json();
+    const newAccessToken = data.access_token;
+    const newExpiresIn = data.expires_in;
+    const newRefreshToken = data.refresh_token;
+
+    const newExpiryTime = Date.now() + newExpiresIn * 1000;
+
+    return { newAccessToken, newExpiryTime, newRefreshToken };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function _getTikTokUserData(req, res) {
+  let accessToken = req.headers.authorization?.split(" ")[1];
+  let validAccessToken = await handleUserToken(accessToken);
+  if (validAccessToken === undefined) {
+    json.status = CONSTANT.FAIL;
+    json.result = {
+      message: "Invalid or expired access token. Please authenticate again.",
+    };
+    return res.send(json);
+  }
   try {
     const userInfoPromise = fetch(
       `https://open-api.tiktok.com/v2/user/info/?fields=open_id,union_id,avatar_url,display_name,username,avatar_url_100,avatar_large_url,bio_description,profile_deep_link,is_verified,follower_count,following_count,likes_count,video_count`,
       {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${validAccessToken}`,
           "Content-Type": "application/json",
         },
       }
@@ -170,7 +275,7 @@ async function _getTikTokUserData(req, res) {
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${validAccessToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -209,6 +314,7 @@ async function _getTikTokUserData(req, res) {
     };
     return res.send(json);
   } catch (error) {
+    console.error("An error occurred while fetch user details : ", error);
     json.status = CONSTANT.FAIL;
     json.result = {
       message: "An error occurred while fetch user details",
@@ -222,14 +328,21 @@ async function _MonthlyPerformanceTikTokAnalytics(req, res) {
   const accessToken = req.headers.authorization?.split(" ")[1];
   const json = {};
   const currentMonth = moment().format("M");
-
+  let validAccessToken = await handleUserToken(accessToken);
+  if (validAccessToken === undefined) {
+    json.status = CONSTANT.FAIL;
+    json.result = {
+      message: "Invalid or expired access token. Please authenticate again.",
+    };
+    return res.send(json);
+  }
   try {
     const videoDataPromise = fetch(
       `https://open-api.tiktok.com/v2/video/list/?fields=id,title,video_description,duration,cover_image_url,embed_link,view_count,share_count,like_count,video_description,share_url,create_time,comment_count,embed_html,height,width`,
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${validAccessToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -254,29 +367,58 @@ async function _MonthlyPerformanceTikTokAnalytics(req, res) {
 
     const getMonthYear = (timestamp) => {
       const date = new Date(timestamp * 1000);
-      return date.getMonth();
+      return {
+        month: date.getMonth(),
+        year: date.getFullYear(),
+      };
     };
+    
+    // const getMonthYear = (timestamp) => {
+    //   const date = new Date(timestamp * 1000);
+    //   return date.getMonth();
+    // };
 
-    let postCountPerMonth = Array(+currentMonth).fill(0);
-    let engagementRatePerMonth = Array(+currentMonth).fill(0);
-    let commentCountPerMonth = Array(+currentMonth).fill(0);
-    let likeCountPerMonth = Array(+currentMonth).fill(0);
-    let shareCountPerMonth = Array(+currentMonth).fill(0);
-    let viewCountPerMonth = Array(+currentMonth).fill(0);
+    let postCountPerMonth = Array(12).fill(0);
+    let engagementRatePerMonth = Array(12).fill(0);
+    let commentCountPerMonth = Array(12).fill(0);
+    let likeCountPerMonth = Array(12).fill(0);
+    let shareCountPerMonth = Array(12).fill(0);
+    let viewCountPerMonth = Array(12).fill(0);
+    const currentYear = new Date().getFullYear();
 
     await Promise.all(
-      userVideoData.map((video) => {
-        return new Promise((resolve) => {
-          const month = getMonthYear(video.create_time);
-          postCountPerMonth[month]++;
-          commentCountPerMonth[month] += video.comment_count;
-          likeCountPerMonth[month] += video.like_count;
-          shareCountPerMonth[month] += video.share_count;
-          viewCountPerMonth[month] += video.view_count;
-          resolve();
-        });
-      })
+      userVideoData
+        .filter((video) => {
+          const { year } = getMonthYear(video.create_time);
+          return year === currentYear; // Filter for videos created in the current year
+        })
+        .map((video) => {
+          return new Promise((resolve) => {
+            const { month } = getMonthYear(video.create_time);
+    
+            postCountPerMonth[month]++;
+            commentCountPerMonth[month] += video.comment_count || 0;
+            likeCountPerMonth[month] += video.like_count || 0;
+            shareCountPerMonth[month] += video.share_count || 0;
+            viewCountPerMonth[month] += video.view_count || 0;
+    
+            resolve();
+          });
+        })
     );
+    // await Promise.all(
+    //   userVideoData.map((video) => {
+    //     return new Promise((resolve) => {
+    //       const month = getMonthYear(video.create_time);
+    //       postCountPerMonth[month]++;
+    //       commentCountPerMonth[month] += video.comment_count;
+    //       likeCountPerMonth[month] += video.like_count;
+    //       shareCountPerMonth[month] += video.share_count;
+    //       viewCountPerMonth[month] += video.view_count;
+    //       resolve();
+    //     });
+    //   })
+    // );
 
     engagementRatePerMonth = engagementRatePerMonth.map((_, index) => {
       const views = viewCountPerMonth[index];
@@ -301,6 +443,10 @@ async function _MonthlyPerformanceTikTokAnalytics(req, res) {
     };
     return res.send(json);
   } catch (error) {
+    console.error(
+      "An error occurred while processing Monthly analytics : ",
+      error
+    );
     json.status = CONSTANT.FAIL;
     json.result = {
       message: "An error occurred while processing analytics",
