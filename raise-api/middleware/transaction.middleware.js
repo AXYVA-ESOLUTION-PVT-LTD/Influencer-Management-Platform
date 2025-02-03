@@ -14,14 +14,14 @@ const validateAddTransaction = [
 ];
 
 const validateUpdateTransaction = [
-  check("transactionId")
-    .exists()
-    .withMessage("Transaction id is required!")
-    .bail()
-    .trim()
-    .isString()
-    .notEmpty()
-    .withMessage("Transaction id cannot be empty!"),
+  check("transactionId").custom((value, { req }) => {
+    if (req.body.status === "Approved") {
+      if (!value || value.trim() === "") {
+        throw new Error("Transaction id is required!");
+      }
+    }
+    return true;
+  }),
   check("status")
     .exists()
     .withMessage("Status is required!")

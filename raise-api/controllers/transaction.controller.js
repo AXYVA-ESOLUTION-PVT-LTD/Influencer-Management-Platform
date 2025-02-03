@@ -30,8 +30,8 @@ async function _createTransaction(req, res) {
     } else {
       const { id } = req.decoded;
       let { amount } = req.body;
-  
-      const existWallet = await WALLET_COLLECTION.findOne({influencerId: id });
+
+      const existWallet = await WALLET_COLLECTION.findOne({ influencerId: id });
       if (!existWallet) {
         json.status = CONSTANT.FAIL;
         json.result = {
@@ -42,7 +42,8 @@ async function _createTransaction(req, res) {
       } else if (+amount > existWallet.balance) {
         json.status = CONSTANT.FAIL;
         json.result = {
-          message: "You have not sufficient balance in your wallet to withdraw!",
+          message:
+            "You have not sufficient balance in your wallet to withdraw!",
           error: "You have not sufficient balance in your wallet to withdraw!",
         };
         return res.send(json);
@@ -51,28 +52,33 @@ async function _createTransaction(req, res) {
         const newTransaction = new TRANSACTION_COLLECTION({
           influencerId: id,
           walletId: existWallet._id,
-          amount: +amount.toFixed(2)
+          amount: +amount.toFixed(2),
         });
-        newTransaction.save().then((result) => {
-          json.status = CONSTANT.SUCCESS;
-          json.result = {
-            message: "New transaction created successfully!",
-            data: result,
-          };
-          return res.send(json);
-        })
-        .catch((error) => {
-          json.status = CONSTANT.FAIL;
-          json.result = {
-            message: "An error occurred while create new transaction!",
-            error: error,
-          };
-          return res.send(json);
-        });
+        newTransaction
+          .save()
+          .then((result) => {
+            json.status = CONSTANT.SUCCESS;
+            json.result = {
+              message: "New transaction created successfully!",
+              data: result,
+            };
+            return res.send(json);
+          })
+          .catch((error) => {
+            json.status = CONSTANT.FAIL;
+            json.result = {
+              message: "An error occurred while create new transaction!",
+              error: error,
+            };
+            return res.send(json);
+          });
       }
     }
   } catch (e) {
-    console.error("Controller: transaction | Method: _createTransaction | Error: ", e);
+    console.error(
+      "Controller: transaction | Method: _createTransaction | Error: ",
+      e
+    );
     json.status = CONSTANT.FAIL;
     json.result = {
       message: "An error occurred while create new transaction!",
@@ -99,16 +105,22 @@ async function _getTransactionById(req, res) {
       return res.send(json);
     } else {
       json.status = CONSTANT.SUCCESS;
-      json.result = { 
-        message: "Transaction found successfully!", 
-        data: existTransaction 
+      json.result = {
+        message: "Transaction found successfully!",
+        data: existTransaction,
       };
       return res.send(json);
     }
   } catch (e) {
-    console.error("Controller: transaction | Method: _getTransactionById | Error: ", e);
+    console.error(
+      "Controller: transaction | Method: _getTransactionById | Error: ",
+      e
+    );
     json.status = CONSTANT.FAIL;
-    json.result = { message: "An error occurred while get transaction!", error: e };
+    json.result = {
+      message: "An error occurred while get transaction!",
+      error: e,
+    };
     return res.send(json);
   }
 }
@@ -119,23 +131,28 @@ TODO: Get all transactions
 */
 async function _getTransactions(req, res) {
   try {
-    let query={};
+    let query = {};
     const { id, roleId } = req.decoded;
     const limit = req.body.limit ? req.body.limit : 10;
     const pageCount = req.body.pageCount ? req.body.pageCount : 0;
     const skip = limit * pageCount;
 
-    if(roleId && roleId.name == "Influencer"){
+    if (roleId && roleId.name == "Influencer") {
       var influencerQuery = { influencerId: id };
       query = Object.assign({}, query, influencerQuery);
     }
 
     var totalRecords = await TRANSACTION_COLLECTION.countDocuments(query);
-    var result = await TRANSACTION_COLLECTION.find(query).collation({ locale: "en", strength: 2 }).sort({ updatedAt: "desc" }).skip(skip).limit(limit).populate({
-      path: "influencerId",
-      model: "User",
-      select: ["firstName", "lastName", "username"],
-    });
+    var result = await TRANSACTION_COLLECTION.find(query)
+      .collation({ locale: "en", strength: 2 })
+      .sort({ updatedAt: "desc" })
+      .skip(skip)
+      .limit(limit)
+      .populate({
+        path: "influencerId",
+        model: "User",
+        select: ["firstName", "lastName", "username"],
+      });
     if (!result) {
       json.status = CONSTANT.FAIL;
       json.result = {
@@ -153,9 +170,15 @@ async function _getTransactions(req, res) {
       return res.send(json);
     }
   } catch (e) {
-    console.error("Controller: transaction | Method: _getTransactions | Error: ", e);
+    console.error(
+      "Controller: transaction | Method: _getTransactions | Error: ",
+      e
+    );
     json.status = CONSTANT.FAIL;
-    json.result = { message: "An error occurred while get transactions!", error: e };
+    json.result = {
+      message: "An error occurred while get transactions!",
+      error: e,
+    };
     return res.send(json);
   }
 }
@@ -167,6 +190,7 @@ TODO: Update transaction detail by id
 async function _updateTransactionDetailById(req, res) {
   try {
     const errors = validationResult(req).array();
+    console.log(errors);
     if (errors && errors.length > 0) {
       let messArr = errors.map((a) => a.msg);
       json.status = CONSTANT.FAIL;
@@ -178,8 +202,9 @@ async function _updateTransactionDetailById(req, res) {
     } else {
       const id = req.params.id;
       const { transactionId, status } = req.body;
-  
+
       const existTransaction = await TRANSACTION_COLLECTION.findById(id);
+
       if (!existTransaction) {
         json.status = CONSTANT.FAIL;
         json.result = {
@@ -188,7 +213,9 @@ async function _updateTransactionDetailById(req, res) {
         };
         return res.send(json);
       } else {
-        const existWallet = await WALLET_COLLECTION.findById(existTransaction.walletId);
+        const existWallet = await WALLET_COLLECTION.findById(
+          existTransaction.walletId
+        );
         if (!existWallet) {
           json.status = CONSTANT.FAIL;
           json.result = {
@@ -196,20 +223,60 @@ async function _updateTransactionDetailById(req, res) {
             error: "Wallet does not exist for this user!",
           };
           return res.send(json);
-        } else if (existWallet.balance < existTransaction.amount) {
-          json.status = CONSTANT.FAIL;
-          json.result = {
-            message: "User have not sufficient balance in wallet to withdraw!",
-            error: "User have not sufficient balance in wallet to withdraw!",
-          };
-          return res.send(json);
+        } else if (status == "Approved") {
+          if (existWallet.balance < existTransaction.amount) {
+            json.status = CONSTANT.FAIL;
+            json.result = {
+              message:
+                "User does not have sufficient balance in wallet to withdraw!",
+              error:
+                "User does not have sufficient balance in wallet to withdraw!",
+            };
+            return res.send(json);
+          }
+          else {
+            const transactionObj = {
+              transactionId: transactionId || "",
+              status: status,
+            };
+  
+            const transaction = await TRANSACTION_COLLECTION.findByIdAndUpdate(
+              id,
+              transactionObj,
+              { new: true }
+            );
+            if (!transaction) {
+              json.status = CONSTANT.FAIL;
+              json.result = {
+                message: "Fail to update transaction",
+              };
+              return res.send(json);
+            } else {
+                existWallet.balance =
+                  existWallet.balance - +existTransaction.amount;
+                await existWallet.save();
+  
+              json.status = CONSTANT.SUCCESS;
+              json.result = {
+                message: "Transaction updated successfully",
+                data: {
+                  transaction,
+                },
+              };
+              return res.send(json);
+            }
+          }
         } else {
           const transactionObj = {
             transactionId: transactionId || "",
-            status: status
+            status: status,
           };
-      
-          const transaction = await TRANSACTION_COLLECTION.findByIdAndUpdate(id, transactionObj, { new: true});
+
+          const transaction = await TRANSACTION_COLLECTION.findByIdAndUpdate(
+            id,
+            transactionObj,
+            { new: true }
+          );
           if (!transaction) {
             json.status = CONSTANT.FAIL;
             json.result = {
@@ -217,9 +284,6 @@ async function _updateTransactionDetailById(req, res) {
             };
             return res.send(json);
           } else {
-            existWallet.balance = existWallet.balance - +existTransaction.amount;
-            await existWallet.save();
-
             json.status = CONSTANT.SUCCESS;
             json.result = {
               message: "Transaction updated successfully",
@@ -229,14 +293,19 @@ async function _updateTransactionDetailById(req, res) {
             };
             return res.send(json);
           }
-
         }
       }
     }
   } catch (e) {
-    console.error("Controller: transaction | Method: _updateTransactionById | Error: ", e);
+    console.error(
+      "Controller: transaction | Method: _updateTransactionById | Error: ",
+      e
+    );
     json.status = CONSTANT.FAIL;
-    json.result = { message: "An error occurred while update transaction!", error: e };
+    json.result = {
+      message: "An error occurred while update transaction!",
+      error: e,
+    };
     return res.send(json);
   }
 }
@@ -266,14 +335,23 @@ async function _removeTransactionById(req, res) {
     } else {
       TRANSACTION_COLLECTION.findByIdAndDelete(id)
         .then((result) => {
-          if (existTransaction && !COMMON.isUndefinedOrNull(existTransaction.screenshot)) {
-            let filePath = path.join(__dirname, `../uploads/transaction/${existTransaction.screenshot}`);
+          if (
+            existTransaction &&
+            !COMMON.isUndefinedOrNull(existTransaction.screenshot)
+          ) {
+            let filePath = path.join(
+              __dirname,
+              `../uploads/transaction/${existTransaction.screenshot}`
+            );
             if (fs.existsSync(filePath)) {
-              fs.unlink(filePath, async () => {})
+              fs.unlink(filePath, async () => {});
             }
           }
           json.status = CONSTANT.SUCCESS;
-          json.result = { message: "Transaction deleted successfully!", data: {} };
+          json.result = {
+            message: "Transaction deleted successfully!",
+            data: {},
+          };
           return res.send(json);
         })
         .catch((error) => {
@@ -286,9 +364,15 @@ async function _removeTransactionById(req, res) {
         });
     }
   } catch (e) {
-    console.error("Controller: transaction | Method: _removeTransactionById | Error: ", e);
+    console.error(
+      "Controller: transaction | Method: _removeTransactionById | Error: ",
+      e
+    );
     json.status = CONSTANT.FAIL;
-    json.result = { message: "An error occurred while delete transaction!", error: e };
+    json.result = {
+      message: "An error occurred while delete transaction!",
+      error: e,
+    };
     return res.send(json);
   }
 }
@@ -310,18 +394,24 @@ async function _removeScreenshotById(req, res) {
       return res.send(json);
     } else {
       const { screenshot } = req.body;
-      let filePath = path.join(__dirname, `../uploads/transaction/${screenshot}`);
+      let filePath = path.join(
+        __dirname,
+        `../uploads/transaction/${screenshot}`
+      );
       if (fs.existsSync(filePath)) {
         fs.unlink(filePath, async (err) => {
           if (err) {
             json.status = CONSTANT.FAIL;
             json.result = {
-              message: "An error occurred while removing transaction screenshot",
+              message:
+                "An error occurred while removing transaction screenshot",
               error: err,
             };
             return res.send(json);
           } else {
-            var result = await TRANSACTION_COLLECTION.findByIdAndUpdate(id, { screenshot: "" })
+            var result = await TRANSACTION_COLLECTION.findByIdAndUpdate(id, {
+              screenshot: "",
+            });
             json.status = CONSTANT.SUCCESS;
             json.result = {
               message: "Transaction screenshot removed successfully",
@@ -329,7 +419,7 @@ async function _removeScreenshotById(req, res) {
             };
             return res.send(json);
           }
-        })
+        });
       } else {
         json.status = CONSTANT.FAIL;
         json.result = {
@@ -340,9 +430,15 @@ async function _removeScreenshotById(req, res) {
       }
     }
   } catch (e) {
-    console.error("Controller: transaction | Method: _removeScreenshotById | Error: ", e);
+    console.error(
+      "Controller: transaction | Method: _removeScreenshotById | Error: ",
+      e
+    );
     json.status = CONSTANT.FAIL;
-    json.result = { message: "An error occurred while delete transaction!", error: e };
+    json.result = {
+      message: "An error occurred while delete transaction!",
+      error: e,
+    };
     return res.send(json);
   }
 }

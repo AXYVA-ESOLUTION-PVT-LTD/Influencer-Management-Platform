@@ -31,6 +31,8 @@ const Publication = require("./routes/publication.route");
 const Wallet = require("./routes/wallet.route");
 const Transaction = require("./routes/transaction.route");
 const Payment = require("./routes/payment.route");
+const Facebook = require("./routes/facebook.route");
+const Instagram = require("./routes/instagram.route");
 
 const path = require("path");
 const { getRefreshToken } = require("./controllers/tokengenerator");
@@ -51,10 +53,17 @@ app.set("port", PORT);
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 const corsOptions = {
-  origin: ["http://localhost:5173", "http://localhost:3000", "*"],
+  origin: ["http://localhost:5173", "http://localhost:3000", "https://dash.brandraise.io"],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
+
+// app.use(cors({
+//   origin: 'https://dash.brandraise.io',
+//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//   allowedHeaders: ['Content-Type', 'Authorization']
+// }));
 
 app.use(function (req, res, next) {
   const origin = req.headers.origin;
@@ -94,6 +103,8 @@ app.use('/v1/publication', Publication);
 app.use('/v1/wallet', Wallet);
 app.use('/v1/transaction', Transaction);
 app.use('/v1/payment', Payment);
+app.use('/v1/facebook', Facebook);
+app.use('/v1/instagram', Instagram);
 
 app.get("/testing",(req,res)=>{
 	return res.status(200).json({msg:"server is up an running"});
@@ -109,7 +120,10 @@ mongoose
     process.exit();
   });
 
-server.listen(PORT, "localhost", function () {
+  // const HOST = '0.0.0.0'; 
+  const HOST = 'localhost'; 
+
+server.listen(PORT, HOST, function () {
   if (IS_PRODUCTION == "true") {
     console.log("Express https server listening on *:" + PORT);
   } else {
