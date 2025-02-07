@@ -166,10 +166,6 @@ const DashboardOverview = (props) => {
             title: "Likes", 
             value: userInfo?.totalLikes,
           },
-          {
-            title: "Reach", 
-            value: userInfo?.totalReach,
-          },
           ]
       : [];
 

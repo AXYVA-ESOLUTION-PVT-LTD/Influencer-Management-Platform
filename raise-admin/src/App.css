@@ -444,3 +444,7 @@ button {
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+.react-tel-input .form-control {
+  width: 100% !important;
+}

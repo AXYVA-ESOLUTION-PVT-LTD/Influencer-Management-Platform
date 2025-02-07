@@ -21,6 +21,11 @@ import { registerUser } from "../../store/actions";
 import PropTypes from "prop-types";
 import ROLECODE from "../../constants/rolecode";
 import withRouter from "../../components/Common/withRouter";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+// import { parsePhoneNumber } from "libphonenumber-js";
+// import { parsePhoneNumberWithError } from "libphonenumber-js";
+import { phoneLengthByCountry } from "../../data/PhonenumberData";
 
 const Register = (props) => {
   document.title = "Register | Brandraise";
@@ -31,58 +36,12 @@ const Register = (props) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState(null);
-  // const [filteredCountries, setFilteredCountries] = useState([]);
-  // const [filteredCities, setFilteredCities] = useState([]);
-
-  // const {
-  //   user,
-  //   registrationError,
-  //   loading,
-  //   countries,
-  //   cities,
-  //   loadingCountries,
-  //   loadingCities,
-  // } = useSelector((state) => ({
-  //   user: state.Account.user,
-  //   registrationError: state.Account.registrationError,
-  //   loading: state.Account.loading,
-  //   countries: state.Account.countries,
-  //   cities: state.Account.cities,
-  //   loadingCountries: state.Account.loadingCountries,
-  //   loadingCities: state.Account.loadingCities,
-  // }));
+  const [formattedPhoneNumber, setFormattedPhoneNumber] = useState("");
 
   const { registrationError, loading } = useSelector((state) => ({
     registrationError: state.Account.registrationError,
     loading: state.Account.loading,
   }));
-
-  // useEffect(() => {
-  //   // console.log("Country api call..........");
-  //   dispatch(fetchCountries());
-  // }, [dispatch]);
-
-  // useEffect(() => {
-  //   if (countries.length > 0) {
-  //     console.log("countries .....", countries);
-  //     setFilteredCountries(countries);
-  //   } else {
-  //     setFilteredCountries([]);
-  //   }
-  // }, [countries]);
-
-  // useEffect(() => {
-  //   if (cities.length > 0) {
-  //     setFilteredCities(cities);
-  //   } else {
-  //     setFilteredCities([]);
-  //   }
-  // }, [cities]);
-
-  // const handleCountryChange = (e) => {
-  //   const selectedCountry = e.target.value;
-  //   dispatch(fetchCities(selectedCountry));
-  // };
 
   const validationStep1 = useFormik({
     enableReinitialize: true,
@@ -99,6 +58,7 @@ const Register = (props) => {
     },
     validationSchema: Yup.object({
       firstName: Yup.string()
+        .trim()
         .matches(
           /^[A-Za-z]+$/,
           "First name must only contain alphabets and cannot have special characters or numbers"
@@ -107,6 +67,7 @@ const Register = (props) => {
         .max(50, "First name must not exceed 50 characters")
         .required("Please Enter Your First Name"),
       lastName: Yup.string()
+        .trim()
         .matches(
           /^[A-Za-z]+$/,
           "Last name must only contain alphabets and cannot have special characters or numbers"
@@ -115,27 +76,23 @@ const Register = (props) => {
         .max(50, "Last name must not exceed 50 characters")
         .required("Please Enter Your Last Name"),
       email: Yup.string()
+        .trim()
         .email("Invalid email address")
         .required("Please Enter Your Email"),
       password: Yup.string()
+        .trim()
         .matches(
           /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,20}$/,
           "Password must be 8-20 characters, include uppercase, lowercase, number, and special character."
         )
         .required("Password is required"),
       confirmPassword: Yup.string()
+        .trim()
         .oneOf([Yup.ref("password"), null], "Passwords must match")
         .required("Please Confirm Your Password"),
-      phoneNumber: Yup.string()
-        .transform((value) => {
-          return value.replace(/[^\d\+\-]/g, ""); 
-        })
-        .matches(
-          /^\+(\d{1,2})[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4}$/,
-          "Phone number must start with a country code (e.g., +1 00000 00000) and contain only digits and dashes"
-        )
-        .required("Please enter your phone number"),
+      phoneNumber: Yup.string().required("Please enter your phone number"),
       city: Yup.string()
+        .trim()
         .matches(
           /^[A-Za-z\s]+$/,
           "City should only contain alphabets and spaces, and cannot include special characters or numbers"
@@ -144,6 +101,7 @@ const Register = (props) => {
         .max(100, "City name must not exceed 100 characters")
         .required("City is required"),
       country: Yup.string()
+        .trim()
         .matches(
           /^[A-Za-z\s]+$/,
           "Country should only contain alphabets and spaces, and cannot include special characters or numbers"
@@ -163,9 +121,17 @@ const Register = (props) => {
     const errorsStep1 = await validationStep1.validateForm();
     if (Object.keys(errorsStep1).length === 0) {
       // Merge the data from both steps and submit
-      const mergedData = {
-        ...validationStep1.values,
-      };
+      const mergedData = Object.entries(validationStep1.values).reduce(
+        (acc, [key, value]) => {
+          acc[key] =
+            typeof value === "string" && key !== "phoneNumber"
+              ? value.trim()
+              : value;
+          return acc;
+        },
+        {}
+      );
+
       setIsSubmitting(true);
       dispatch(registerUser(mergedData));
     } else {
@@ -208,10 +174,7 @@ const Register = (props) => {
 
     if (errorMessage.includes("This")) {
       return errorMessage.split(/(?=This)/g).map((msg, index) => (
-        <p
-          key={index}
-          className="text-danger"
-        >
+        <p key={index} className="text-danger">
           {msg.trim()}
         </p>
       ));
@@ -222,6 +185,45 @@ const Register = (props) => {
 
   const handleNavigateToLogin = () => {
     navigate("/login");
+  };
+
+  const handlePhoneChange = (phone, country) => {
+    if (country?.dialCode) {
+      const phoneWithoutDialCode = phone.startsWith(country.dialCode)
+        ? phone.slice(country.dialCode.length)
+        : phone;
+
+      const formattedNumber = `+${country.dialCode} ${phoneWithoutDialCode}`;
+      const validLengths = phoneLengthByCountry[country.dialCode];
+      // If country code not found, skip validation
+      if (!validLengths) {
+        validationStep1.setFieldValue("phoneNumber", formattedNumber);
+        return;
+      }
+
+      // Ensure validLengths is treated as an array
+      const isValid = Array.isArray(validLengths)
+        ? validLengths.includes(phoneWithoutDialCode.length)
+        : phoneWithoutDialCode.length === validLengths;
+      if (!isValid) {
+        setTimeout(() => {
+          validationStep1.setFieldError(
+            "phoneNumber",
+            `Phone number must be ${
+              Array.isArray(validLengths)
+                ? validLengths.join(" or ")
+                : validLengths
+            } digits.`
+          );
+          validationStep1.setFieldTouched("phoneNumber", true, false); // Force re-render
+        }, 0);
+      } else {
+        validationStep1.setFieldError("phoneNumber", "");
+      }
+
+      setFormattedPhoneNumber(formattedNumber);
+      validationStep1.setFieldValue("phoneNumber", formattedNumber);
+    }
   };
 
   return (
@@ -320,7 +322,7 @@ const Register = (props) => {
                     </Link>
                   </h6>
                   {submissionError && (
-                    <Alert color="danger" >
+                    <Alert color="danger">
                       {formatErrorMessage(submissionError)}
                     </Alert>
                   )}
@@ -408,19 +410,23 @@ const Register = (props) => {
                         </div>
                         <div className="col-lg-6 col-12">
                           <Label className="form-label">Phone Number</Label>
-                          <Input
-                            name="phoneNumber"
-                            type="text"
-                            placeholder="Enter phone number"
-                            onChange={validationStep1.handleChange}
-                            onBlur={validationStep1.handleBlur}
-                            value={validationStep1.values.phoneNumber || ""}
-                            invalid={
-                              validationStep1.touched.phoneNumber &&
-                              validationStep1.errors.phoneNumber
-                                ? true
-                                : false
+                          <PhoneInput
+                            country={"us"}
+                            value={validationStep1.values.phoneNumber}
+                            onChange={(phone, country) => {
+                              handlePhoneChange(phone, country);
+                              // validationStep1.setFieldValue(
+                              //   "phoneNumber",
+                              //   phone
+                              // );
+                            }}
+                            onBlur={() =>
+                              validationStep1.setFieldTouched(
+                                "phoneNumber",
+                                true
+                              )
                             }
+                            inputClass="form-control"
                           />
                           {validationStep1.touched.phoneNumber &&
                             validationStep1.errors.phoneNumber && (
