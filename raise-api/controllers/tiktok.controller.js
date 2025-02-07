@@ -25,8 +25,8 @@ async function _auth(req, res) {
     url += "&scope=user.info.basic";
     url += "&scope=user.info.profile";
     url += "&scope=user.info.stats";
-    url += "&response_type=code";
     url += "&scope=video.list";
+    url += "&response_type=code";
     url += `&redirect_uri=${REDIRECT_URI}`;
     url += `&state=${token}`;
 

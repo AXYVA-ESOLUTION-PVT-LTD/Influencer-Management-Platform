@@ -33,6 +33,7 @@ const Transaction = require("./routes/transaction.route");
 const Payment = require("./routes/payment.route");
 const Facebook = require("./routes/facebook.route");
 const Instagram = require("./routes/instagram.route");
+const eventsCronjob = require('./controllers/eventcron.controller');
 
 const path = require("path");
 const { getRefreshToken } = require("./controllers/tokengenerator");
@@ -130,3 +131,7 @@ server.listen(PORT, HOST, function () {
     console.log("Express http server listening on *:" + PORT);
   }
 });
+
+if(eventsCronjob) {
+  eventsCronjob.instagramAccessTokenUpdateCron();
+}

@@ -168,8 +168,8 @@ async function _authCallback(req, res) {
       existingUser.platform = CONSTANT.INSTAGRAM;
       existingUser.isVerified = true;
       existingUser.accessToken = result.accessToken;
+      existingUser.refreshToken = result.accessToken;
       existingUser.status = true;
-      existingUser.refreshToken = "";
       existingUser.expiresIn = result.expiresIn;
 
       await existingUser.save();
@@ -223,80 +223,12 @@ async function _authCallback(req, res) {
   }
 }
 
-async function refreshInstagramToken(token) {
-  try {
-    // Step 1: Find the user by accessToken
-    const existingUser = await USER_COLLECTION.findOne({ accessToken: token });
-
-    if (!existingUser) {
-      throw new Error("User not found");
-    }
-
-    const { expiresIn } = existingUser;
-    const currentTime = Date.now() / 1000;
-
-    // Step 2: Check if the token expires within the next 3 days
-    const timeRemaining = expiresIn - currentTime;
-    const threeDaysInSeconds = 3 * 24 * 60 * 60; // 3 days in seconds
-
-    // Step 3: If token expires within 3 days or is still valid
-    if (expiresIn && currentTime < expiresIn) {
-      // If expiration is less than 3 days away, refresh the token
-      if (timeRemaining <= threeDaysInSeconds) {
-        console.log("Token is expiring in less than 3 days, refreshing...");
-
-        // Step 4: Refresh the token by exchanging short-lived token for a long-lived one
-        const exchangeUrl = `https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${INSTAGRAM_APP_SECRET}&access_token=${token}`;
-        const exchangeResponse = await fetch(exchangeUrl, { method: "POST" });
-        const exchangeData = await exchangeResponse.json();
-
-        if (exchangeData.error) {
-          throw new Error(exchangeData.error.message);
-        }
-
-        const newTokenExpiresAt =
-          Math.floor(Date.now() / 1000) + exchangeData.expires_in;
-
-        // Step 5: Update the user record with the new token and expiration time
-        await USER_COLLECTION.updateOne(
-          { accessToken: token },
-          {
-            $set: {
-              accessToken: exchangeData.access_token,
-              expiresIn: newTokenExpiresAt,
-            },
-          }
-        );
-
-        return { accessToken: exchangeData.access_token, valid: true };
-      } else {
-        console.log("token is valid so return as well as ................");
-        return { accessToken: token, valid: true, redirectUrl: "" };
-      }
-    }
-
-    console.log("Token has expired. Please re-authenticate Process Started.");
-    return { accessToken: null, valid: false };
-  } catch (error) {
-    console.error("Error in token validation or refresh:", error.message);
-    return { accessToken: null, valid: false };
-  }
-}
-
 async function _getInstagramUserData(req, res) {
   const accessToken = req.headers.authorization?.split(" ")[1];
 
   try {
-    // Validate and/or refresh the token
-    const { accessToken: validAccessToken, valid } =
-      await refreshInstagramToken(accessToken);
-
-    if (!valid) {
-      throw new Error("Invalid access token");
-    }
-
     // Fetch user profile data and media data
-    const userInfo = await fetchInstagramUserInfo(validAccessToken);
+    const userInfo = await fetchInstagramUserInfo(accessToken);
 
     return res.send({
       status: "Success",
@@ -323,43 +255,27 @@ async function fetchInstagramUserInfo(accessToken) {
     throw new Error(userProfile.error.message);
   }
 
-  // Fetch media posts data
-  const mediaUrl = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,timestamp,permalink&access_token=${accessToken}`;
+  // Fetch media posts data along with insights using Instagram Graph API
+  const mediaUrl = `https://graph.instagram.com/${userProfile.id}/media?fields=id,caption,media_type,media_url,timestamp,permalink,insights.metric(reach,likes,comments,saved,shares)&access_token=${accessToken}`;
   const mediaResponse = await fetch(mediaUrl, { method: "GET" });
   const mediaData = await mediaResponse.json();
 
-  if (mediaData.error) {
-    throw new Error(mediaData.error.message);
-  }
+  // Process media data and format insights
+  const mediaWithInsights = mediaData.data.map((post) => {
+    const insights = post.insights?.data?.reduce((acc, metric) => {
+      acc[metric.name] = metric.values[0]?.value || 0;
+      return acc;
+    }, {}) || { reach: 0, likes: 0, comments: 0, saved: 0, shares: 0 };
 
-  // Fetch insights for each media post
-  const mediaWithInsights = await Promise.all(
-    mediaData.data.map(async (post) => {
-      const insightsUrl = `https://graph.instagram.com/${post.id}/insights?metric=reach,likes,comments,saved,shares&access_token=${accessToken}`;
-      const insightsResponse = await fetch(insightsUrl, { method: "GET" });
-      const insightsData = await insightsResponse.json();
+    return { ...post, insights };
+  });
 
-      // Adding the insights data to the post
-      const insights = insightsData.data.reduce((acc, metric) => {
-        acc[metric.name] = metric.values[0]?.value || 0;
-        return acc;
-      }, {});
-
-      return {
-        ...post,
-        insights,
-      };
-    })
-  );
+  
 
   // Calculate total values for posts, likes, and reach
   let totalPosts = mediaWithInsights.length;
   let totalLikes = mediaWithInsights.reduce(
-    (acc, post) => acc + (post.insights?.likes || 0),
-    0
-  );
-  let totalReach = mediaWithInsights.reduce(
-    (acc, post) => acc + (post.insights?.reach || 0),
+    (acc, post) => acc + (post.insights.likes || 0),
     0
   );
 
@@ -372,7 +288,6 @@ async function fetchInstagramUserInfo(accessToken) {
     media_count: userProfile.media_count,
     totalPosts,
     totalLikes,
-    totalReach,
     media: mediaWithInsights,
   };
 }
@@ -382,46 +297,11 @@ async function _MonthlyPerformanceInstagramAnalytics(req, res) {
   const json = {};
   const currentMonth = moment().format("M");
 
-  // Step 1: Validate the access token
-  const { accessToken: validAccessToken, valid } = await refreshInstagramToken(
-    accessToken
-  );
-
-  if (!valid) {
-    throw new Error("Invalid access token");
-  }
-
   try {
-    // Step 2: Fetch media posts data from Instagram
-    const mediaUrl = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,timestamp,permalink&access_token=${validAccessToken}`;
-    const mediaResponse = await fetch(mediaUrl);
-    const mediaData = await mediaResponse.json();
-
-    if (mediaData.error) {
-      throw new Error(mediaData.error.message);
-    }
-
-    // Step 3: Fetch insights for each media post
-    const mediaWithInsights = await Promise.all(
-      mediaData.data.map(async (post) => {
-        const insightsUrl = `https://graph.instagram.com/${post.id}/insights?metric=reach,likes,comments,saved,shares&access_token=${validAccessToken}`;
-        const insightsResponse = await fetch(insightsUrl);
-        const insightsData = await insightsResponse.json();
-
-        const insights = insightsData.data.reduce((acc, metric) => {
-          acc[metric.name] = metric.values[0]?.value || 0;
-          return acc;
-        }, {});
-
-        return {
-          ...post,
-          insights,
-        };
-      })
-    );
-    
-    // Step 4: Process insights and organize data by month
-    const userMediaData = mediaWithInsights || [];
+    // Step 1: Fetch Instagram user info including media and insights
+    const instagramData = await fetchInstagramUserInfo(accessToken);
+    const mediaWithInsights = instagramData.media;
+    // Step 2: Process insights and organize data by month
     const currentYear = new Date().getFullYear();
 
     const getMonthYear = (timestamp) => {
@@ -436,9 +316,9 @@ async function _MonthlyPerformanceInstagramAnalytics(req, res) {
     let shareCountPerMonth = Array(12).fill(0);
     let viewCountPerMonth = Array(12).fill(0);
 
-    // Step 5: Calculate analytics for each post in the current year
+    // Step 3: Calculate analytics for each post in the current year
     await Promise.all(
-      userMediaData
+      mediaWithInsights
         .filter((post) => {
           const { year } = getMonthYear(post.timestamp);
           return year === currentYear; // Filter for posts created in the current year
@@ -453,7 +333,7 @@ async function _MonthlyPerformanceInstagramAnalytics(req, res) {
         })
     );
 
-    // Step 6: Calculate engagement rates for each month
+    // Step 4: Calculate engagement rates for each month
     engagementRatePerMonth = engagementRatePerMonth.map((_, index) => {
       const views = viewCountPerMonth[index];
       if (views > 0) {
@@ -468,7 +348,7 @@ async function _MonthlyPerformanceInstagramAnalytics(req, res) {
       return 0;
     });
 
-    // Step 7: Prepare response data
+    // Step 5: Prepare response data
     json.status = CONSTANT.SUCCESS;
     json.result = {
       message: "Instagram analytics processed successfully",

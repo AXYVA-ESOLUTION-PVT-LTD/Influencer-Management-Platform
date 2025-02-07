@@ -210,12 +210,10 @@ async function _getFacebookUserData(req, res) {
   const accessToken = req.headers.authorization?.split(" ")[1];
 
   try {
-    const { accessToken: validAccessToken, valid } =
-      await verifyAndRefreshToken(accessToken);
+    // Step 1: Verify and refresh the access token
+    const { accessToken: validAccessToken, valid } = await verifyAndRefreshToken(accessToken);
 
-    if (valid) {
-      console.log("New access token:");
-    } else {
+    if (!valid) {
       throw new Error("Invalid or expired access token.");
     }
 
@@ -226,6 +224,7 @@ async function _getFacebookUserData(req, res) {
     userInfo.post_count = posts.length;
     userInfo.friends_count = userInfo.friends?.summary?.total_count || 0;
 
+    // If no posts are available
     if (posts.length === 0) {
       return res.send({
         status: "Success",
@@ -235,20 +234,29 @@ async function _getFacebookUserData(req, res) {
       });
     }
 
-    // Step 2: Fetch detailed post information
-    const { detailedPosts, totalReactions, totalComments } =
-      await fetchPostDetails(posts, validAccessToken);
+    // Step 3: Calculate total reactions and comments for all posts
+    let totalReactions = 0;
+    let totalComments = 0;
 
+    posts.forEach(post => {
+      totalReactions += post.reactions?.summary?.total_count || 0;
+      totalComments += post.comments?.summary?.total_count || 0;
+    });
+
+    // Add total reactions and total comments to user info
     userInfo.totalReactions = totalReactions;
     userInfo.totalComments = totalComments;
 
+    // Return successful response with user info and post details
     return res.send({
       status: "Success",
       message: "User data and post details fetched successfully.",
       userInfo,
-      posts: detailedPosts,
+      posts,
     });
+
   } catch (error) {
+    // Handle any errors during the process
     console.error("Error fetching Facebook user data:", error);
     return res.status(500).send({
       status: "Fail",
@@ -258,9 +266,10 @@ async function _getFacebookUserData(req, res) {
   }
 }
 
+// Function to fetch user information including posts and reactions/comments
 async function fetchUserInfo(accessToken) {
   const response = await fetch(
-    `https://graph.facebook.com/v21.0/me?fields=id,name,email,age_range,birthday,friends,gender,link,posts&access_token=${accessToken}`,
+    `https://graph.facebook.com/v21.0/me?fields=id,name,email,age_range,birthday,friends,gender,link,posts{message,created_time,media_type,media_url,permalink,reactions.summary(true),comments.summary(true),permalink_url,link,type}&access_token=${accessToken}`,
     { method: "GET" }
   );
   const userInfo = await response.json();
@@ -272,85 +281,18 @@ async function fetchUserInfo(accessToken) {
   return userInfo;
 }
 
-async function fetchPostDetails(posts, accessToken) {
-  let totalReactions = 0;
-  let totalComments = 0;
-
-  const detailedPosts = await Promise.all(
-    posts.map(async (post) => {
-      try {
-        const response = await fetch(
-          `https://graph.facebook.com/v21.0/${post.id}?fields=id,shares,message,created_time,reactions.summary(true),comments.summary(true)&access_token=${accessToken}`,
-          { method: "GET" }
-        );
-        const postDetails = await response.json();
-
-        if (postDetails.error) {
-          console.error(
-            `Error fetching details for post ${post.id}:`,
-            postDetails.error.message
-          );
-          return { id: post.id, error: postDetails.error.message };
-        }
-
-        totalReactions += postDetails.reactions?.summary?.total_count || 0;
-        totalComments += postDetails.comments?.summary?.total_count || 0;
-
-        return postDetails;
-      } catch (error) {
-        console.error(`Error processing post ${post.id}:`, error.message);
-        return { id: post.id, error: error.message };
-      }
-    })
-  );
-
-  return { detailedPosts, totalReactions, totalComments };
-}
-
 async function _MonthlyPerformanceFacebookAnalytics(req, res) {
   const accessToken = req.headers.authorization?.split(" ")[1];
-  const json = {};
   const currentMonth = moment().format("M");
+
   try {
-    // First verify the access token
-    const tokenVerificationResponse = await fetch(
-      `https://graph.facebook.com/debug_token?input_token=${accessToken}&access_token=${process.env.FACEBOOK_APP_TOKEN}`,
-      { method: "GET" }
-    );
-
-    const tokenData = await tokenVerificationResponse.json();
-    // Check if token is valid and not expired
-    if (!tokenData.data?.is_valid) {
-      return res.send({
-        status: CONSTANT.FAIL,
-        result: {
-          message: "Invalid or expired access token",
-          error: tokenData.data?.error?.message || "Token validation failed",
-        },
-      });
-    }
-
-    // Step 1: Fetch user info and posts
-    const userInfoResponse = await fetch(
-      `https://graph.facebook.com/v21.0/me?fields=id,name,email,age_range,birthday,friends,gender,link,posts&access_token=${accessToken}`,
-      { method: "GET" }
-    );
-
-    const userInfo = await userInfoResponse.json();
-
-    if (userInfo.error) {
-      throw new Error(userInfo.error.message);
-    }
-
-    const postCount = userInfo.posts?.data?.length || 0;
+    // Step 1: Fetch user data (including posts, reactions, and comments) using fetchUserInfo
+    const userInfo = await fetchUserInfo(accessToken);
+    const posts = userInfo.posts?.data || [];
+    const postCount = posts.length;
     const friendsCount = userInfo.friends?.summary?.total_count || 0;
 
-    userInfo.post_count = postCount;
-    userInfo.friends_count = friendsCount;
-
-    const posts = userInfo.posts?.data || [];
-
-    if (posts.length === 0) {
+    if (postCount === 0) {
       return res.send({
         status: "Success",
         message: "No posts available.",
@@ -361,77 +303,65 @@ async function _MonthlyPerformanceFacebookAnalytics(req, res) {
 
     let totalReactions = 0;
     let totalComments = 0;
+    let totalShares = 0;
 
-    const detailedPosts = await Promise.all(
-      posts.map(async (post) => {
-        const postDetailsResponse = await fetch(
-          `https://graph.facebook.com/v21.0/${post.id}?fields=id,message,created_time,insights.metric(post_impressions,post_impressions_unique),reactions.summary(true),comments.summary(true),shares&access_token=${accessToken}`,
-          { method: "GET" }
-        );
-        // ?fields=id,message,created_time,reactions.type(LIKE).summary(true),comments.summary(true),shares
-        const postDetails = await postDetailsResponse.json();
-        // Return post details with error handling
-        if (postDetails.error) {
-          console.error(
-            `Error fetching details for post ${post.id}:`,
-            postDetails.error.message
-          );
-          return { id: post.id, error: postDetails.error.message };
-        }
-        return postDetails;
-      })
-    );
-
-    detailedPosts.forEach((post) => {
+    // Calculate total reactions, comments, and shares from all posts
+    posts.forEach((post) => {
       totalReactions += post.reactions?.summary?.total_count || 0;
       totalComments += post.comments?.summary?.total_count || 0;
+      totalShares += post.shares?.count || 0;
     });
 
     userInfo.totalReactions = totalReactions;
     userInfo.totalComments = totalComments;
+    userInfo.totalShares = totalShares;
 
+    // Helper functions to extract month and year
     const getMonthYear = (isoTimestamp) => {
       const date = new Date(isoTimestamp);
-      return date.getMonth();
+      return date.getMonth(); // Returns 0-11 (January is 0, February is 1, etc.)
     };
 
     const getYear = (isoTimestamp) => {
       const date = new Date(isoTimestamp);
-      return date.getFullYear();
+      return date.getFullYear(); // Returns year
     };
 
     const currentYear = new Date().getFullYear();
 
+    // Arrays to store the counts for each month of the current year
     let postCountPerMonth = Array(12).fill(0);
     let engagementRatePerMonth = Array(12).fill(0);
     let commentCountPerMonth = Array(12).fill(0);
     let likeCountPerMonth = Array(12).fill(0);
     let shareCountPerMonth = Array(12).fill(0);
 
-    detailedPosts.forEach((post) => {
+    // Calculate monthly counts for posts and interactions
+    posts.forEach((post) => {
       const postYear = getYear(post.created_time);
       if (postYear === currentYear) {
         const month = getMonthYear(post.created_time);
 
         postCountPerMonth[month]++;
-        commentCountPerMonth[month] +=
-          post?.comments?.summary?.total_count || 0;
+        commentCountPerMonth[month] += post?.comments?.summary?.total_count || 0;
         likeCountPerMonth[month] += post?.reactions?.summary?.total_count || 0;
         shareCountPerMonth[month] += post?.shares?.count || 0;
       }
     });
 
+    // Calculate engagement rate for each month
     engagementRatePerMonth = engagementRatePerMonth.map((_, index) => {
       const totalEngagements =
         likeCountPerMonth[index] +
         commentCountPerMonth[index] +
         shareCountPerMonth[index];
 
-      // Calculate engagement rate
-      const rate = (totalEngagements / friendsCount) * 100; // Convert to percentage
+      // Calculate engagement rate: Total Engagements (likes + comments + shares) / friendsCount
+      const rate = friendsCount > 0 ? (totalEngagements / friendsCount) * 100 : 0; // Convert to percentage
       return rate;
     });
 
+    // Return the final analytics response
     return res.send({
       status: CONSTANT.SUCCESS,
       result: {
@@ -443,6 +373,7 @@ async function _MonthlyPerformanceFacebookAnalytics(req, res) {
         shareCountArray: shareCountPerMonth,
       },
     });
+
   } catch (error) {
     console.error("Error fetching Facebook analytics data:", error);
     return res.send({
@@ -454,3 +385,4 @@ async function _MonthlyPerformanceFacebookAnalytics(req, res) {
     });
   }
 }
+
