@@ -21,11 +21,10 @@ import { registerUser } from "../../store/actions";
 import PropTypes from "prop-types";
 import ROLECODE from "../../constants/rolecode";
 import withRouter from "../../components/Common/withRouter";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
-// import { parsePhoneNumber } from "libphonenumber-js";
-// import { parsePhoneNumberWithError } from "libphonenumber-js";
+import PI from "react-phone-input-2";
 import { phoneLengthByCountry } from "../../data/PhonenumberData";
+import "react-phone-input-2/lib/style.css";
+const PhoneInput = PI.default ? PI.default : PI;
 
 const Register = (props) => {
   document.title = "Register | Brandraise";
