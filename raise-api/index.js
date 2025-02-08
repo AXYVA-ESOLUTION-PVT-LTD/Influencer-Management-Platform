@@ -134,4 +134,5 @@ server.listen(PORT, HOST, function () {
 
 if(eventsCronjob) {
   eventsCronjob.instagramAccessTokenUpdateCron();
+  eventsCronjob.facebookAccessTokenUpdateCron();
 }
