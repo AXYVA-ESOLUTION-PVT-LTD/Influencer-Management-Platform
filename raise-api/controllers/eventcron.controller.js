@@ -69,7 +69,7 @@ class eventCron {
   }
 
   facebookAccessTokenUpdateCron() {
-    var job = new CronJob("*/1 * * * *", async function () {
+    var job = new CronJob("0 6 * * *", async function () {
       console.log("🚀 Facebook access token renewal cron running at 6 AM daily...");
   
       try {
