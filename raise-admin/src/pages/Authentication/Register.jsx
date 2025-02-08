@@ -35,7 +35,6 @@ const Register = (props) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState(null);
-  const [formattedPhoneNumber, setFormattedPhoneNumber] = useState("");
 
   const { registrationError, loading } = useSelector((state) => ({
     registrationError: state.Account.registrationError,
@@ -51,6 +50,7 @@ const Register = (props) => {
       password: "",
       confirmPassword: "",
       phoneNumber: "",
+      countryCode: "",
       city: "",
       country: "",
       roleCode: ROLECODE["Influencer"],
@@ -89,7 +89,31 @@ const Register = (props) => {
         .trim()
         .oneOf([Yup.ref("password"), null], "Passwords must match")
         .required("Please Confirm Your Password"),
-      phoneNumber: Yup.string().required("Please enter your phone number"),
+      phoneNumber: Yup.string()
+        .required("Please enter your phone number")
+        .test("valid-phone", "Invalid phone number length", function (value) {
+          const { countryCode } = this.parent; 
+          if (!countryCode || !value) return false;
+
+          let validLengths = phoneLengthByCountry[countryCode];
+
+          if (!validLengths) return true; 
+
+          let phoneWithoutCode = value.replace(`${countryCode}`, "").trim();
+
+          if (!Array.isArray(validLengths)) {
+            validLengths = [validLengths];
+          }
+
+          if (validLengths.length === 2) {
+            const [min, max] = validLengths;
+            return (
+              phoneWithoutCode.length >= min && phoneWithoutCode.length <= max
+            );
+          }
+
+          return validLengths.includes(phoneWithoutCode.length);
+        }),
       city: Yup.string()
         .trim()
         .matches(
@@ -184,45 +208,6 @@ const Register = (props) => {
 
   const handleNavigateToLogin = () => {
     navigate("/login");
-  };
-
-  const handlePhoneChange = (phone, country) => {
-    if (country?.dialCode) {
-      const phoneWithoutDialCode = phone.startsWith(country.dialCode)
-        ? phone.slice(country.dialCode.length)
-        : phone;
-
-      const formattedNumber = `+${country.dialCode} ${phoneWithoutDialCode}`;
-      const validLengths = phoneLengthByCountry[country.dialCode];
-      // If country code not found, skip validation
-      if (!validLengths) {
-        validationStep1.setFieldValue("phoneNumber", formattedNumber);
-        return;
-      }
-
-      // Ensure validLengths is treated as an array
-      const isValid = Array.isArray(validLengths)
-        ? validLengths.includes(phoneWithoutDialCode.length)
-        : phoneWithoutDialCode.length === validLengths;
-      if (!isValid) {
-        setTimeout(() => {
-          validationStep1.setFieldError(
-            "phoneNumber",
-            `Phone number must be ${
-              Array.isArray(validLengths)
-                ? validLengths.join(" or ")
-                : validLengths
-            } digits.`
-          );
-          validationStep1.setFieldTouched("phoneNumber", true, false); // Force re-render
-        }, 0);
-      } else {
-        validationStep1.setFieldError("phoneNumber", "");
-      }
-
-      setFormattedPhoneNumber(formattedNumber);
-      validationStep1.setFieldValue("phoneNumber", formattedNumber);
-    }
   };
 
   return (
@@ -413,11 +398,14 @@ const Register = (props) => {
                             country={"us"}
                             value={validationStep1.values.phoneNumber}
                             onChange={(phone, country) => {
-                              handlePhoneChange(phone, country);
-                              // validationStep1.setFieldValue(
-                              //   "phoneNumber",
-                              //   phone
-                              // );
+                              validationStep1.setFieldValue(
+                                "countryCode",
+                                country.dialCode
+                              );
+                              validationStep1.setFieldValue(
+                                "phoneNumber",
+                                phone
+                              );
                             }}
                             onBlur={() =>
                               validationStep1.setFieldTouched(
