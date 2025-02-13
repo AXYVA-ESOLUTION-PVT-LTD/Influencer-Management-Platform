@@ -56,6 +56,8 @@ async function _authCallback(req, res) {
 
     const data = await response.json();
 
+    const newTokenExpiresAt = Math.floor(Date.now() / 1000) + data.expires_in;
+
     const accessToken = data.access_token;
 
     const userInfoResponse = await fetch(
@@ -91,7 +93,7 @@ async function _authCallback(req, res) {
       existingUser.accessToken = accessToken;
       existingUser.status = true;
       existingUser.refreshToken = "";
-      existingUser.expiresIn = "";
+      existingUser.expiresIn = newTokenExpiresAt;
 
       await existingUser.save();
 
@@ -143,82 +145,13 @@ async function _authCallback(req, res) {
   }
 }
 
-async function verifyAndRefreshToken(accessToken) {
-  try {
-    // First verify the token
-    const verifyResponse = await fetch(
-      `https://graph.facebook.com/debug_token?input_token=${accessToken}&access_token=${process.env.FACEBOOK_APP_TOKEN}`,
-      { method: "GET" }
-    );
-
-    const verifyData = await verifyResponse.json();
-    // Check if token is invalid or expired
-    if (
-      !verifyData.data?.is_valid ||
-      verifyData.data?.expires_at * 1000 < Date.now()
-    ) {
-      console.log("Token is invalid or expired. Attempting to refresh...");
-      return await refreshAccessToken(accessToken);
-    }
-
-    return { accessToken, valid: true };
-  } catch (error) {
-    console.error("Error verifying token:", error);
-    throw error;
-  }
-}
-
-async function refreshAccessToken(accessToken) {
-  try {
-    const refreshURL = "https://graph.facebook.com/v19.0/oauth/access_token";
-
-    // Prepare the query parameters
-    const params = {
-      grant_type: "fb_exchange_token",
-      client_id: process.env.FACEBOOK_APP_ID,
-      client_secret: process.env.FACEBOOK_APP_SECRET,
-      fb_exchange_token: accessToken, // Note: Facebook uses fb_exchange_token, not refresh_token
-    };
-
-    // Convert params to query string
-    const queryString = qs.stringify(params);
-
-    // Make the refresh request
-    const response = await fetch(`${refreshURL}?${queryString}`, {
-      method: "GET", // Facebook's token endpoint uses GET
-    });
-
-    const data = await response.json();
-
-    if (data.error) {
-      console.log("error on generate a New Token");
-      throw new Error(data.error.message);
-    }
-
-    return {
-      accessToken: data.access_token,
-      expiresIn: data.expires_in,
-      valid: true,
-    };
-  } catch (error) {
-    console.error("Error refreshing token:", error);
-    throw error;
-  }
-}
-
 async function _getFacebookUserData(req, res) {
   const accessToken = req.headers.authorization?.split(" ")[1];
 
   try {
-    // Step 1: Verify and refresh the access token
-    const { accessToken: validAccessToken, valid } = await verifyAndRefreshToken(accessToken);
-
-    if (!valid) {
-      throw new Error("Invalid or expired access token.");
-    }
-
+ 
     // Step 1: Fetch user info and posts
-    const userInfo = await fetchUserInfo(validAccessToken);
+    const userInfo = await fetchUserInfo(accessToken);
 
     const posts = userInfo.posts?.data || [];
     userInfo.post_count = posts.length;
