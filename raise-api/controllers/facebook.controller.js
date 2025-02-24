@@ -19,8 +19,10 @@ exports.MonthlyPerformanceFacebookAnalytics =
 async function _auth(req, res) {
   try {
     const { token } = req.params;
-    const url = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${FACEBOOK_APP_ID}&redirect_uri=${FACEBOOK_REDIRECT_URI}&state=${token}`;
-    // const url = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${FACEBOOK_APP_ID}&redirect_uri=${FACEBOOK_REDIRECT_URI}&scope=email&response_type=code&config_id=${FACEBOOK_CONFIG_ID}`;
+    // const url = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${FACEBOOK_APP_ID}&redirect_uri=${FACEBOOK_REDIRECT_URI}&state=${token}`;
+
+    const url = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${FACEBOOK_APP_ID}&response_type=code&redirect_uri=${FACEBOOK_REDIRECT_URI}&state=${token}&scope=email,pages_show_list,pages_read_engagement,business_management,pages_read_user_content`;
+
     json.status = CONSTANT.SUCCESS;
     json.result = {
       message: "Authentication url generated successfully",
@@ -56,9 +58,33 @@ async function _authCallback(req, res) {
 
     const data = await response.json();
 
-    const newTokenExpiresAt = Math.floor(Date.now() / 1000) + data.expires_in;
+    // Step 2: Exchange for Long-Lived Token
+    const longLiveParams = qs.stringify({
+      grant_type: "fb_exchange_token",
+      client_id: FACEBOOK_APP_ID,
+      client_secret: FACEBOOK_APP_SECRET,
+      fb_exchange_token: data.access_token,
+    });
 
-    const accessToken = data.access_token;
+    const longLiveTokenUrl = `https://graph.facebook.com/v21.0/oauth/access_token?${longLiveParams}`;
+    const tokenResponse = await fetch(longLiveTokenUrl);
+    const tokenData = await tokenResponse.json();
+
+    // console.log("Long-Lived Access Token:", tokenData);
+
+    if (!tokenData.access_token) {
+      return res.status(400).send({
+        status: "Fail",
+        message: "Failed to get long-lived token",
+        error: tokenData,
+      });
+    }
+
+    // Step 3: Set Expiry Time (Default 60 Days)
+    const expiresInSeconds = tokenData.expires_in || 5184000; // 60 days
+    const newTokenExpiresAt = Math.floor(Date.now() / 1000) + expiresInSeconds;
+
+    const accessToken = tokenData.access_token;
 
     const userInfoResponse = await fetch(
       `https://graph.facebook.com/me?fields=id,name,email&access_token=${accessToken}`,
@@ -145,177 +171,174 @@ async function _authCallback(req, res) {
   }
 }
 
+const fetchFacebookData = async (url, accessToken) => {
+  try {
+    const response = await fetch(`${url}&access_token=${accessToken}`, {
+      method: "GET",
+    });
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching data from: ${url}`, error);
+    return null;
+  }
+};
+
+const getPageDetails = async (accessToken) => {
+  const pagesData = await fetchFacebookData(
+    "https://graph.facebook.com/v21.0/me/accounts?fields=id,access_token",
+    accessToken
+  );
+  return pagesData?.data?.[0] || null;
+};
+
+const getPagePosts = async (pageId, pageAccessToken) => {
+  return fetchFacebookData(
+    `https://graph.facebook.com/v21.0/${pageId}/posts?fields=id,message,created_time,permalink_url,full_picture,shares,comments.summary(true),reactions.summary(true)`,
+    pageAccessToken
+  );
+};
+
+const getPageFollowers = async (pageId, pageAccessToken) => {
+  return fetchFacebookData(
+    `https://graph.facebook.com/v21.0/${pageId}?fields=followers_count`,
+    pageAccessToken
+  );
+};
+
+const calculateEngagementStats = (posts) => {
+  let totalReactions = 0;
+  let totalComments = 0;
+  let totalShares = 0;
+  let postCountPerMonth = Array(12).fill(0);
+  let engagementRatePerMonth = Array(12).fill(0);
+  let commentCountPerMonth = Array(12).fill(0);
+  let likeCountPerMonth = Array(12).fill(0);
+  let shareCountPerMonth = Array(12).fill(0);
+
+  const currentYear = new Date().getFullYear();
+
+  posts.forEach((post) => {
+    const postDate = new Date(post.created_time);
+    if (postDate.getFullYear() === currentYear) {
+      const month = postDate.getMonth();
+      postCountPerMonth[month]++;
+      commentCountPerMonth[month] += post?.comments?.summary?.total_count || 0;
+      likeCountPerMonth[month] += post?.reactions?.summary?.total_count || 0;
+      shareCountPerMonth[month] += post?.shares?.count || 0;
+    }
+    totalReactions += post?.reactions?.summary?.total_count || 0;
+    totalComments += post?.comments?.summary?.total_count || 0;
+    totalShares += post?.shares?.count || 0;
+  });
+
+  return {
+    totalReactions,
+    totalComments,
+    totalShares,
+    postCountPerMonth,
+    commentCountPerMonth,
+    likeCountPerMonth,
+    shareCountPerMonth,
+  };
+};
+
 async function _getFacebookUserData(req, res) {
   const accessToken = req.headers.authorization?.split(" ")[1];
+  if (!accessToken)
+    return res
+      .status(400)
+      .send({ status: "Fail", message: "Missing access token" });
 
   try {
- 
-    // Step 1: Fetch user info and posts
-    const userInfo = await fetchUserInfo(accessToken);
+    const pageDetails = await getPageDetails(accessToken);
+    if (!pageDetails)
+      return res.send({ status: "Fail", message: "No pages found." });
 
-    const posts = userInfo.posts?.data || [];
-    userInfo.post_count = posts.length;
-    userInfo.friends_count = userInfo.friends?.summary?.total_count || 0;
+    const [postsData, followersData] = await Promise.all([
+      getPagePosts(pageDetails.id, pageDetails.access_token),
+      getPageFollowers(pageDetails.id, pageDetails.access_token),
+    ]);
 
-    // If no posts are available
-    if (posts.length === 0) {
+    const posts = postsData?.data || [];
+    const userInfo = {
+      post_count: posts.length,
+      friends_count: followersData?.followers_count || 0,
+    };
+
+    if (!posts.length)
       return res.send({
         status: "Success",
         message: "No posts available.",
         userInfo,
         posts: [],
       });
-    }
 
-    // Step 3: Calculate total reactions and comments for all posts
-    let totalReactions = 0;
-    let totalComments = 0;
-
-    posts.forEach(post => {
-      totalReactions += post.reactions?.summary?.total_count || 0;
-      totalComments += post.comments?.summary?.total_count || 0;
-    });
-
-    // Add total reactions and total comments to user info
-    userInfo.totalReactions = totalReactions;
-    userInfo.totalComments = totalComments;
-
-    // Return successful response with user info and post details
+    const engagementStats = calculateEngagementStats(posts);
     return res.send({
       status: "Success",
       message: "User data and post details fetched successfully.",
-      userInfo,
-      posts,
+      userInfo: { ...userInfo, ...engagementStats },
     });
-
   } catch (error) {
-    // Handle any errors during the process
     console.error("Error fetching Facebook user data:", error);
     return res.status(500).send({
       status: "Fail",
-      message: "An error occurred while fetching Facebook user data.",
+      message: "An error occurred.",
       error: error.message,
     });
   }
 }
 
-// Function to fetch user information including posts and reactions/comments
-async function fetchUserInfo(accessToken) {
-  const response = await fetch(
-    `https://graph.facebook.com/v21.0/me?fields=id,name,email,age_range,birthday,friends,gender,link,posts{message,created_time,media_type,media_url,permalink,reactions.summary(true),comments.summary(true),permalink_url,link,type}&access_token=${accessToken}`,
-    { method: "GET" }
-  );
-  const userInfo = await response.json();
-
-  if (userInfo.error) {
-    throw new Error(userInfo.error.message);
-  }
-
-  return userInfo;
-}
-
 async function _MonthlyPerformanceFacebookAnalytics(req, res) {
   const accessToken = req.headers.authorization?.split(" ")[1];
-  const currentMonth = moment().format("M");
+  if (!accessToken)
+    return res
+      .status(400)
+      .send({ status: "Fail", message: "Missing access token" });
 
   try {
-    // Step 1: Fetch user data (including posts, reactions, and comments) using fetchUserInfo
-    const userInfo = await fetchUserInfo(accessToken);
-    const posts = userInfo.posts?.data || [];
-    const postCount = posts.length;
-    const friendsCount = userInfo.friends?.summary?.total_count || 0;
+    const pageDetails = await getPageDetails(accessToken);
+    if (!pageDetails)
+      return res.send({ status: "Fail", message: "No pages found." });
 
-    if (postCount === 0) {
-      return res.send({
-        status: "Success",
-        message: "No posts available.",
-        userInfo,
-        posts: [],
-      });
-    }
+    const [postsData, followersData] = await Promise.all([
+      getPagePosts(pageDetails.id, pageDetails.access_token),
+      getPageFollowers(pageDetails.id, pageDetails.access_token),
+    ]);
 
-    let totalReactions = 0;
-    let totalComments = 0;
-    let totalShares = 0;
+    const posts = postsData?.data || [];
+    const friendsCount = followersData?.followers_count || 0;
+    if (!posts.length)
+      return res.send({ status: "Success", message: "No posts available." });
 
-    // Calculate total reactions, comments, and shares from all posts
-    posts.forEach((post) => {
-      totalReactions += post.reactions?.summary?.total_count || 0;
-      totalComments += post.comments?.summary?.total_count || 0;
-      totalShares += post.shares?.count || 0;
-    });
-
-    userInfo.totalReactions = totalReactions;
-    userInfo.totalComments = totalComments;
-    userInfo.totalShares = totalShares;
-
-    // Helper functions to extract month and year
-    const getMonthYear = (isoTimestamp) => {
-      const date = new Date(isoTimestamp);
-      return date.getMonth(); // Returns 0-11 (January is 0, February is 1, etc.)
-    };
-
-    const getYear = (isoTimestamp) => {
-      const date = new Date(isoTimestamp);
-      return date.getFullYear(); // Returns year
-    };
-
-    const currentYear = new Date().getFullYear();
-
-    // Arrays to store the counts for each month of the current year
-    let postCountPerMonth = Array(12).fill(0);
-    let engagementRatePerMonth = Array(12).fill(0);
-    let commentCountPerMonth = Array(12).fill(0);
-    let likeCountPerMonth = Array(12).fill(0);
-    let shareCountPerMonth = Array(12).fill(0);
-
-    // Calculate monthly counts for posts and interactions
-    posts.forEach((post) => {
-      const postYear = getYear(post.created_time);
-      if (postYear === currentYear) {
-        const month = getMonthYear(post.created_time);
-
-        postCountPerMonth[month]++;
-        commentCountPerMonth[month] += post?.comments?.summary?.total_count || 0;
-        likeCountPerMonth[month] += post?.reactions?.summary?.total_count || 0;
-        shareCountPerMonth[month] += post?.shares?.count || 0;
+    const engagementStats = calculateEngagementStats(posts);
+    const engagementRatePerMonth = engagementStats.postCountPerMonth.map(
+      (_, index) => {
+        const totalEngagements =
+          engagementStats.likeCountPerMonth[index] +
+          engagementStats.commentCountPerMonth[index] +
+          engagementStats.shareCountPerMonth[index];
+        return friendsCount > 0 ? (totalEngagements / friendsCount) * 100 : 0;
       }
-    });
+    );
 
-    // Calculate engagement rate for each month
-    engagementRatePerMonth = engagementRatePerMonth.map((_, index) => {
-      const totalEngagements =
-        likeCountPerMonth[index] +
-        commentCountPerMonth[index] +
-        shareCountPerMonth[index];
-
-      // Calculate engagement rate: Total Engagements (likes + comments + shares) / friendsCount
-      const rate = friendsCount > 0 ? (totalEngagements / friendsCount) * 100 : 0; // Convert to percentage
-      return rate;
-    });
-
-    // Return the final analytics response
     return res.send({
-      status: CONSTANT.SUCCESS,
+      status: "Success",
       result: {
         message: "Analytics processed successfully.",
-        postCountArray: postCountPerMonth,
+        postCountArray: engagementStats.postCountPerMonth,
         engagementRateArray: engagementRatePerMonth,
-        likeCountArray: likeCountPerMonth,
-        commentCountArray: commentCountPerMonth,
-        shareCountArray: shareCountPerMonth,
+        likeCountArray: engagementStats.likeCountPerMonth,
+        commentCountArray: engagementStats.commentCountPerMonth,
+        shareCountArray: engagementStats.shareCountPerMonth,
       },
     });
-
   } catch (error) {
     console.error("Error fetching Facebook analytics data:", error);
-    return res.send({
-      status: CONSTANT.FAIL,
-      result: {
-        message: "An error occurred while processing analytics.",
-        error: error.message,
-      },
+    return res.status(500).send({
+      status: "Fail",
+      message: "An error occurred.",
+      error: error.message,
     });
   }
 }
-
