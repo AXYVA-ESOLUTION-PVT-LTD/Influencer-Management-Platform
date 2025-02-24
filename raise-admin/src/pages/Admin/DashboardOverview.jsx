@@ -1,22 +1,37 @@
-import React, { useState } from "react";
-import { Container, Row, Col, Card, CardBody, CardTitle } from "reactstrap";
-import Breadcrumbs from "../../components/Common/Breadcrumb";
+import React, { useEffect, useState } from "react";
+import { Container, Row, Col } from "reactstrap";
 import { withTranslation } from "react-i18next";
 import Highcharts from "highcharts";
-import HighchartsReact from "highcharts-react-official";
 import Highcharts3d from "highcharts/highcharts-3d";
-import ApexCharts from 'react-apexcharts';
 import StatisticsBox from "../../components/Common/StatisticsBox";
 import Mixchart from "../../components/Common/Chart/Mixchart";
 import Barchart from "../../components/Common/Chart/Barchart";
 import PieChart from "../../components/Common/Chart/PieChart";
-import { areaChartOptions, areaChartSeries, barChartOptions, barChartSeries, dataBoxes, donutChartOptions, pieChart1Data, pieChart2Data, pieChart3Data } from "../../data/DashboardData";
+import {
+  areaChartOptions,
+  areaChartSeries,
+  barChartOptions,
+  dataBoxes,
+  donutChartOptions,
+  pieChart1Data,
+  pieChart2Data,
+  pieChart3Data,
+} from "../../data/DashboardData";
+import { getTicketEngagementStatistics } from "../../store/dashboard/actions";
+import { useDispatch, useSelector } from "react-redux";
 Highcharts3d(Highcharts); 
 
 const DashboardOverview = (props) => {
   // Meta title
   document.title = "Overview | Brandraise";
 
+  const {
+    approvedCounts,
+    declinedCounts,
+    onHoldCounts,
+    loadingTicketStatistics,
+  } = useSelector((state) => state.Dashboard);
+  const dispatch = useDispatch();
   // State for filters
   const [filters, setFilters] = useState({
     category: "all",
@@ -41,6 +56,24 @@ const DashboardOverview = (props) => {
     return stat.filter === filters.category;
   });
 
+  const barChartSeries = [
+    {
+      name: "Approved",
+      data: approvedCounts,
+    },
+    {
+      name: "Declined",
+      data: declinedCounts,
+    },
+    {
+      name: "On hold",
+      data: onHoldCounts,
+    },
+  ];
+
+  useEffect(() => {
+    dispatch(getTicketEngagementStatistics());
+  }, [dispatch]);
 
   return (
     <React.Fragment>
@@ -66,7 +99,9 @@ const DashboardOverview = (props) => {
               <Mixchart  options={areaChartOptions} series={areaChartSeries} title="Post statistics"/>
             </Col>
             <Col md={6}>
-              <Barchart options={barChartOptions} series={barChartSeries} title="Influencers statistics"/>
+              <Barchart options={barChartOptions} series={barChartSeries} title="Influencers statistics"
+                loading={loadingTicketStatistics}
+              />
             </Col>
           </Row>
           <Row>

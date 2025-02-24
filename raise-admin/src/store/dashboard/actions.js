@@ -21,6 +21,9 @@ import {
   GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS,
   GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS_SUCCESS,
   GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS_FAIL,
+  GET_INSTAGRAM_DEMOGRAPHICS,
+  GET_INSTAGRAM_DEMOGRAPHICS_SUCCESS,
+  GET_INSTAGRAM_DEMOGRAPHICS_FAIL,
 } from "./actionTypes";
 
 export const getTikTokUserData = () => ({
@@ -119,5 +122,19 @@ export const getInstagramMonthlyPerformanceAnalyticsSuccess = (analyticsData) =>
 
 export const getInstagramMonthlyPerformanceAnalyticsFail = (error) => ({
   type: GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS_FAIL,
+  payload: error,
+});
+
+export const getInstagramDemographics = () => ({
+  type: GET_INSTAGRAM_DEMOGRAPHICS,
+});
+
+export const getInstagramDemographicsSuccess = (demographicsData) => ({
+  type: GET_INSTAGRAM_DEMOGRAPHICS_SUCCESS,
+  payload: demographicsData,
+});
+
+export const getInstagramDemographicsFail = (error) => ({
+  type: GET_INSTAGRAM_DEMOGRAPHICS_FAIL,
   payload: error,
 });

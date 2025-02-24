@@ -5,3 +5,4 @@ export const GET_FACEBOOK_MONTHLY_PERFORMANCE_ANALYTICS_API = "/facebook/monthly
 export const GET_TICKET_ENGAGEMENT_STATISTICS_API = "/ticket-notification/getTicketEngagementStatistics";
 export const GET_INSTAGRAM_USER_DATA_API = "/instagram/getUserData";
 export const GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS_API = "/instagram/MonthlyPerformanceInstagramAnalytics";
+export const GET_INSTAGRAM_DEMOGRAPHICS_API = "/instagram/Demographics"

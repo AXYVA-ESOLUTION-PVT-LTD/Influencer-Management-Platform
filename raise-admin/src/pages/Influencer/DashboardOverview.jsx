@@ -12,7 +12,8 @@ import Highcharts from "highcharts";
 import Highcharts3d from "highcharts/highcharts-3d";
 import {
   areaChartOptions,
-  barChartOptions
+  barChartOptions,
+  donutChartOptions
 } from "../../data/DashboardData";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -23,7 +24,9 @@ import {
   getTikTokUserData,
   getInstagramUserData,
   getInstagramMonthlyPerformanceAnalytics,
+  getInstagramDemographics,
 } from "../../store/dashboard/actions";
+import PieChart from "../../components/Common/Chart/PieChart";
 Highcharts3d(Highcharts);
 
 const DashboardOverview = (props) => {
@@ -40,10 +43,14 @@ const DashboardOverview = (props) => {
     monthlyPostCount,
     monthlyEngagementRate,
     monthlyCommentCount,
+    ageDemographics,
+    genderDemographics,
+    locationDemographics,
     approvedCounts,
     declinedCounts,
     onHoldCounts,
     loadingTicketStatistics,
+    loadingDemographics
   } = useSelector((state) => state.Dashboard);
 
   const [userInfo, setUserInfo] = useState({});
@@ -62,6 +69,7 @@ const DashboardOverview = (props) => {
     else if (userData.platform == PLATFORMS.INSTAGRAM) {
       dispatch(getInstagramUserData());
       dispatch(getInstagramMonthlyPerformanceAnalytics());
+      dispatch(getInstagramDemographics());
     }
     // Common engagement statistics API call
     dispatch(getTicketEngagementStatistics());
@@ -227,53 +235,32 @@ const DashboardOverview = (props) => {
               />
             </Col>
           </Row>
-          {/* <Row>
-            <Card className="p-4 mb-4">
-              <Row>
-                {userVideodata?.length > 0 ? (
-                  userVideodata.map((video, index) => (
-                    <CardComponent
-                      key={index}
-                      image={video.cover_image_url}
-                      title={video.title}
-                      uploadTime={new Date(
-                        video.create_time * 1000
-                      ).toLocaleString()}
-                      views={video.view_count}
-                      likes={video.like_count}
-                      comments={video.comment_count}
-                      share_url={video.share_url}
-                    />
-                  ))
-                ) : (
-                  <div>No video data found</div>
-                )}
-              </Row>
-            </Card>
-          </Row> */}
-          {/* <Row>
+          <Row>
             <Col md={4}>
               <PieChart
                 chartoptions={donutChartOptions}
-                chartdata={pieChart1Data}
+                chartdata={genderDemographics}
                 title="Gender Distribution"
+                loading={loadingDemographics}
               />
             </Col>
             <Col md={4}>
               <PieChart
                 chartoptions={donutChartOptions}
-                chartdata={pieChart2Data}
+                chartdata={ageDemographics}
                 title="Age Distribution"
+                loading={loadingDemographics}
               />
             </Col>
             <Col md={4}>
               <PieChart
                 chartoptions={donutChartOptions}
-                chartdata={pieChart3Data}
+                chartdata={locationDemographics}
                 title="Language Distribution"
+                loading={loadingDemographics}
               />
             </Col>
-          </Row> */}
+          </Row>
         </Container>
       </div>
     </React.Fragment>
