@@ -5,6 +5,7 @@ const TICKET_NOTIFICATION_COLLECTION = require("../module/ticketnotification.mod
 const USER_COLLECTION = require("../module/user.module.js");
 const moment = require("moment");
 const json = {};
+const ROLES = require("../config/role");
 
 exports.createTicketNotification = _createTicketNotification;
 exports.getTicketNotifications = _getTicketNotifications;
@@ -286,10 +287,17 @@ async function _getTicketEngagementStatistics(req, res) {
   const currentMonth = moment().format('M'); // Get the current month
   const startDate = moment().startOf('year'); // Start of the year
   const endDate = moment().endOf('day'); // End of the current day
-  const query = {
-    from: userId,
+
+  let query = {
     $and: [{ createdAt: { $gte: startDate } }, { createdAt: { $lte: endDate } }],
   };
+  
+  const roleCode = "1425"; // for brand role
+  let role = req.decoded.roleId.name;
+
+  if (role === ROLES[roleCode]) {
+    query.from = userId;
+  }
 
   try {
     const approvedCounts = Array(+currentMonth).fill(0); // Array for approved counts

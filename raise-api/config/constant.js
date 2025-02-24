@@ -5,6 +5,7 @@ module.exports = {
   VALIDATE_TIME: 1,
   TIKTOK : 'Tiktok',
   FACEBOOK : 'Facebook',
-  INSTAGRAM : 'Instagram'
+  INSTAGRAM : 'Instagram',
+  YOUTUBE : 'YouTube',
 };
 
