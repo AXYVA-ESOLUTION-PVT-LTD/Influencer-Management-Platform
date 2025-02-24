@@ -21,6 +21,9 @@ import {
   GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS,
   GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS_SUCCESS,
   GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS_FAIL,
+  GET_INSTAGRAM_DEMOGRAPHICS,
+  GET_INSTAGRAM_DEMOGRAPHICS_SUCCESS,
+  GET_INSTAGRAM_DEMOGRAPHICS_FAIL,
 } from "./actionTypes";
 
 const INIT_STATE = {
@@ -33,11 +36,16 @@ const INIT_STATE = {
   monthlyFacebookPostCount: null,
   monthlyFacebookEngagementRate: null,
   monthlyFacebookCommentCount: null,
+  ageDemographics: null,
+  genderDemographics: null,
+  locationDemographics: null,
+  demographicsData: null,
   loadingUserData: false,
   loadingAnalytics: false,
   loadingTicketStatistics: false,
-  loadingInstagramAnalytics : false,
-  loadingInstagramUserData : false,
+  loadingInstagramAnalytics: false,
+  loadingInstagramUserData: false,
+  loadingDemographics: false,
   approvedCounts: null,
   declinedCounts: null,
   onHoldCounts: null,
@@ -180,6 +188,29 @@ const Dashboard = (state = INIT_STATE, action) => {
         ...state,
         error: action.payload,
         loadingAnalytics: false,
+      };
+    case GET_INSTAGRAM_DEMOGRAPHICS:
+      return {
+        ...state,
+        loadingDemographics: true,
+        error: null,
+      };
+    case GET_INSTAGRAM_DEMOGRAPHICS_SUCCESS:
+      return {
+        ...state,
+        ageDemographics: action.payload.ageDemographics,
+        genderDemographics: action.payload.genderDemographics,
+        locationDemographics: action.payload.locationDemographics,
+        loadingDemographics: false,
+      };
+    case GET_INSTAGRAM_DEMOGRAPHICS_FAIL:
+      return {
+        ...state,
+        error: action.payload,
+        ageDemographics: null,
+        genderDemographics: null,
+        locationDemographics: null,
+        loadingDemographics: false,
       };
 
     default:

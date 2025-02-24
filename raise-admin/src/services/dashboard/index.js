@@ -6,7 +6,8 @@ import {
   GET_FACEBOOK_USER_DATA_API,
   GET_FACEBOOK_MONTHLY_PERFORMANCE_ANALYTICS_API,
   GET_INSTAGRAM_USER_DATA_API,
-  GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS_API
+  GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS_API,
+  GET_INSTAGRAM_DEMOGRAPHICS_API
 } from "./routes";
 
 
@@ -76,3 +77,11 @@ export const getInstagramMonthlyPerformanceAnalyticsUrl = (token) => {
   );
 };
 
+export const getInstagramDemographicsUrl = (token) => {
+  return get(
+    GET_INSTAGRAM_DEMOGRAPHICS_API,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+};
