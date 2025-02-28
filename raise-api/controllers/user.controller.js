@@ -16,6 +16,8 @@ require("dotenv").config();
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const json = {};
 
+const { YOUTUBE_CLIENT_ID, YOUTUBE_REDIRECT_URI , PROD_REDIRECT_URI , PROD_TIKTOK_CLIENT_ID } = process.env;
+
 exports.login = _login;
 exports.signUp = _signUp;
 
@@ -49,34 +51,49 @@ async function _signUp(req, res) {
       return res.send(json);
     }
     // const { firstName, lastName, email, password, roleCode } = req.body;
-    const { firstName, lastName, email, password, phoneNumber, city, country, roleCode, platform, username } = req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      phoneNumber,
+      city,
+      country,
+      roleCode,
+      platform,
+      username,
+    } = req.body;
     // Check if any of the unique fields already exist in the database
     const isEmailExisting = await USER_COLLECTION.findOne({ email });
-    const isPhoneNumberExisting = await USER_COLLECTION.findOne({ phoneNumber });
+    const isPhoneNumberExisting = await USER_COLLECTION.findOne({
+      phoneNumber,
+    });
 
     // If any field exists, return errors
-    if (isEmailExisting || isPhoneNumberExisting ) {
+    if (isEmailExisting || isPhoneNumberExisting) {
       let errors = [];
 
       if (isEmailExisting) {
         errors.push("This email is already in use. Try another.");
       }
-      
+
       if (isPhoneNumberExisting) {
-        errors.push("This phone number is taken. Please choose a different one.");
+        errors.push(
+          "This phone number is taken. Please choose a different one."
+        );
       }
 
       json.status = CONSTANT.FAIL;
       json.result = {
         error: "Fail to create user",
-        details: errors, 
+        details: errors,
       };
       return res.send(json);
     }
     const encPassword = await COMMON.encryptPassword(password);
     const roleName = ROLES[roleCode];
     const role = await Role.findOne({ name: roleName });
-    
+
     const user = new USER_COLLECTION({
       firstName: firstName,
       lastName: lastName,
@@ -87,32 +104,35 @@ async function _signUp(req, res) {
       country: country,
       roleId: role._id,
       platform: platform,
-      username: username
+      username: username,
     });
     user
       .save()
       .then(async (result) => {
-
         let userObj = {
           id: result._id,
           email: result.email,
           firstName: result.firstName,
           lastName: result.lastName,
-          roleId: result.roleId
+          roleId: result.roleId,
         };
-  
+
         let token = jwt.sign(userObj, process.env.superSecret, {
           expiresIn: 86400,
         });
 
         const wallet = new WALLET_COLLECTION({
           influencerId: result._id,
-          balance: 0
+          balance: 0,
         });
         await wallet.save();
 
         json.status = CONSTANT.SUCCESS;
-        json.result = { message: "User added successfully!", data: result ,token: token};
+        json.result = {
+          message: "User added successfully!",
+          data: result,
+          token: token,
+        };
         return res.send(json);
       })
       .catch((error) => {
@@ -153,13 +173,13 @@ async function _login(req, res) {
     const { email, password, mode, token, roleCode } = req.body;
     const roleName = ROLES[roleCode];
     const role = await Role.findOne({ name: roleName });
-    
-    if(mode == "google"){
+
+    if (mode == "google") {
       const ticket = await client.verifyIdToken({
         idToken: token,
         audience: process.env.GOOGLE_CLIENT_ID,
       });
-  
+
       const payload = ticket.getPayload();
 
       const existUser = await USER_COLLECTION.findOne({
@@ -171,7 +191,7 @@ async function _login(req, res) {
         select: ["name"],
       });
 
-      if(existUser) {
+      if (existUser) {
         let userObj = {
           id: existUser._id,
           email: existUser.email,
@@ -180,14 +200,14 @@ async function _login(req, res) {
           roleId: existUser.roleId,
           accessToken: existUser.accessToken,
           platform: existUser.platform,
-          username: existUser.username, 
+          username: existUser.username,
           loginType: existUser.loginType,
         };
-  
+
         let token = jwt.sign(userObj, process.env.superSecret, {
           expiresIn: 86400,
         });
-  
+
         const {
           password: _,
           createdAt,
@@ -212,7 +232,6 @@ async function _login(req, res) {
         user
           .save()
           .then(async (result) => {
-
             let userObj = {
               id: result._id,
               email: result.email,
@@ -222,18 +241,20 @@ async function _login(req, res) {
               loginType: result.loginType,
               accessToken: result.accessToken,
               platform: result.platform,
-              username: result.username, 
+              username: result.username,
             };
-      
+
             let token = jwt.sign(userObj, process.env.superSecret, {
               expiresIn: 86400,
             });
-      
-            const createdUser = await USER_COLLECTION.findById(result._id).populate({
+
+            const createdUser = await USER_COLLECTION.findById(
+              result._id
+            ).populate({
               path: "roleId",
               model: "Role",
               select: ["name"],
-            }); 
+            });
             const {
               password: _,
               createdAt,
@@ -243,7 +264,7 @@ async function _login(req, res) {
 
             const wallet = new WALLET_COLLECTION({
               influencerId: result._id,
-              balance: 0
+              balance: 0,
             });
             await wallet.save();
 
@@ -253,9 +274,10 @@ async function _login(req, res) {
               data: { token: token, user: userWithoutSensitiveInfo },
             };
             return res.send(json);
-          }).catch((error) => {
+          })
+          .catch((error) => {
             console.log(error);
-            
+
             json.status = CONSTANT.FAIL;
             json.result = {
               message: "An error occurred while add new user!",
@@ -264,7 +286,6 @@ async function _login(req, res) {
             return res.send(json);
           });
       }
-
     } else {
       const existUser = await USER_COLLECTION.findOne({
         email: email,
@@ -274,7 +295,7 @@ async function _login(req, res) {
         model: "Role",
         select: ["name"],
       });
-  
+
       if (!existUser) {
         json.status = CONSTANT.FAIL;
         json.result = {
@@ -283,7 +304,7 @@ async function _login(req, res) {
         };
         return res.send(json);
       }
-  
+
       if (!existUser.status) {
         json.status = CONSTANT.FAIL;
         json.result = {
@@ -292,9 +313,11 @@ async function _login(req, res) {
         };
         return res.send(json);
       }
-  
-      const decryptedPassword = await COMMON.decryptPassword(existUser.password);
-  
+
+      const decryptedPassword = await COMMON.decryptPassword(
+        existUser.password
+      );
+
       if (password == decryptedPassword) {
         let userObj = {
           id: existUser._id,
@@ -305,16 +328,86 @@ async function _login(req, res) {
           loginType: existUser.loginType,
           accessToken: existUser.accessToken,
           platform: existUser.platform,
-          username: existUser.username, 
+          username: existUser.username,
         };
-  
+
         let token = jwt.sign(userObj, process.env.superSecret, {
           expiresIn: 86400,
         });
-  
+
         existUser.status = true;
         existUser.save();
-  
+
+        const currentTime = Date.now();
+        const refreshTokenExpireIn = Number(existUser.refreshTokenExpireIn);
+
+        if (
+          existUser.platform === CONSTANT.YOUTUBE &&
+          refreshTokenExpireIn &&
+          currentTime > refreshTokenExpireIn
+        ) {
+          try {
+            const state = token || "default_state";
+            const params = new URLSearchParams({
+              client_id: YOUTUBE_CLIENT_ID,
+              redirect_uri: YOUTUBE_REDIRECT_URI,
+              response_type: "code",
+              scope: [
+                "https://www.googleapis.com/auth/youtube.readonly",
+                "https://www.googleapis.com/auth/yt-analytics.readonly",
+              ].join(" "),
+              access_type: "offline",
+              prompt: "consent",
+              state,
+            });
+
+            const authUrl = `https://accounts.google.com/o/oauth2/auth?${params.toString()}`;
+
+            json.status = CONSTANT.SUCCESS;
+            json.result = {
+              message:
+                "Your session has expired. Please reauthenticate to continue.",
+              data: { redirectUrl: authUrl },
+            };
+
+            return res.send(json);
+          } catch (error) {
+            console.log("error :", error);
+            throw new Error(error);
+          }
+        }
+
+        if (
+          existUser.platform === CONSTANT.TIKTOK &&
+          refreshTokenExpireIn &&
+          currentTime > refreshTokenExpireIn
+        ) {
+          try {
+
+            let url = "https://www.tiktok.com/v2/auth/authorize/";
+            url += `?client_key=${PROD_TIKTOK_CLIENT_ID}`;
+            url += "&scope=user.info.basic";
+            url += "&scope=user.info.profile";
+            url += "&scope=user.info.stats";
+            url += "&scope=video.list";
+            url += "&response_type=code";
+            url += `&redirect_uri=${PROD_REDIRECT_URI}`;
+            url += `&state=${token}`;
+
+            json.status = CONSTANT.SUCCESS;
+            json.result = {
+              message:
+                "Your session has expired. Please reauthenticate to continue.",
+              data: { redirectUrl: url },
+            };
+
+            return res.send(json);
+          } catch (error) {
+            console.log("error :", error);
+            throw new Error(error);
+          }
+        }
+
         const {
           password: _,
           createdAt,
@@ -336,7 +429,6 @@ async function _login(req, res) {
         return res.send(json);
       }
     }
-
   } catch (e) {
     console.error("Controller: user | Method: _login | Error: ", e);
     json.status = CONSTANT.FAIL;
@@ -482,7 +574,6 @@ async function _forgotPassword(req, res) {
     </html>
     `,
     };
-    
 
     if (previousOTPRecord) {
       await ForgotPassword.updateOne({ userId: existUser._id }, { otp });
@@ -1029,11 +1120,11 @@ async function _updateUserNameById(req, res) {
       if (isUsernameExisting) {
         errors.push("This username is already taken. Pick another.");
       }
-      
+
       json.status = CONSTANT.FAIL;
       json.result = {
         error: "Fail to Update User Details",
-        details: errors, 
+        details: errors,
       };
       return res.send(json);
     }
@@ -1044,24 +1135,25 @@ async function _updateUserNameById(req, res) {
     };
     USER_COLLECTION.findByIdAndUpdate(id, userObj, { new: true })
       .then(async (result) => {
-
         let userObj = {
           id: result._id,
           email: result.email,
           firstName: result.firstName,
           lastName: result.lastName,
-          roleId: result.roleId
+          roleId: result.roleId,
         };
-  
+
         let token = jwt.sign(userObj, process.env.superSecret, {
           expiresIn: 86400,
         });
-        
-        const createdUser = await USER_COLLECTION.findById(result._id).populate({
-          path: "roleId",
-          model: "Role",
-          select: ["name"],
-        });
+
+        const createdUser = await USER_COLLECTION.findById(result._id).populate(
+          {
+            path: "roleId",
+            model: "Role",
+            select: ["name"],
+          }
+        );
 
         if (!createdUser) {
           json.status = CONSTANT.FAIL;
