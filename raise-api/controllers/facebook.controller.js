@@ -6,6 +6,8 @@ const FACEBOOK_APP_SECRET = process.env.FACEBOOK_APP_SECRET;
 const FACEBOOK_REDIRECT_URI = process.env.FACEBOOK_REDIRECT_URI;
 const FACEBOOK_CONFIG_ID = process.env.FACEBOOK_CONFIG_ID;
 const USER_COLLECTION = require("../module/user.module");
+const USER_DATA_COLLECTION = require("../module/userData.module");
+const MONTHLY_PERFORMANCE_COLLECTION = require("../module/monthlyPerformance.module");
 const jwt = require("jsonwebtoken");
 const qs = require("qs");
 const moment = require("moment");
@@ -70,8 +72,6 @@ async function _authCallback(req, res) {
     const tokenResponse = await fetch(longLiveTokenUrl);
     const tokenData = await tokenResponse.json();
 
-    // console.log("Long-Lived Access Token:", tokenData);
-
     if (!tokenData.access_token) {
       return res.status(400).send({
         status: "Fail",
@@ -120,7 +120,8 @@ async function _authCallback(req, res) {
       existingUser.status = true;
       existingUser.refreshToken = "";
       existingUser.expiresIn = newTokenExpiresAt;
-
+      existingUser.refreshToken = accessToken;
+      
       await existingUser.save();
 
       let userObj = {
@@ -242,6 +243,15 @@ const calculateEngagementStats = (posts) => {
   };
 };
 
+const isToday = (date) => {
+  const today = new Date();
+  return (
+    date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear()
+  );
+};
+
 async function _getFacebookUserData(req, res) {
   const accessToken = req.headers.authorization?.split(" ")[1];
   if (!accessToken)
@@ -250,6 +260,26 @@ async function _getFacebookUserData(req, res) {
       .send({ status: "Fail", message: "Missing access token" });
 
   try {
+     // Find userId from accessToken in USER_COLLECTION
+     const user = await USER_COLLECTION.findOne({ accessToken });
+     if (!user) {
+       return res
+         .status(404)
+         .send({ status: "Fail", message: "User not found" });
+     }
+ 
+     const userId = user._id;
+ 
+     let userData = await USER_DATA_COLLECTION.findOne({ userId });
+ 
+     if (userData && isToday(userData.updatedAt)) {
+       return res.send({
+         status: "Success",
+         message: "facebook user data fetched from database.",
+         userInfo: userData.facebook,
+       });
+     }
+
     const pageDetails = await getPageDetails(accessToken);
     if (!pageDetails)
       return res.send({ status: "Fail", message: "No pages found." });
@@ -274,6 +304,27 @@ async function _getFacebookUserData(req, res) {
       });
 
     const engagementStats = calculateEngagementStats(posts);
+    
+    const facebookData = {
+      friends_count: userInfo.friends_count,
+      totalReactions: engagementStats.totalReactions || 0,
+      post_count: userInfo.post_count,
+      totalComments: engagementStats.totalComments || 0,
+    };
+
+    if (!userData) {
+      userData = new USER_DATA_COLLECTION({
+        userId,
+        facebook: facebookData,
+      });
+      await userData.save();
+    } else {
+      await USER_DATA_COLLECTION.updateOne(
+        { userId },
+        { facebook: facebookData, updatedAt: new Date() }
+      );
+    }
+
     return res.send({
       status: "Success",
       message: "User data and post details fetched successfully.",
@@ -297,6 +348,36 @@ async function _MonthlyPerformanceFacebookAnalytics(req, res) {
       .send({ status: "Fail", message: "Missing access token" });
 
   try {
+
+    // Get User ID using access token
+    const user = await USER_COLLECTION.findOne({ accessToken });
+    if (!user) {
+      return res.status(404).send({
+        status: "Fail",
+        message: "User not found.",
+      });
+    }
+
+    const userId = user._id;
+
+    // Check if monthly performance data exists for the user
+    let monthlyPerformance = await MONTHLY_PERFORMANCE_COLLECTION.findOne({
+      userId,
+    });
+
+    // ✅ Case 2: Data exists & updated today → Return from DB
+    if (monthlyPerformance && isToday(monthlyPerformance.updatedAt)) {
+      return res.send({
+        status: "Success",
+        result: {
+          message: "Analytics data fetched from database.",
+          postCountArray: monthlyPerformance.monthlyPostCount,
+          engagementRateArray: monthlyPerformance.monthlyEngagementRate,
+          commentCountArray: monthlyPerformance.monthlyCommentCount,
+        },
+      });
+    }
+
     const pageDetails = await getPageDetails(accessToken);
     if (!pageDetails)
       return res.send({ status: "Fail", message: "No pages found." });
@@ -321,6 +402,26 @@ async function _MonthlyPerformanceFacebookAnalytics(req, res) {
         return friendsCount > 0 ? (totalEngagements / friendsCount) * 100 : 0;
       }
     );
+
+    const analyticsData = {
+      userId,
+      monthlyPostCount: engagementStats.postCountPerMonth,
+      monthlyEngagementRate: engagementRatePerMonth,
+      monthlyCommentCount: engagementStats.commentCountPerMonth,
+      updatedAt: new Date(),
+    };
+
+    if (!monthlyPerformance) {
+      // ✅ Case 1: Create new data
+      monthlyPerformance = new MONTHLY_PERFORMANCE_COLLECTION(analyticsData);
+      await monthlyPerformance.save();
+    } else {
+      // ✅ Case 3: Update existing record
+      await MONTHLY_PERFORMANCE_COLLECTION.updateOne(
+        { userId },
+        { $set: analyticsData }
+      );
+    }
 
     return res.send({
       status: "Success",

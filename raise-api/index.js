@@ -33,6 +33,7 @@ const Transaction = require("./routes/transaction.route");
 const Payment = require("./routes/payment.route");
 const Facebook = require("./routes/facebook.route");
 const Instagram = require("./routes/instagram.route");
+const Youtube = require("./routes/youtube.route");
 const eventsCronjob = require('./controllers/eventcron.controller');
 
 const path = require("path");
@@ -106,6 +107,7 @@ app.use('/v1/transaction', Transaction);
 app.use('/v1/payment', Payment);
 app.use('/v1/facebook', Facebook);
 app.use('/v1/instagram', Instagram);
+app.use('/v1/youtube', Youtube);
 
 app.get("/testing",(req,res)=>{
 	return res.status(200).json({msg:"server is up an running"});

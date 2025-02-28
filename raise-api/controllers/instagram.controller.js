@@ -6,6 +6,9 @@ const INSTAGRAM_APP_SECRET = process.env.INSTAGRAM_APP_SECRET;
 const INSTAGRAM_REDIRECT_URI = process.env.INSTAGRAM_REDIRECT_URI;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 const USER_COLLECTION = require("../module/user.module");
+const USER_DATA_COLLECTION = require("../module/userData.module");
+const AUDIENCE_INSIGHT_COLLECTION = require("../module/audienceInsight.module");
+const MONTHLY_PERFORMANCE_COLLECTION = require("../module/monthlyPerformance.module");
 const jwt = require("jsonwebtoken");
 const qs = require("qs");
 const moment = require("moment");
@@ -158,7 +161,6 @@ async function _authCallback(req, res) {
       const redirectURL = `${FRONTEND_URL}/onboarding?message=User%20already%20logged%20in%20with%20this%20Instagram%20account`;
       return res.redirect(redirectURL);
     } else {
-
       const existingUser = await USER_COLLECTION.findById(user_Id).populate({
         path: "roleId",
         model: "Role",
@@ -224,12 +226,70 @@ async function _authCallback(req, res) {
   }
 }
 
-async function _getInstagramUserData(req, res) {
-  const accessToken = req.headers.authorization?.split(" ")[1];
+const isToday = (date) => {
+  const today = new Date();
+  return (
+    date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear()
+  );
+};
 
+async function _getInstagramUserData(req, res) {
   try {
+    const accessToken = req.headers.authorization?.split(" ")[1];
+    if (!accessToken) {
+      return res
+        .status(401)
+        .send({ status: "Fail", message: "Access token missing" });
+    }
+
+    // Find userId from accessToken in USER_COLLECTION
+    const user = await USER_COLLECTION.findOne({ accessToken });
+    if (!user) {
+      return res
+        .status(404)
+        .send({ status: "Fail", message: "User not found" });
+    }
+
+    const userId = user._id;
+
+    // Check if data exists in UserData collection
+    let userData = await USER_DATA_COLLECTION.findOne({ userId });
+
+    if (userData && isToday(userData.updatedAt)) {
+      return res.send({
+        status: "Success",
+        message: "Instagram user data fetched from database.",
+        userInfo: userData.instagram,
+      });
+    }
+
     // Fetch user profile data and media data
     const userInfo = await fetchInstagramUserInfo(accessToken);
+
+    // Construct Instagram data to store
+    const instagramData = {
+      followers_count: userInfo.followers_count || 0,
+      follows_count: userInfo.follows_count || 0,
+      totalPosts: userInfo.media_count || 0,
+      totalLikes: userInfo.totalLikes || 0,
+    };
+
+    // Case 1: If no document exists, create new record
+    if (!userData) {
+      userData = new USER_DATA_COLLECTION({
+        userId,
+        instagram: instagramData,
+      });
+      await userData.save();
+    } else {
+      // Case 3: If outdated, update record
+      await USER_DATA_COLLECTION.updateOne(
+        { userId },
+        { instagram: instagramData, updatedAt: new Date() }
+      );
+    }
 
     return res.send({
       status: "Success",
@@ -270,12 +330,6 @@ async function fetchInstagramUserInfo(accessToken) {
     return { ...post, insights };
   });
 
-  // Fetch Instagram user details (including follower count)
-  // const profileFollowersUrl = `https://graph.instagram.com/${userProfile.id}?fields=id,username,followers_count&access_token=${accessToken}`;
-  // const profileResponse = await fetch(profileFollowersUrl, { method: "GET" });
-  // const profileData = await profileResponse.json();
-  // console.log("Profile Data: ", profileData);
-
   // Calculate total values for posts, likes, and reach
   let totalPosts = mediaWithInsights.length;
   let totalLikes = mediaWithInsights.reduce(
@@ -297,11 +351,44 @@ async function fetchInstagramUserInfo(accessToken) {
 }
 
 async function _MonthlyPerformanceInstagramAnalytics(req, res) {
-  const accessToken = req.headers.authorization?.split(" ")[1];
   const json = {};
   const currentMonth = moment().format("M");
 
   try {
+    const accessToken = req.headers.authorization?.split(" ")[1];
+    if (!accessToken) {
+      return res
+        .status(401)
+        .send({ status: "Fail", message: "Access token missing" });
+    }
+
+    // Find userId from accessToken
+    const user = await USER_COLLECTION.findOne({ accessToken });
+    if (!user) {
+      return res
+        .status(404)
+        .send({ status: "Fail", message: "User not found" });
+    }
+
+    const userId = user._id;
+
+    // Check if data exists in MonthlyPerformance collection
+    let monthlyPerformance = await MONTHLY_PERFORMANCE_COLLECTION.findOne({
+      userId,
+    });
+
+    if (monthlyPerformance && isToday(monthlyPerformance.updatedAt)) {
+      return res.send({
+        status: "Success",
+        result: {
+          message: "Instagram analytics fetched from database.",
+          postCountArray: monthlyPerformance.monthlyPostCount,
+          engagementRateArray: monthlyPerformance.monthlyEngagementRate,
+          commentCountArray: monthlyPerformance.monthlyCommentCount,
+        },
+      });
+    }
+
     // Step 1: Fetch Instagram user info including media and insights
     const instagramData = await fetchInstagramUserInfo(accessToken);
     const mediaWithInsights = instagramData.media;
@@ -352,6 +439,27 @@ async function _MonthlyPerformanceInstagramAnalytics(req, res) {
       return 0;
     });
 
+    // Update or create new record
+    if (!monthlyPerformance) {
+      monthlyPerformance = new MONTHLY_PERFORMANCE_COLLECTION({
+        userId,
+        monthlyPostCount: postCountPerMonth,
+        monthlyEngagementRate: engagementRatePerMonth,
+        monthlyCommentCount: commentCountPerMonth,
+      });
+      await monthlyPerformance.save();
+    } else {
+      await MONTHLY_PERFORMANCE_COLLECTION.updateOne(
+        { userId },
+        {
+          monthlyPostCount: postCountPerMonth,
+          monthlyEngagementRate: engagementRatePerMonth,
+          monthlyCommentCount: commentCountPerMonth,
+          updatedAt: new Date(),
+        }
+      );
+    }
+
     // Step 5: Prepare response data
     json.status = CONSTANT.SUCCESS;
     json.result = {
@@ -380,17 +488,40 @@ async function _MonthlyPerformanceInstagramAnalytics(req, res) {
 }
 
 async function _getInstagramDemographics(req, res) {
-  const accessToken = req.headers.authorization?.split(" ")[1];
   const json = {};
 
   try {
-    // Check if accessToken is available
+    const accessToken = req.headers.authorization?.split(" ")[1];
     if (!accessToken) {
-      json.status = CONSTANT.FAIL;
-      json.result = {
-        message: "Access token is required.",
-      };
-      return res.send(json);
+      return res.send({
+        status: CONSTANT.FAIL,
+        result: { message: "Access token is required." },
+      });
+    }
+
+    const user = await USER_COLLECTION.findOne({ accessToken });
+    if (!user) {
+      return res.send({
+        status: CONSTANT.FAIL,
+        result: { message: "User not found." },
+      });
+    }
+
+    const userId = user._id;
+    let audienceInsight = await AUDIENCE_INSIGHT_COLLECTION.findOne({ userId });
+
+    if (audienceInsight && isToday(audienceInsight.updatedAt)) {
+      return res.send({
+        status: CONSTANT.SUCCESS,
+        result: {
+          message: "Demographics data fetched from database.",
+          data: {
+            ageDemographics: audienceInsight.ageDemographics,
+            genderDemographics: audienceInsight.genderDemographics,
+            locationDemographics: audienceInsight.countryViews,
+          },
+        },
+      });
     }
 
     // Fetch user profile data
@@ -412,134 +543,126 @@ async function _getInstagramDemographics(req, res) {
       method: "GET",
     });
     const demographicsData = await demographicsResponse.json();
-    // console.log("demographicsData : ", demographicsData);
 
     // If Instagram API returns an error, throw it
     if (demographicsData.error) {
       throw new Error(demographicsData.error.message);
     }
 
-    // Check if demographics data is available
-    if (demographicsData.data && demographicsData.data.length > 0) {
-      const demographics = demographicsData.data[0].values[0].value;
+    if (!demographicsData.data || demographicsData.data.length === 0) { 
+      if (!audienceInsight) {
+        audienceInsight = new AUDIENCE_INSIGHT_COLLECTION({
+          userId,
+          ageDemographics: [],
+          genderDemographics: [],
+          countryViews: [],
+        });
+        await audienceInsight.save();
+      } else {
+        await AUDIENCE_INSIGHT_COLLECTION.updateOne(
+          { userId },
+          {
+            ageDemographics: [],
+            genderDemographics: [],
+            countryViews: [],
+            updatedAt: new Date(),
+          }
+        );
+      }
 
-      // Age Demographics Calculation
-      const ageDemographics = demographics.age || {};
-      const totalAge = Object.values(ageDemographics).reduce(
-        (acc, value) => acc + value,
-        0
-      );
-      const agePercentages = Object.keys(ageDemographics).reduce((acc, key) => {
-        acc[key] = ((ageDemographics[key] / totalAge) * 100).toFixed(2); // Percentage with 2 decimals
-        return acc;
-      }, {});
-
-      // Gender Demographics Calculation
-      const genderDemographics = demographics.gender || {};
-      const totalGender = Object.values(genderDemographics).reduce(
-        (acc, value) => acc + value,
-        0
-      );
-      const genderPercentages = Object.keys(genderDemographics).reduce(
-        (acc, key) => {
-          acc[key] = ((genderDemographics[key] / totalGender) * 100).toFixed(2); // Percentage with 2 decimals
-          return acc;
+      return res.send({
+        status: CONSTANT.SUCCESS,
+        result: {
+          message: "No demographics data available.",
+          data: {
+            ageDemographics: [],
+            genderDemographics: [],
+            locationDemographics: [],
+          },
         },
-        {}
-      );
-
-      // Location Demographics Calculation
-      const locationDemographics = demographics.location || {};
-      const totalLocation = Object.values(locationDemographics).reduce(
-        (acc, value) => acc + value,
-        0
-      );
-      const locationPercentages = Object.keys(locationDemographics).reduce(
-        (acc, key) => {
-          acc[key] = (
-            (locationDemographics[key] / totalLocation) *
-            100
-          ).toFixed(2); // Percentage with 2 decimals
-          return acc;
-        },
-        {}
-      );
-
-      // Return the formatted demographics data
-      // json.status = CONSTANT.SUCCESS;
-      // json.result = {
-      //   message: "Demographics data fetched successfully!",
-      //   data: {
-      //     ageDemographics: agePercentages,
-      //     genderDemographics: genderPercentages,
-      //     locationDemographics: locationPercentages,
-      //   },
-      // };
-      // return res.send(json);
-      const formatDemographics = (data) =>
-        Object.entries(data).map(([key, value]) => ({
-          name: key,
-          y: parseFloat(value), 
-        }));
-
-      json.status = CONSTANT.SUCCESS;
-      json.result = {
-        message: "Demographics data fetched successfully!",
-        data: {
-          ageDemographics: formatDemographics(agePercentages),
-          genderDemographics: formatDemographics(genderPercentages),
-          locationDemographics: formatDemographics(locationPercentages),
-        },
-      };
-
-      return res.send(json);
-    } 
-    else if (
-      Array.isArray(demographicsData.data) &&
-      demographicsData.data.length === 0
-    ) {
-      // If data is an empty array but no error
-      json.status = CONSTANT.FAIL;
-      json.result = {
-        message: "No demographic data available.",
-      };
-      return res.send(json);
+      });
     }
 
-    // const ageDemographics = {
-    //   "18-24": "22.22",
-    //   "25-34": "45.45",
-    //   "35-44": "32.73"
-    // };
+    const demographics = demographicsData.data[0].values[0].value;
 
-    // const genderDemographics = {
-    //   "male": "60.00",
-    //   "female": "40.00"
-    // };
+    // Age Demographics Calculation
+    const ageDemographics = demographics.age || {};
+    const totalAge = Object.values(ageDemographics).reduce(
+      (acc, value) => acc + value,
+      0
+    );
+    const agePercentages = Object.keys(ageDemographics).reduce((acc, key) => {
+      acc[key] = ((ageDemographics[key] / totalAge) * 100).toFixed(2); // Percentage with 2 decimals
+      return acc;
+    }, {});
 
-    // const locationDemographics = {
-    //   "US": "40.00",
-    //   "IN": "60.00"
-    // };
+    // Gender Demographics Calculation
+    const genderDemographics = demographics.gender || {};
+    const totalGender = Object.values(genderDemographics).reduce(
+      (acc, value) => acc + value,
+      0
+    );
+    const genderPercentages = Object.keys(genderDemographics).reduce(
+      (acc, key) => {
+        acc[key] = ((genderDemographics[key] / totalGender) * 100).toFixed(2); // Percentage with 2 decimals
+        return acc;
+      },
+      {}
+    );
 
-    // // Convert the objects into array formats
-    // const formatDemographics = (data) =>
-    //   Object.entries(data).map(([key, value]) => ({
-    //     name: key,
-    //     y: parseFloat(value) // Convert string to number
-    //   }));
+    // Location Demographics Calculation
+    const locationDemographics = demographics.location || {};
+    const totalLocation = Object.values(locationDemographics).reduce(
+      (acc, value) => acc + value,
+      0
+    );
+    const locationPercentages = Object.keys(locationDemographics).reduce(
+      (acc, key) => {
+        acc[key] = ((locationDemographics[key] / totalLocation) * 100).toFixed(
+          2
+        ); // Percentage with 2 decimals
+        return acc;
+      },
+      {}
+    );
 
-    // json.status = CONSTANT.SUCCESS;
-    // json.result = {
-    //   message: "Demographics data fetched successfully!",
-    //   data: {
-    //     ageDemographics: formatDemographics(ageDemographics),
-    //     genderDemographics: formatDemographics(genderDemographics),
-    //     locationDemographics: formatDemographics(locationDemographics)
-    //   },
-    // };
+    const formatDemographics = (data) =>
+      Object.entries(data).map(([key, value]) => ({
+        name: key,
+        y: parseFloat(value),
+      }));
 
-    // return res.send(json);
+    if (!audienceInsight) {
+      audienceInsight = new AUDIENCE_INSIGHT_COLLECTION({
+        userId,
+        ageDemographics: formatDemographics(agePercentages),
+        genderDemographics: formatDemographics(genderPercentages),
+        countryViews: formatDemographics(locationPercentages),
+      });
+      await audienceInsight.save();
+    } else {
+      await AUDIENCE_INSIGHT_COLLECTION.updateOne(
+        { userId },
+        {
+          ageDemographics: formatDemographics(agePercentages),
+          genderDemographics: formatDemographics(genderPercentages),
+          countryViews: formatDemographics(locationPercentages),
+          updatedAt: new Date(),
+        }
+      );
+    }
+
+    json.status = CONSTANT.SUCCESS;
+    json.result = {
+      message: "Demographics data fetched successfully!",
+      data: {
+        ageDemographics: formatDemographics(agePercentages),
+        genderDemographics: formatDemographics(genderPercentages),
+        locationDemographics: formatDemographics(locationPercentages),
+      },
+    };
+
+    return res.send(json);
   } catch (error) {
     console.error("Error fetching Instagram demographics:", error);
     json.status = CONSTANT.FAIL;

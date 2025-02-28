@@ -14,6 +14,7 @@ const userSchema = mongoose.Schema(
     accessToken : { type: String },
     refreshToken : { type: String },
     expiresIn : { type: String },
+    refreshTokenExpireIn : { type: String },
     roleId: { type: String, required: true },
     isDeleted: { type: Boolean, default: false },
     isVerified: { type:Boolean ,default: false },
