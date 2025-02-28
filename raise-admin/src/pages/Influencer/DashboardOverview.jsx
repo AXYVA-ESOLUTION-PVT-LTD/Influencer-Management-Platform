@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Spinner } from "reactstrap";
-import PLATFORMS from '../../constants/platform';
+import PLATFORMS from "../../constants/platform";
 // Import Breadcrumb
 import StatisticsBox from "../../components/Common/StatisticsBox";
 import Mixchart from "../../components/Common/Chart/Mixchart";
@@ -13,7 +13,7 @@ import Highcharts3d from "highcharts/highcharts-3d";
 import {
   areaChartOptions,
   barChartOptions,
-  donutChartOptions
+  donutChartOptions,
 } from "../../data/DashboardData";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -25,6 +25,9 @@ import {
   getInstagramUserData,
   getInstagramMonthlyPerformanceAnalytics,
   getInstagramDemographics,
+  getYouTubeUserData,
+  getYouTubeMonthlyPerformanceAnalytics,
+  getYouTubeDemographics,
 } from "../../store/dashboard/actions";
 import PieChart from "../../components/Common/Chart/PieChart";
 Highcharts3d(Highcharts);
@@ -50,7 +53,8 @@ const DashboardOverview = (props) => {
     declinedCounts,
     onHoldCounts,
     loadingTicketStatistics,
-    loadingDemographics
+    loadingDemographics,
+    youTubeUserData,
   } = useSelector((state) => state.Dashboard);
 
   const [userInfo, setUserInfo] = useState({});
@@ -65,11 +69,14 @@ const DashboardOverview = (props) => {
     } else if (userData.platform == PLATFORMS.FACEBOOK) {
       dispatch(getFacebookUserData());
       dispatch(getFacebookMonthlyPerformanceAnalytics());
-    }
-    else if (userData.platform == PLATFORMS.INSTAGRAM) {
+    } else if (userData.platform == PLATFORMS.INSTAGRAM) {
       dispatch(getInstagramUserData());
       dispatch(getInstagramMonthlyPerformanceAnalytics());
       dispatch(getInstagramDemographics());
+    } else if (userData.platform == PLATFORMS.YOUTUBE) {
+      dispatch(getYouTubeUserData());
+      dispatch(getYouTubeMonthlyPerformanceAnalytics());
+      dispatch(getYouTubeDemographics());
     }
     // Common engagement statistics API call
     dispatch(getTicketEngagementStatistics());
@@ -80,17 +87,13 @@ const DashboardOverview = (props) => {
     const userData = JSON.parse(userDataString);
 
     if (userData.platform == PLATFORMS.TIKTOK) {
-      if (dashboardData?.userInfo?.user && dashboardData?.userVideodata) {
-        setUserInfo(dashboardData.userInfo.user);
-      }
+      setUserInfo(dashboardData);
     } else if (userData.platform == PLATFORMS.FACEBOOK) {
       setUserInfo(facebookUserData);
-    }
-    else if (userData.platform == PLATFORMS.INSTAGRAM) {
+    } else if (userData.platform == PLATFORMS.INSTAGRAM) {
       setUserInfo(instagramUserData);
     }
-    
-  }, [dashboardData, facebookUserData ,instagramUserData]);
+  }, [dashboardData, facebookUserData, instagramUserData]);
 
   const formattedEngagementRate = Array.isArray(monthlyEngagementRate)
     ? monthlyEngagementRate.map((rate) => parseFloat(rate.toFixed(1)))
@@ -152,29 +155,48 @@ const DashboardOverview = (props) => {
             value: userInfo?.post_count,
           },
           {
-            title : "Comment",
-            value : userInfo?.totalComments
-          }
+            title: "Comment",
+            value: userInfo?.totalComments,
+          },
         ]
-        :userData.platform === PLATFORMS.INSTAGRAM
-        ? [
+      : userData.platform === PLATFORMS.INSTAGRAM
+      ? [
           {
-            title: "Followers", 
+            title: "Followers",
             value: userInfo?.followers_count,
           },
           {
-            title: "Following", 
+            title: "Following",
             value: userInfo?.follows_count,
           },
           {
-            title: "Posts", 
+            title: "Posts",
             value: userInfo?.totalPosts,
           },
           {
-            title: "Likes", 
+            title: "Likes",
             value: userInfo?.totalLikes,
           },
-          ]
+        ]
+      : userData.platform === PLATFORMS.YOUTUBE
+      ? [
+          {
+            title: "Subscribers",
+            value: youTubeUserData?.totalSubscribers,
+          },
+          {
+            title: "Videos",
+            value: youTubeUserData?.totalVideos,
+          },
+          {
+            title: "Playlists",
+            value: youTubeUserData?.totalPlaylists,
+          },
+          {
+            title: "Likes",
+            value: youTubeUserData?.totalLikes,
+          },
+        ]
       : [];
 
   const barChartSeries = [

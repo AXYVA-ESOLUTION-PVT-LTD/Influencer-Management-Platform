@@ -6,7 +6,7 @@ import { Alert, Card, CardBody, CardTitle, Spinner } from "reactstrap";
 Highcharts3d(Highcharts);
 
 function PieChart({ chartoptions, chartdata, title, loading }) {
-  if (!chartdata) {
+  if (!chartdata || Object.keys(chartdata).length === 0 || (Array.isArray(chartdata) && chartdata.length === 0)) {
     return (
       <Card>
         <CardBody>

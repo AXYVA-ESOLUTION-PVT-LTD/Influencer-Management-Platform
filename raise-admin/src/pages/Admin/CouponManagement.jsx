@@ -36,6 +36,7 @@ const CouponManagement = (props) => {
   const [isValid, setIsValid] = useState(true);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedCoupon, setSelectedCoupon] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
   const [filterFields, setFilterFields] = useState({
     brand: "",
     title: "",
@@ -62,14 +63,16 @@ const CouponManagement = (props) => {
   const confirmDeleteCoupon = () => {
     if (selectedCoupon) {
       dispatch(deleteTicketRequest({ ticketId: selectedCoupon._id }));
-      dispatch(fetchTicketsRequest({ limit, pageCount, ...filterFields }));
       toggleDeleteModal();
+      dispatch(fetchTicketsRequest({ limit, pageCount, ...filterFields }));
     }
   };
 
   const handleSubmit = () => {
     
-    if (!isValid || couponCode.length === 0) {
+    if (!isValid || couponCode.trim().length === 0) {
+      setIsValid(false);
+      setErrorMessage("Please enter a valid coupon code.");
       return;
     }
 
@@ -97,7 +100,9 @@ const CouponManagement = (props) => {
         ...filterFields,
       })
     );
+    setCouponCode("");
     setIsValid(true);
+    setErrorMessage("");
     setIsEditModalOpen(false);
   };
 
@@ -194,18 +199,22 @@ const CouponManagement = (props) => {
     ],
     []
   );
-
+  
   const handleChange = (e) => {
     const value = e.target.value.toUpperCase();
     setCouponCode(value);
   
-    // Validation for length between 2 and 20 characters
-    if (value.length >= 2 && value.length <= 20) {
-      setIsValid(true);
-    } else {
+    if (value.length === 0) {
       setIsValid(false);
+      setErrorMessage("Coupon code is required.");
+    } else if (value.length < 2 || value.length > 20) {
+      setIsValid(false);
+      setErrorMessage("Coupon code must be between 2 and 20 characters.");
+    } else {
+      setIsValid(true);
+      setErrorMessage("");
     }
-  };  
+  };
 
   return (
     <React.Fragment>
@@ -287,11 +296,7 @@ const CouponManagement = (props) => {
                   placeholder="Enter coupon code"
                   invalid={!isValid}
                 />
-                {!isValid && couponCode.length > 0 && (
-                  <FormFeedback>
-                    Coupon code must be between 2 and 20 characters.
-                  </FormFeedback>
-                )}
+                {!isValid && <FormFeedback>{errorMessage}</FormFeedback>}
               </div>
             </>
           )}

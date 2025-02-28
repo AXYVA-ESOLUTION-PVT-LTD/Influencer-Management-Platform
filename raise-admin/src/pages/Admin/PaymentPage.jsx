@@ -47,6 +47,10 @@ const PaymentPage = () => {
   
   const toggleUpdateModal = () => {
     setIsUpdateModalOpen(!isUpdateModalOpen);
+    // Clear errors when closing the modal
+    if (isUpdateModalOpen) {
+      setErrors({});
+    }
   };
 
   const handleUpdateWallet = (wallet) => {

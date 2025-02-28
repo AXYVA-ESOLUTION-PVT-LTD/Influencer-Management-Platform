@@ -8,10 +8,13 @@ import {
   GET_INSTAGRAM_USER_DATA,
   GET_MONTHLY_PERFORMANCE_ANALYTICS,
   GET_TICKET_ENGAGEMENT_STATISTICS,
-  GET_TIKTOK_USER_DATA
+  GET_TIKTOK_USER_DATA,
+  GET_YOUTUBE_DEMOGRAPHICS,
+  GET_YOUTUBE_MONTHLY_PERFORMANCE_ANALYTICS,
+  GET_YOUTUBE_USER_DATA
 } from "./actionTypes";
-import { getTikTokUserDataSuccess, getTikTokUserDataFail, getMonthlyPerformanceAnalyticsSuccess, getMonthlyPerformanceAnalyticsFail, getTicketEngagementStatisticsSuccess, getTicketEngagementStatisticsFail, getFacebookUserDataSuccess, getFacebookUserDataFail, getFacebookMonthlyPerformanceAnalyticsSuccess, getFacebookMonthlyPerformanceAnalyticsFail, getInstagramUserDataSuccess, getInstagramUserDataFail, getInstagramMonthlyPerformanceAnalyticsSuccess, getInstagramMonthlyPerformanceAnalyticsFail, getInstagramDemographicsSuccess, getInstagramDemographicsFail } from "./actions";
-import { getFacebookMonthlyPerformanceAnalyticsUrl, getFacebookUserDataUrl, getInstagramDemographicsUrl, getInstagramMonthlyPerformanceAnalyticsUrl, getInstagramUserDataUrl, getMonthlyPerformanceAnalyticsUrl, getTicketEngagementStatisticsUrl, getTikTokUserDataUrl } from "../../services/dashboard";
+import { getTikTokUserDataSuccess, getTikTokUserDataFail, getMonthlyPerformanceAnalyticsSuccess, getMonthlyPerformanceAnalyticsFail, getTicketEngagementStatisticsSuccess, getTicketEngagementStatisticsFail, getFacebookUserDataSuccess, getFacebookUserDataFail, getFacebookMonthlyPerformanceAnalyticsSuccess, getFacebookMonthlyPerformanceAnalyticsFail, getInstagramUserDataSuccess, getInstagramUserDataFail, getInstagramMonthlyPerformanceAnalyticsSuccess, getInstagramMonthlyPerformanceAnalyticsFail, getInstagramDemographicsSuccess, getInstagramDemographicsFail, getYouTubeMonthlyPerformanceAnalyticsSuccess, getYouTubeMonthlyPerformanceAnalyticsFail, getYouTubeUserDataFail, getYouTubeUserDataSuccess, getYouTubeDemographicsSuccess, getYouTubeDemographicsFail } from "./actions";
+import { getFacebookMonthlyPerformanceAnalyticsUrl, getFacebookUserDataUrl, getInstagramDemographicsUrl, getInstagramMonthlyPerformanceAnalyticsUrl, getInstagramUserDataUrl, getMonthlyPerformanceAnalyticsUrl, getTicketEngagementStatisticsUrl, getTikTokUserDataUrl, getYouTubeDemographicsUrl, getYouTubeMonthlyPerformanceAnalyticsUrl, getYouTubeUserDataUrl } from "../../services/dashboard";
 
 
 function* fetchTikTokUserData() {
@@ -26,7 +29,8 @@ function* fetchTikTokUserData() {
     const response = yield call(getTikTokUserDataUrl, accessToken);
     
     if (response?.status == "Success") {
-      yield put(getTikTokUserDataSuccess(response.result));
+      console.log("response: " + JSON.stringify(response));
+      yield put(getTikTokUserDataSuccess(response?.result?.userInfo?.user));
       
     } else {
       throw new Error(response?.result?.message || "Failed to fetch TikTok user data.");
@@ -182,6 +186,70 @@ function* fetchInstagramDemographics() {
   }
 }
 
+function* fetchYouTubeUserData() {
+  try {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const accessToken = user?.accessToken;
+
+    if (!accessToken) {
+      throw new Error("Access token not found in localStorage");
+    }
+
+    const response = yield call(getYouTubeUserDataUrl, accessToken);
+
+    if (response?.status === "Success") {
+      yield put(getYouTubeUserDataSuccess(response.result.data));
+    } else {
+      throw new Error(response?.result?.message || "Failed to fetch YouTube user data.");
+    }
+  } catch (error) {
+    yield put(getYouTubeUserDataFail(error.message || "An error occurred."));
+  }
+}
+
+function* fetchYouTubeMonthlyPerformanceAnalytics() {
+  try {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const accessToken = user?.accessToken;
+    
+    if (!accessToken) { 
+      throw new Error("Access token not found in localStorage");
+    }
+
+    const response = yield call(getYouTubeMonthlyPerformanceAnalyticsUrl, accessToken);
+
+    if (response?.status === "Success") {
+      console.log(response)
+      yield put(getYouTubeMonthlyPerformanceAnalyticsSuccess(response.result.data));
+    } else {
+      throw new Error(response?.result?.message || "Failed to fetch YouTube monthly performance analytics.");
+    }
+  } catch (error) {
+    yield put(getYouTubeMonthlyPerformanceAnalyticsFail(error.message || "An error occurred."));
+  }
+}
+
+function* fetchYouTubeDemographics() {
+  try {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const accessToken = user?.accessToken;
+
+    if (!accessToken) {
+      throw new Error("Access token not found in localStorage");
+    }
+
+    const response = yield call(getYouTubeDemographicsUrl, accessToken);
+
+    if (response?.status === "Success") {
+      yield put(getYouTubeDemographicsSuccess(response.result.data));
+    } else {
+      throw new Error(response?.result?.message || "Failed to fetch YouTube demographics.");
+    }
+  } catch (error) {
+    yield put(getYouTubeDemographicsFail(error.message || "An error occurred."));
+  }
+}
+
 function* DashboardSaga() {
   yield takeEvery(GET_TIKTOK_USER_DATA, fetchTikTokUserData);
   yield takeEvery(GET_MONTHLY_PERFORMANCE_ANALYTICS, fetchMonthlyPerformanceAnalytics);
@@ -191,6 +259,9 @@ function* DashboardSaga() {
   yield takeEvery(GET_INSTAGRAM_USER_DATA, fetchInstagramUserData);
   yield takeEvery(GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS, fetchInstagramMonthlyPerformanceAnalytics);
   yield takeEvery(GET_INSTAGRAM_DEMOGRAPHICS, fetchInstagramDemographics);
+  yield takeEvery(GET_YOUTUBE_USER_DATA, fetchYouTubeUserData);
+  yield takeEvery(GET_YOUTUBE_MONTHLY_PERFORMANCE_ANALYTICS, fetchYouTubeMonthlyPerformanceAnalytics);
+  yield takeEvery(GET_YOUTUBE_DEMOGRAPHICS, fetchYouTubeDemographics);
 }
 
 export default DashboardSaga;

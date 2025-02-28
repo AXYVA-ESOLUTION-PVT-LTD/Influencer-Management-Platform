@@ -118,8 +118,8 @@ const InfluencerManagement = (props) => {
 
       platform: Yup.string()
         .oneOf(
-          ["Facebook", "Instagram", "Tiktok"],
-          "Platform must be one of: Facebook, Instagram, Tiktok"
+          ["Facebook", "Instagram", "Tiktok", "YouTube"],
+          "Platform must be one of: Facebook, Instagram, Tiktok, YouTube"
         )
         .required("Platform is required"),
 
@@ -184,7 +184,7 @@ const InfluencerManagement = (props) => {
   const updateInfluncerValidation = useFormik({
     enableReinitialize: true,
     initialValues: {
-      status: "Active",
+      status: selectedInfluencer ? (selectedInfluencer.status ? "Active" : "Inactive") : "Active",
     },
     validationSchema: Yup.object({
       status: Yup.string().required("Status is required"),
@@ -617,6 +617,7 @@ const InfluencerManagement = (props) => {
                 <option value="Facebook">Facebook</option>
                 <option value="Instagram">Instagram</option>
                 <option value="Tiktok">Tiktok</option>
+                <option value="YouTube">YouTube</option>
               </select>
               {createInfluncerValidation.touched.platform &&
               createInfluncerValidation.errors.platform ? (

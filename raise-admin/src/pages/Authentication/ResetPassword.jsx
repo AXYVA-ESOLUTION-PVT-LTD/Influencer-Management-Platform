@@ -9,11 +9,18 @@ import {
   Button,
   FormFeedback,
   Alert,
+  InputGroupText,
+  InputGroup,
 } from "reactstrap";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useSelector, useDispatch } from "react-redux";
-import { userResetPassword, userResetPasswordError, userResetPasswordNull } from "../../store/actions";
+import {
+  userResetPassword,
+  userResetPasswordError,
+  userResetPasswordNull,
+} from "../../store/actions";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const validationSchema = Yup.object({
   oldPassword: Yup.string().required("Old password is required"),
@@ -27,6 +34,18 @@ const validationSchema = Yup.object({
 
 function ResetPassword() {
   const dispatch = useDispatch();
+  const [showPassword, setShowPassword] = useState({
+    oldPassword: false,
+    newPassword: false,
+    confirmPassword: false,
+  });
+
+  const togglePasswordVisibility = (field) => {
+    setShowPassword((prevState) => ({
+      ...prevState,
+      [field]: !prevState[field],
+    }));
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -35,15 +54,14 @@ function ResetPassword() {
       confirmPassword: "",
     },
     validationSchema,
-    onSubmit: async (values , { resetForm }) => {
-    
-           dispatch(userResetPassword(values));
-          resetForm();
-     
-          setTimeout(()=>{
-            dispatch(userResetPasswordNull());
-          },5000) 
-    }
+    onSubmit: async (values, { resetForm }) => {
+      dispatch(userResetPassword(values));
+      resetForm();
+
+      setTimeout(() => {
+        dispatch(userResetPasswordNull());
+      }, 5000);
+    },
   });
 
   const { resetSuccessMsg, resetError } = useSelector((state) => ({
@@ -58,53 +76,84 @@ function ResetPassword() {
           <h4 className="text-center mb-4">Change Password</h4>
           <Form className="form-horizontal" onSubmit={formik.handleSubmit}>
             {resetError && <Alert color="danger">{resetError}</Alert>}
-            {resetSuccessMsg && <Alert color="success">{resetSuccessMsg}</Alert>}
-            
+            {resetSuccessMsg && (
+              <Alert color="success">{resetSuccessMsg}</Alert>
+            )}
+
             <FormGroup>
               <Label for="oldPassword">Old Password</Label>
-              <Input
-                type="password"
-                id="oldPassword"
-                name="oldPassword"
-                placeholder="Enter old password"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.oldPassword}
-                invalid={formik.touched.oldPassword && !!formik.errors.oldPassword}
-              />
-              <FormFeedback>{formik.errors.oldPassword}</FormFeedback>
+              <InputGroup>
+                <Input
+                  type={showPassword.oldPassword ? "text" : "password"}
+                  id="oldPassword"
+                  name="oldPassword"
+                  placeholder="Enter old password"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.oldPassword}
+                  invalid={
+                    formik.touched.oldPassword && !!formik.errors.oldPassword
+                  }
+                />
+                <InputGroupText
+                  onClick={() => togglePasswordVisibility("oldPassword")}
+                  style={{ cursor: "pointer" }}
+                >
+                  {showPassword.oldPassword ? <FaEyeSlash /> : <FaEye />}
+                </InputGroupText>
+                <FormFeedback>{formik.errors.oldPassword}</FormFeedback>
+              </InputGroup>
             </FormGroup>
 
             <FormGroup>
               <Label for="newPassword">New Password</Label>
-              <Input
-                type="password"
-                id="newPassword"
-                name="newPassword"
-                placeholder="Enter new password"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.newPassword}
-                invalid={formik.touched.newPassword && !!formik.errors.newPassword}
-              />
-              <FormFeedback>{formik.errors.newPassword}</FormFeedback>
+              <InputGroup>
+                <Input
+                  type={showPassword.newPassword ? "text" : "password"}
+                  id="newPassword"
+                  name="newPassword"
+                  placeholder="Enter new password"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.newPassword}
+                  invalid={
+                    formik.touched.newPassword && !!formik.errors.newPassword
+                  }
+                />
+                <InputGroupText
+                  onClick={() => togglePasswordVisibility("newPassword")}
+                  style={{ cursor: "pointer" }}
+                >
+                  {showPassword.newPassword ? <FaEyeSlash /> : <FaEye />}
+                </InputGroupText>
+                <FormFeedback>{formik.errors.newPassword}</FormFeedback>
+              </InputGroup>
             </FormGroup>
 
             <FormGroup>
               <Label for="confirmPassword">Confirm Password</Label>
-              <Input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                placeholder="Confirm new password"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.confirmPassword}
-                invalid={
-                  formik.touched.confirmPassword && !!formik.errors.confirmPassword
-                }
-              />
-              <FormFeedback>{formik.errors.confirmPassword}</FormFeedback>
+              <InputGroup>
+                <Input
+                  type={showPassword.confirmPassword ? "text" : "password"}
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  placeholder="Confirm new password"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.confirmPassword}
+                  invalid={
+                    formik.touched.confirmPassword &&
+                    !!formik.errors.confirmPassword
+                  }
+                />
+                <InputGroupText
+                  onClick={() => togglePasswordVisibility("confirmPassword")}
+                  style={{ cursor: "pointer" }}
+                >
+                  {showPassword.confirmPassword ? <FaEyeSlash /> : <FaEye />}
+                </InputGroupText>
+                <FormFeedback>{formik.errors.confirmPassword}</FormFeedback>
+              </InputGroup>
             </FormGroup>
 
             <Button color="primary" type="submit">

@@ -74,6 +74,7 @@ const OpportunitiesPage = (props) => {
   const [screenshot, setScreenshot] = useState(null);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [errors, setErrors] = useState({});
+  const [descriptionError, setDescriptionError] = useState("");
   const USER_ID = import.meta.env.VITE_ADMIN_ID;
   
   document.title = "Opportunity | Brandraise ";
@@ -94,7 +95,12 @@ const OpportunitiesPage = (props) => {
   }, [dispatch, limit, pageCount, activeTab]);
 
   const handleTicketCreation = () => {
-    setDescription("");
+    if (!description.trim()) {
+      setDescriptionError("Description is required.");
+      return; 
+    }
+
+    setDescriptionError("");
 
     dispatch(
       createTicketRequest({
@@ -132,6 +138,7 @@ const OpportunitiesPage = (props) => {
     ]);
 
     setModalOpen(false);
+    setDescription("");
   };
 
   const toggle = (tab) => {
@@ -184,7 +191,18 @@ const OpportunitiesPage = (props) => {
   };
 
   const handleDescriptionChange = (e) => {
-    setDescription(e.target.value);
+    const value = e.target.value;
+    const regex = /^[a-zA-Z0-9 ]*$/;
+
+    if (value.length < 10 || value.length > 50) {
+      setDescriptionError("Description must be between 10 to 50 characters.");
+    } else if (!regex.test(value)) {
+      setDescriptionError("Special characters are not allowed.");
+    } else {
+      setDescriptionError("");
+    }
+
+    setDescription(value);
   };
 
   const getImageUrl = (
@@ -267,7 +285,7 @@ const OpportunitiesPage = (props) => {
                       toggle("1");
                     }}
                   >
-                    All Opportunity
+                    Opportunity
                   </NavLink>
                 </NavItem>
                 {role === ROLES.INFLUENCER && (
@@ -555,8 +573,19 @@ const OpportunitiesPage = (props) => {
             </Col>
           </Row>
 
-          <Modal isOpen={modalOpen} toggle={() => setModalOpen(!modalOpen)}>
-            <ModalHeader toggle={() => setModalOpen(!modalOpen)}>
+          <Modal
+            isOpen={modalOpen}
+            toggle={() => {
+              setModalOpen(!modalOpen);
+              setDescriptionError("");
+            }}
+          >
+            <ModalHeader
+              toggle={() => {
+                setModalOpen(!modalOpen);
+                setDescriptionError(""); 
+              }}
+            >
               Apply for {selectedOpportunity ? selectedOpportunity.title : ""}
             </ModalHeader>
             <ModalBody>
@@ -566,6 +595,9 @@ const OpportunitiesPage = (props) => {
                 value={description}
                 onChange={handleDescriptionChange}
               />
+              {descriptionError && (
+                <p style={{ color: "red" }}>{descriptionError}</p>
+              )}
             </ModalBody>
             <ModalFooter>
               <Button
@@ -573,6 +605,7 @@ const OpportunitiesPage = (props) => {
                 onClick={() => {
                   setModalOpen(false);
                   setDescription("");
+                  setDescriptionError("");
                 }}
               >
                 Cancel

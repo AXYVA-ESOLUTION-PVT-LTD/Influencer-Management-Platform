@@ -6,3 +6,6 @@ export const GET_TICKET_ENGAGEMENT_STATISTICS_API = "/ticket-notification/getTic
 export const GET_INSTAGRAM_USER_DATA_API = "/instagram/getUserData";
 export const GET_INSTAGRAM_MONTHLY_PERFORMANCE_ANALYTICS_API = "/instagram/MonthlyPerformanceInstagramAnalytics";
 export const GET_INSTAGRAM_DEMOGRAPHICS_API = "/instagram/Demographics"
+export const GET_YOUTUBE_USER_DATA_API = "/youtube/getUserData";
+export const GET_YOUTUBE_MONTHLY_PERFORMANCE_ANALYTICS_API = "/youtube/MonthlyPerformanceAnalytics";
+export const GET_YOUTUBE_DEMOGRAPHICS_API = "/youtube/demographics";

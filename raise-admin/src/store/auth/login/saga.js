@@ -19,7 +19,14 @@ function* loginUser({ payload: { user, history } }) {
   try {
     const response = yield call(LoginApi, user);
     
+
     if (response?.status === STATUS.SUCCESS) {
+      if (response.result.data.redirectUrl) {
+        // Redirect user to Google OAuth URL for reauthentication
+        window.location.href = response.result.data.redirectUrl;
+        return; // Stop execution here since user is redirected
+      }
+
       localStorage.setItem("authUser", response.result.data.token);
       
       yield put(loginSuccess(response.result.data));

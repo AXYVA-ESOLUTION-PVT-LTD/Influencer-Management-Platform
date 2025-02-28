@@ -31,6 +31,7 @@ import { API_URL } from "../../helpers/api_helper";
 import ResetPassword from "../Authentication/ResetPassword";
 import { BankDetails } from "../BankDetails";
 import ROLES from "../../constants/role";
+import { toast } from "react-toastify";
 
 const validationSchema = Yup.object({
   oldPassword: Yup.string().required("Old password is required"),
@@ -109,8 +110,23 @@ const ProfilePage = () => {
 
   const handlePhotoChange = (event) => {
     const file = event.target.files[0];
+  
     if (file) {
-      setProfilePhoto(file);
+      const validTypes = ["image/jpeg", "image/png"];
+  
+      if (validTypes.includes(file.type)) {
+        setProfilePhoto(file);
+      } else {
+        toast.error("Invalid file type! Please select a JPEG or PNG image.", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "dark",
+        });
+      }
     }
   };
 
@@ -249,11 +265,13 @@ const ProfilePage = () => {
                             disable={true}
                             value={email}
                           />
+                          
                           <Label className="form-label">Profile Photo</Label>
                           <Input
                             name="profilePhoto"
                             className="form-control"
                             type="file"
+                            accept="image/jpeg, image/png" 
                             onChange={handlePhotoChange}
                             invalid={
                               validation.touched.profilePhoto &&
