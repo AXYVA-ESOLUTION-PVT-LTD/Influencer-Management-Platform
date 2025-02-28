@@ -24,6 +24,15 @@ import {
   GET_INSTAGRAM_DEMOGRAPHICS,
   GET_INSTAGRAM_DEMOGRAPHICS_SUCCESS,
   GET_INSTAGRAM_DEMOGRAPHICS_FAIL,
+  GET_YOUTUBE_USER_DATA,
+  GET_YOUTUBE_USER_DATA_SUCCESS,
+  GET_YOUTUBE_USER_DATA_FAIL,
+  GET_YOUTUBE_MONTHLY_PERFORMANCE_ANALYTICS,
+  GET_YOUTUBE_MONTHLY_PERFORMANCE_ANALYTICS_SUCCESS,
+  GET_YOUTUBE_MONTHLY_PERFORMANCE_ANALYTICS_FAIL,
+  GET_YOUTUBE_DEMOGRAPHICS,
+  GET_YOUTUBE_DEMOGRAPHICS_SUCCESS,
+  GET_YOUTUBE_DEMOGRAPHICS_FAIL,
 } from "./actionTypes";
 
 export const getTikTokUserData = () => ({
@@ -136,5 +145,47 @@ export const getInstagramDemographicsSuccess = (demographicsData) => ({
 
 export const getInstagramDemographicsFail = (error) => ({
   type: GET_INSTAGRAM_DEMOGRAPHICS_FAIL,
+  payload: error,
+});
+
+export const getYouTubeUserData = () => ({
+  type: GET_YOUTUBE_USER_DATA,
+});
+
+export const getYouTubeUserDataSuccess = (userData) => ({
+  type: GET_YOUTUBE_USER_DATA_SUCCESS,
+  payload: userData,
+});
+
+export const getYouTubeUserDataFail = (error) => ({
+  type: GET_YOUTUBE_USER_DATA_FAIL,
+  payload: error,
+});
+
+export const getYouTubeMonthlyPerformanceAnalytics = () => ({
+  type: GET_YOUTUBE_MONTHLY_PERFORMANCE_ANALYTICS,
+});
+
+export const getYouTubeMonthlyPerformanceAnalyticsSuccess = (analyticsData) => ({
+  type: GET_YOUTUBE_MONTHLY_PERFORMANCE_ANALYTICS_SUCCESS,
+  payload: analyticsData,
+});
+
+export const getYouTubeMonthlyPerformanceAnalyticsFail = (error) => ({
+  type: GET_YOUTUBE_MONTHLY_PERFORMANCE_ANALYTICS_FAIL,
+  payload: error,
+});
+
+export const getYouTubeDemographics = () => ({
+  type: GET_YOUTUBE_DEMOGRAPHICS,
+});
+
+export const getYouTubeDemographicsSuccess = (demographicsData) => ({
+  type: GET_YOUTUBE_DEMOGRAPHICS_SUCCESS,
+  payload: demographicsData,
+});
+
+export const getYouTubeDemographicsFail = (error) => ({
+  type: GET_YOUTUBE_DEMOGRAPHICS_FAIL,
   payload: error,
 });

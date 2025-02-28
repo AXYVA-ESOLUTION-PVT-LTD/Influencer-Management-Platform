@@ -292,7 +292,19 @@ const OpportunitiesPage = (props) => {
   };
 
   const handleNewImageChange = (e) => {
-    setnewImageFile(e.target.files[0]);
+    const file = e.target.files[0];
+  
+    if (file) {
+      const allowedTypes = ["image/jpeg", "image/png"];
+      
+      if (!allowedTypes.includes(file.type)) {
+        setErrors({ imageUrl: "Only JPG and PNG files are allowed." });
+        setnewImageFile(null); 
+      } else {
+        setErrors({}); 
+        setnewImageFile(file);
+      }
+    }
   };
 
   // Image upload in Add Opportunity
@@ -780,6 +792,7 @@ const OpportunitiesPage = (props) => {
                   name="imageFile"
                   onChange={handleNewImageChange}
                   className="mb-2"
+                  accept="image/jpeg, image/png"
                 />
                 {errors.imageUrl && (
                   <p className="text-danger">{errors.imageUrl}</p>

@@ -24,12 +24,21 @@ import {
   GET_INSTAGRAM_DEMOGRAPHICS,
   GET_INSTAGRAM_DEMOGRAPHICS_SUCCESS,
   GET_INSTAGRAM_DEMOGRAPHICS_FAIL,
+  GET_YOUTUBE_USER_DATA,
+  GET_YOUTUBE_USER_DATA_SUCCESS,
+  GET_YOUTUBE_USER_DATA_FAIL,
+  GET_YOUTUBE_MONTHLY_PERFORMANCE_ANALYTICS,
+  GET_YOUTUBE_MONTHLY_PERFORMANCE_ANALYTICS_SUCCESS,
+  GET_YOUTUBE_MONTHLY_PERFORMANCE_ANALYTICS_FAIL,
+  GET_YOUTUBE_DEMOGRAPHICS,
+  GET_YOUTUBE_DEMOGRAPHICS_SUCCESS,
+  GET_YOUTUBE_DEMOGRAPHICS_FAIL,
 } from "./actionTypes";
 
 const INIT_STATE = {
   dashboardData: null,
   facebookUserData: null,
-  instagramUserData : null,
+  instagramUserData: null,
   monthlyPostCount: null,
   monthlyEngagementRate: null,
   monthlyCommentCount: null,
@@ -45,6 +54,8 @@ const INIT_STATE = {
   loadingTicketStatistics: false,
   loadingInstagramAnalytics: false,
   loadingInstagramUserData: false,
+  loadingYouTubeUserData: false,
+  loadingYouTubeAnalytics: false,
   loadingDemographics: false,
   approvedCounts: null,
   declinedCounts: null,
@@ -212,7 +223,67 @@ const Dashboard = (state = INIT_STATE, action) => {
         locationDemographics: null,
         loadingDemographics: false,
       };
-
+    case GET_YOUTUBE_USER_DATA:
+      return {
+        ...state,
+        loadingUserData: true,
+        error: null,
+      };
+    case GET_YOUTUBE_USER_DATA_SUCCESS:
+      return {
+        ...state,
+        youTubeUserData: action.payload,
+        loadingUserData: false,
+      };
+    case GET_YOUTUBE_USER_DATA_FAIL:
+      return {
+        ...state,
+        error: action.payload,
+        loadingUserData: false,
+      };
+    case GET_YOUTUBE_MONTHLY_PERFORMANCE_ANALYTICS:
+      return {
+        ...state,
+        loadingAnalytics: true,
+        error: null,
+      };
+    case GET_YOUTUBE_MONTHLY_PERFORMANCE_ANALYTICS_SUCCESS:
+      return {
+        ...state,
+        monthlyPostCount: action.payload.postCountArray,
+        monthlyEngagementRate: action.payload.engagementRateArray,
+        monthlyCommentCount: action.payload.commentCountArray,
+        loadingAnalytics: false,
+      };
+    case GET_YOUTUBE_MONTHLY_PERFORMANCE_ANALYTICS_FAIL:
+      return {
+        ...state,
+        error: action.payload,
+        loadingAnalytics: false,
+      };
+    case GET_YOUTUBE_DEMOGRAPHICS:
+      return {
+        ...state,
+        loadingDemographics: true,
+        error: null,
+      };
+    case GET_YOUTUBE_DEMOGRAPHICS_SUCCESS:
+      return {
+        ...state,
+        ageDemographics: action.payload.ageDemographics,
+        genderDemographics: action.payload.genderDemographics,
+        locationDemographics: action.payload.locationDemographics,
+        loadingDemographics: false,
+      };
+    case GET_YOUTUBE_DEMOGRAPHICS_FAIL:
+      return {
+        ...state,
+        error: action.payload,
+        ageDemographics: null,
+        genderDemographics: null,
+        locationDemographics: null,
+        loadingDemographics: false,
+      };
     default:
       return state;
   }

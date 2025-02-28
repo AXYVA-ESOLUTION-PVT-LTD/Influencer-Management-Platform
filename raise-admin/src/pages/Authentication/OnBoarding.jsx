@@ -59,6 +59,9 @@ const OnBoarding = (props) => {
         case "Instagram":
           handleInstagramLogin(); 
           break;
+        case "YouTube":
+          handleYouTubeLogin(); 
+          break;
         default:
           console.log("Another Platform");
           break;
@@ -94,6 +97,14 @@ const OnBoarding = (props) => {
     window.location.href = instagramAuthUrl;
   }
 
+  const handleYouTubeLogin = () => {
+    const jwtToken = localStorage.getItem("authUser");
+    const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
+    const YOUTUBE_AUTH_ENDPOINT = `/youtube/auth/${jwtToken}`;
+    const youtubeAuthUrl = `${BASE_URL}${YOUTUBE_AUTH_ENDPOINT}`;
+    window.location.href = youtubeAuthUrl;
+  };
+  
   const handleNavigateToLogin = () => {
     navigate("/login");
   };
@@ -320,6 +331,45 @@ const OnBoarding = (props) => {
                                 className="d-block text-center mb-0"
                               >
                                 Tiktok
+                              </Label>
+                            </div>
+                          </Col>
+                         
+                          <Col
+                            xs="12"
+                            sm="6"
+                            className="d-flex justify-content-center mb-1 p-1"
+                          >
+                            <div
+                              className={`d-flex align-items-center platform-option p-2 w-100 rounded border ${
+                                validationStep2.values.platform === "YouTube"
+                                  ? "border-primary border-2"
+                                  : "border-dark"
+                              }`}
+                              onClick={() =>
+                                validationStep2.setFieldValue(
+                                  "platform",
+                                  "YouTube"
+                                )
+                              }
+                            >
+                              <input
+                                type="radio"
+                                id="youtube"
+                                name="platform"
+                                value="YouTube"
+                                className="me-2"
+                                onChange={validationStep2.handleChange}
+                                onBlur={validationStep2.handleBlur}
+                                checked={
+                                  validationStep2.values.platform === "YouTube"
+                                }
+                              />
+                              <Label
+                                htmlFor="youtube"
+                                className="d-block text-center mb-0"
+                              >
+                                Youtube
                               </Label>
                             </div>
                           </Col>
