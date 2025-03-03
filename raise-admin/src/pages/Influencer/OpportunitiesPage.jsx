@@ -304,7 +304,11 @@ const OpportunitiesPage = (props) => {
               <TabContent activeTab={activeTab}>
                 {/* All Opportunities */}
                 <TabPane tabId="1">
-                  {filteredOpportunities.length > 0 ? (
+                  {loading ? (
+                    <div className="no-opportunities-heading">
+                      <Spinner style={{ color: "var(--primary-purple)" }} />
+                    </div>
+                  ) : filteredOpportunities.length > 0 ? (
                     <>
                       <Row className="d-flex flex-wrap">
                         {filteredOpportunities.map((opportunity) => (

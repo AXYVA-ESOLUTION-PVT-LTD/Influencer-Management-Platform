@@ -4,8 +4,7 @@ const CronJob = require("cron").CronJob;
 const USER_COLLECTION = require("../module/user.module");
 const qs = require("qs");
 
-class eventCron {
-  instagramAccessTokenUpdateCron() {
+  const instagramAccessTokenUpdateCron = () => {
     var job = new CronJob("0 5 * * *", async function () {
       console.log("🚀 Instagram access token renewal cron running at 5 AM daily...");
 
@@ -68,7 +67,7 @@ class eventCron {
     job.start();
   }
 
-  facebookAccessTokenUpdateCron() {
+  const facebookAccessTokenUpdateCron = () => {
     var job = new CronJob("0 6 * * *", async function () {
       console.log("🚀 Facebook access token renewal cron running at 6 AM daily...");
   
@@ -141,6 +140,5 @@ class eventCron {
     job.start();
   }
 
-}
+  module.exports = { instagramAccessTokenUpdateCron, facebookAccessTokenUpdateCron };
 
-module.exports = new eventCron();

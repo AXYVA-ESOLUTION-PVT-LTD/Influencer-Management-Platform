@@ -410,6 +410,11 @@ const TicketManagement = () => {
     if (!errors.transactionId && !errors.status) {
       // Update transaction
       dispatch(updateTransaction(payload));
+      
+      setIsFormSubmitted(false);
+      setValidationErrors({ transactionId: false, status: false });
+      handleCloseEditTransactionModal();
+
       // get Transaction
       dispatch(
         getTransaction({
@@ -417,9 +422,6 @@ const TicketManagement = () => {
           pageCount: newPageCount,
         })
       );
-      setIsFormSubmitted(false);
-      setValidationErrors({ transactionId: false, status: false });
-      handleCloseEditTransactionModal();
     }
   };
 
