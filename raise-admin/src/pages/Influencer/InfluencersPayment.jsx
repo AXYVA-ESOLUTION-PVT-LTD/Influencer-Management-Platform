@@ -101,12 +101,13 @@ const InfluencersPayment = () => {
       };
 
       dispatch(createNotification(newNotification));
+      
+      toggleModal();
+      
       // get transaction
       dispatch(getTransaction({ limit, pageCount }));
       // Get Wallet Amount
       dispatch(getWalletAmount(userId));
-
-      toggleModal();
     }
   };
 
