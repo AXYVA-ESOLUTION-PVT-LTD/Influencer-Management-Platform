@@ -318,6 +318,12 @@ const Register = (props) => {
                         e.preventDefault();
                         handleSubmit();
                       }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleSubmit();
+                        }
+                      }}
                     >
                       <div className="row mb-3">
                         <div className="col-lg-6 col-12">

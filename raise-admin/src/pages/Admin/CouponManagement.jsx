@@ -162,6 +162,11 @@ const CouponManagement = (props) => {
           `${row.influencerData.firstName} ${row.influencerData.lastName}`,
       },
       {
+        Header: "Influencer Email",
+        accessor: (row) =>
+          `${row.influencerId.email}`,
+      },
+      {
         Header: "Coupon Code",
         accessor: "couponCode",
         Cell: ({ value }) => (value ? value : "-"),
