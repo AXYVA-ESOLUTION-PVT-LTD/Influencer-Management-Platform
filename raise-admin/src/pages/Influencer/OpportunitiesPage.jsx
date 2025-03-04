@@ -70,6 +70,7 @@ const OpportunitiesPage = (props) => {
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [publicationModalOpen, setPublicationModalOpen] = useState(false);
   const [publicationType, setPublicationType] = useState("");
+  const [showScreenshotField, setShowScreenshotField] = useState(false);
   const [publicationLink, setPublicationLink] = useState("");
   const [screenshot, setScreenshot] = useState(null);
   const [selectedTicket, setSelectedTicket] = useState(null);
@@ -80,22 +81,70 @@ const OpportunitiesPage = (props) => {
 
   document.title = "Opportunity | Brandraise ";
 
+  const handleTypeChange = (e) => {
+    const selectedType = e.target.value;
+    setPublicationType(selectedType);
+    setShowScreenshotField(selectedType === "story");
+  
+    // Clear errors when a valid type is selected
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      type: selectedType ? "" : prevErrors.type,
+    }));
+  };
+
+  const handlePublicationLinkChange = (e) => {
+    const value = e.target.value;
+    setPublicationLink(value);
+  
+    // Remove error when user enters a valid URL
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      link: value.startsWith("https://") ? "" : prevErrors.link,
+    }));
+  };
+  
+  const handleScreenshotChange = (e) => {
+    const file = e.target.files[0];
+  
+    if (file) {
+      const allowedTypes = ["image/jpeg", "image/png"];
+  
+      if (!allowedTypes.includes(file.type)) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          screenshot: "Only JPEG and PNG files are allowed.",
+        }));
+        setScreenshot(null);
+        e.target.value = ""; 
+        return;
+      } else {
+        setScreenshot(file);
+        
+        // Remove error when a valid file type is selected
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          screenshot: "",
+        }));
+      }
+    }
+  };
+  
   const publicationOptions = {
     Tiktok: [
       { value: "post", label: "Post" },
       // { value: "story", label: "Story" },
     ],
     Instagram: [
-      { value: "video", label: "Video" },
-      { value: "image", label: "Image" },
+      { value: "reel", label: "Reel" },
+      { value: "post", label: "Post" },
+      { value: "story", label: "Story" },
     ],
     Facebook: [
       { value: "post", label: "Post" },
       { value: "video", label: "Video" },
     ],
-    YouTube: [
-      { value: "video", label: "Video" },
-    ],
+    YouTube: [{ value: "video", label: "Video" }],
   };
 
   const options = user ? publicationOptions[user.platform] || [] : [];
@@ -241,10 +290,12 @@ const OpportunitiesPage = (props) => {
       ? value
       : `${basePath}${value}`;
   };
+
   const publicationToggleModal = (ticket) => {
     setSelectedTicket(ticket);
     setErrors({});
     setPublicationType("");
+    setShowScreenshotField(false);
     setPublicationLink("");
     setScreenshot(null);
     setPublicationModalOpen(!publicationModalOpen);
@@ -258,6 +309,14 @@ const OpportunitiesPage = (props) => {
     } else if (!publicationLink.startsWith("https://")) {
       newErrors.link = "Publication link must start with 'https://'";
     }
+    if (showScreenshotField && !screenshot) {
+      newErrors.screenshot = "Screenshot is required.";
+    } else if (screenshot) {
+      const allowedTypes = ["image/jpeg", "image/png"];
+      if (!allowedTypes.includes(screenshot.type)) {
+        newErrors.screenshot = "Only JPEG and PNG files are allowed.";
+      }
+    }
     return newErrors;
   };
   const handleSubmit = () => {
@@ -267,13 +326,26 @@ const OpportunitiesPage = (props) => {
       return;
     }
 
-    const payload = {
-      selectedTicket,
-      publicationType,
-      publicationLink,
-    };
+    if (showScreenshotField && screenshot) {
+      console.log("Story Data Pass");
+      const formData = new FormData();
+      formData.append("opportunityId", selectedTicket.opportunity._id);
+      formData.append("type", publicationType);
+      formData.append("publicationLink", publicationLink);
+      formData.append("image", screenshot);
 
-    dispatch(createPublication(payload));
+      dispatch(createPublication({ formData, isFormData: true }));
+    } else {
+      console.log("Normal Data Pass");
+      const payload = {
+        selectedTicket,
+        publicationType,
+        publicationLink,
+      };
+
+      dispatch(createPublication({ payload, isFormData: false }));
+    }
+
     const influencerName = `${selectedTicket.influencerData?.firstName || ""} ${
       selectedTicket.influencerData?.lastName || ""
     }`.trim();
@@ -286,6 +358,7 @@ const OpportunitiesPage = (props) => {
     dispatch(createNotification(newNotification));
     setErrors({});
     setPublicationType("");
+    setShowScreenshotField(false);
     setPublicationLink("");
     setScreenshot(null);
     setPublicationModalOpen(false);
@@ -615,7 +688,7 @@ const OpportunitiesPage = (props) => {
             <ModalHeader
               toggle={() => {
                 setModalOpen(!modalOpen);
-                setDescriptionError(""); 
+                setDescriptionError("");
               }}
             >
               Apply for {selectedOpportunity ? selectedOpportunity.title : ""}
@@ -765,7 +838,7 @@ const OpportunitiesPage = (props) => {
                   type="select"
                   id="type"
                   value={publicationType}
-                  onChange={(e) => setPublicationType(e.target.value)}
+                  onChange={handleTypeChange}
                   invalid={!!errors.type}
                 >
                   <option value="" disabled>
@@ -786,11 +859,25 @@ const OpportunitiesPage = (props) => {
                   id="link"
                   placeholder="Enter publication link"
                   value={publicationLink}
-                  onChange={(e) => setPublicationLink(e.target.value)}
+                  onChange={handlePublicationLinkChange}
                   invalid={!!errors.link}
                 />
                 <FormFeedback>{errors.link}</FormFeedback>
               </FormGroup>
+
+              {showScreenshotField && (
+                <FormGroup>
+                  <Label for="screenshot">Upload Screenshot</Label>
+                  <Input
+                    type="file"
+                    id="screenshot"
+                    onChange={handleScreenshotChange}
+                    invalid={!!errors.screenshot}
+                  />
+                  <FormFeedback>{errors.screenshot}</FormFeedback>
+                </FormGroup>
+              )}
+
               {/* <FormGroup>
                 <Label for="screenshot">Upload Screenshot</Label>
                 <Input

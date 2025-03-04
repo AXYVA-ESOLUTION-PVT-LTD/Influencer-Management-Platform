@@ -49,6 +49,20 @@ const Filtering = ({ setFilterFields, filterFields, setIsSearching }) => {
             />
           </FormGroup>
         </Col>
+        <Col  xs="12" sm="6"  md="2">
+          <FormGroup>
+            <Label for="type">Brand</Label>
+            <Input
+              id="brand"
+              type="text"
+              placeholder="Enter Type"
+              className="form-control"
+              name="brand"
+              value={filterFields.brand}
+              onChange={handleFilter}
+            />
+          </FormGroup>
+        </Col>
         <Col xs="3" sm="2" md="auto" className="d-flex align-items-center mt-2">
           <Button  className="w-100 custom-button border-none"  style={{ backgroundColor  : "var(--primary-purple)"}} onClick={handleSearch}>
           <i className="bx bx-search-alt-2"></i>

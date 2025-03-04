@@ -48,13 +48,21 @@ function* createPublicationSaga(action) {
   try {
     const token = localStorage.getItem("authUser");
  
-    const payload = {
-      opportunityId: action.payload.selectedTicket.opportunity._id,
-      type: action.payload.publicationType,
-      publicationLink: action.payload.publicationLink,
-    };
-    
-    const response = yield call(createPublicationUrl, token, payload);
+    let payload;
+
+    if (action.payload.isFormData) {
+      // If FormData is passed, use it directly
+      payload = action.payload.formData;
+    } else {
+      // Otherwise, create a normal JSON payload
+      payload = {
+        opportunityId: action.payload.payload.selectedTicket.opportunity._id,
+        type: action.payload.payload.publicationType,
+        publicationLink: action.payload.payload.publicationLink,
+      };
+    }
+
+    const response = yield call(createPublicationUrl, token, payload, action.payload.isFormData);
 
     if (response?.status === STATUS.SUCCESS) {
       toast.update(id, {

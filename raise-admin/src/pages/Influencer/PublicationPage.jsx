@@ -85,8 +85,9 @@ function PublicationPage() {
       // { value: "story", label: "Story" },
     ],
     Instagram: [
-      { value: "video", label: "Video" },
-      { value: "image", label: "Image" },
+      { value: "reel", label: "Reel" },
+      { value: "post", label: "Post" },
+      { value: "story", label: "Story" },
     ],
     Facebook: [
       { value: "post", label: "Post" },
@@ -257,7 +258,7 @@ function PublicationPage() {
   const columns = useMemo(
     () => [
       {
-        Header: "Project",
+        Header: "Title",
         accessor: "opportunityId.title",
         isVisible: filterHeader.project,
       },
@@ -622,7 +623,7 @@ function PublicationPage() {
           <ModalBody>
             <div className="model-format">
               <p>
-                <strong>Project</strong>
+                <strong>Title</strong>
               </p>
               <p>: {selectedRecord?.opportunityId?.title}</p>
 

@@ -137,7 +137,7 @@ function PublicationsPage() {
   const columns = useMemo(
     () => [
       {
-        Header: "Project",
+        Header: "Title",
         accessor: "opportunityId.title",
         isVisible: filterHeader.project,
       },
@@ -428,7 +428,7 @@ function PublicationsPage() {
           <ModalBody>
             <div className="model-format">
               <p>
-                <strong>Project</strong>
+                <strong>Title</strong>
               </p>
               <p>: {selectedRecord?.opportunityId?.title}</p>
 

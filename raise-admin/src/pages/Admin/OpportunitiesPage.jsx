@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { withTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -70,6 +70,7 @@ const OpportunitiesPage = (props) => {
   const [filterFields, setFilterFields] = useState({
     title: "",
     type: "",
+    brand: "",
   });
   const [sortBy, setSortBy] = useState("");
   const [sortOrder, setSortOrder] = useState("");

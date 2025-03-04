@@ -36,7 +36,7 @@ async function _getOpportunity(req, res) {
       query.status = { $ne: "Inactive" };
     }
     let sort = {};
-    const { id, title, type, sortBy, sortOrder } = req.body;
+    const { id, title, type, sortBy, sortOrder, brand } = req.body;
 
     if (id) {
       query.id = Number(id);
@@ -48,6 +48,10 @@ async function _getOpportunity(req, res) {
 
     if (type) {
       query.type = { $regex: `^${type}`, $options: "i" };
+    }
+
+    if (brand) {
+      query.brand = { $regex: `^${brand}`, $options: "i" };
     }
 
     if (sortBy) {

@@ -17,14 +17,13 @@ export const readPublicationUrl = (token, params) => {
   );
 };
 
-export const createPublicationUrl = (token, payload) => {
-  return postForm(
-    CREATE_PUBLICATION_URL,
-    payload,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
+export const createPublicationUrl = (token, data, isFormData) => {
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    ...(isFormData ? { "Content-Type": "multipart/form-data" } : { "Content-Type": "application/json" }),
+  };
+
+  return postForm(CREATE_PUBLICATION_URL, data, { headers });
 };
 
 export const updatePublicationUrl = (id, data, token) => {
