@@ -170,7 +170,7 @@ const BrandManagement = (props) => {
   const updateBrandValidation = useFormik({
     enableReinitialize: true,
     initialValues: {
-      status: "Active",
+      status: selectedBrand ? (selectedBrand.status ? "Active" : "Inactive") : "Active",
     },
     validationSchema: Yup.object({
       status: Yup.string().required("Status is required"),

@@ -109,7 +109,7 @@ const PublicationSearching = ({
         <Col xs="12" sm="6" md="2">
           <FormGroup>
             <Label for="engagementRate">Engagement Rate</Label>
-            <div className="d-flex justify-content-between align-items-center publication-filter">
+            <div className="d-flex justify-content-between align-items-center publication-filter ">
               <Input
                 type="range"
                 name="engagementRate"
@@ -117,7 +117,7 @@ const PublicationSearching = ({
                 max="100"
                 value={filterFields.engagementRate}
                 onChange={handleFilter}
-              />
+              /> &nbsp;
               <span>{filterFields.engagementRate}%</span>
             </div>
           </FormGroup>
@@ -135,7 +135,7 @@ const PublicationSearching = ({
                 max="100"
                 value={filterFields.followerCount}
                 onChange={handleFilter}
-              />
+              />&nbsp;
               <span>{filterFields.followerCount}</span>
             </div>
           </FormGroup>
@@ -153,7 +153,7 @@ const PublicationSearching = ({
                 max="100"
                 value={filterFields.likeCount}
                 onChange={handleFilter}
-              />
+              />&nbsp;
               <span>{filterFields.likeCount}</span>
             </div>
           </FormGroup>
@@ -171,7 +171,7 @@ const PublicationSearching = ({
                 max="100"
                 value={filterFields.commentCount}
                 onChange={handleFilter}
-              />
+              />&nbsp;
               <span>{filterFields.commentCount}</span>
             </div>
           </FormGroup>
@@ -189,7 +189,7 @@ const PublicationSearching = ({
                 max="100"
                 value={filterFields.shareCount}
                 onChange={handleFilter}
-              />
+              />&nbsp;
               <span>{filterFields.shareCount}</span>
             </div>
           </FormGroup>
@@ -207,7 +207,7 @@ const PublicationSearching = ({
                 max="100"
                 value={filterFields.viewCount}
                 onChange={handleFilter}
-              />
+              />&nbsp;
               <span>{filterFields.viewCount}</span>
             </div>
           </FormGroup>

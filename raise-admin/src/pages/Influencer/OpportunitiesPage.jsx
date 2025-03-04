@@ -75,14 +75,38 @@ const OpportunitiesPage = (props) => {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [errors, setErrors] = useState({});
   const [descriptionError, setDescriptionError] = useState("");
+  const [user, setUser] = useState(null);
   const USER_ID = import.meta.env.VITE_ADMIN_ID;
-  
+
   document.title = "Opportunity | Brandraise ";
+
+  const publicationOptions = {
+    Tiktok: [
+      { value: "post", label: "Post" },
+      { value: "story", label: "Story" },
+    ],
+    Instagram: [
+      { value: "video", label: "Video" },
+      { value: "image", label: "Image" },
+    ],
+    Facebook: [
+      { value: "post", label: "Post" },
+      { value: "video", label: "Video" },
+    ],
+    YouTube: [
+      { value: "video", label: "Video" },
+    ],
+  };
+
+  const options = user ? publicationOptions[user.platform] || [] : [];
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
-    setInfluencer(user._id);
-    setRole(user?.roleId?.name || "User");
+    if (user) {
+      setRole(user?.roleId?.name || "User");
+      setInfluencer(user._id);
+      setUser(user);
+    }
   }, []);
 
   useEffect(() => {
@@ -97,7 +121,11 @@ const OpportunitiesPage = (props) => {
   const handleTicketCreation = () => {
     if (!description.trim()) {
       setDescriptionError("Description is required.");
-      return; 
+      return;
+    }
+
+    if (descriptionError) {
+      return;
     }
 
     setDescriptionError("");
@@ -129,9 +157,9 @@ const OpportunitiesPage = (props) => {
       title: `Applied for ${selectedOpportunity.title}`,
       message: description,
     };
-    
+
     dispatch(createNotification(newNotification));
-    
+
     setAppliedOpportunities((prevApplied) => [
       ...prevApplied,
       selectedOpportunity._id,
@@ -743,8 +771,11 @@ const OpportunitiesPage = (props) => {
                   <option value="" disabled>
                     Select Type
                   </option>
-                  <option value="post">Post</option>
-                  <option value="story">Story</option>
+                  {options.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </Input>
                 <FormFeedback>{errors.type}</FormFeedback>
               </FormGroup>

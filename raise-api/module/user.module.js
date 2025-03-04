@@ -4,6 +4,7 @@ const userSchema = mongoose.Schema(
     firstName: { type: String },
     lastName: { type: String },
     username: { type: String, default: "" },
+    userId : { type: String, default: "" },
     platform: { type: String, default: "" }, 
     email: { type: String },
     companyName: { type: String },

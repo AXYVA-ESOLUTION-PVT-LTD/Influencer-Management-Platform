@@ -267,7 +267,7 @@ function PublicationsPage() {
       },
       {
         Header: "Views",
-        accessor: "viewsCount",
+        accessor: "viewCount",
         isVisible: filterHeader.views,
       },
       {

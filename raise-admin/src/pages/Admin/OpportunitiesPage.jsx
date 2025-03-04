@@ -389,9 +389,9 @@ const OpportunitiesPage = (props) => {
     } else if (selectedOpportunity.description.trim().length < 10) {
       newUpdateErrors.description =
         "Description must be at least 10 characters long.";
-    } else if (selectedOpportunity.description.trim().length > 1000) {
+    } else if (selectedOpportunity.description.trim().length > 200) {
       newUpdateErrors.description =
-        "Description can't be longer than 1000 characters.";
+        "Description can't be longer than 200 characters.";
     }
 
     if (!selectedOpportunity.location.trim()) {
@@ -433,11 +433,25 @@ const OpportunitiesPage = (props) => {
     return Object.keys(newUpdateErrors).length === 0;
   };
 
-  // Update Models
   const handleImageChange = (e) => {
-    setImageFile(e.target.files[0]);
+    const file = e.target.files[0];
+  
+    if (file) {
+      const allowedTypes = ["image/jpeg", "image/png"];
+  
+      if (!allowedTypes.includes(file.type.toLowerCase())) {
+        setupdateModelErrors((prev) => ({
+          ...prev,
+          imageUrl: "Only JPG and PNG files are allowed.",
+        }));
+        setImageFile(null); 
+      } else {
+        setupdateModelErrors((prev) => ({ ...prev, imageUrl: "" })); 
+        setImageFile(file);
+      }
+    }
   };
-
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setSelectedOpportunity((prevState) => ({
@@ -548,23 +562,38 @@ const OpportunitiesPage = (props) => {
       {
         Header: "Title",
         accessor: "title",
+        Cell: ({ value }) => (
+          <div>
+            {value.length > 15 ? `${value.substring(0, 15)}...` : value}
+          </div>
+        ),
       },
       {
         Header: "Type",
         accessor: "type",
+        Cell: ({ value }) => (
+          <div>
+            {value.length > 15 ? `${value.substring(0, 15)}...` : value}
+          </div>
+        ),
       },
       {
         Header: "Description",
         accessor: "description",
         Cell: ({ value }) => (
           <div>
-            {value.length > 30 ? `${value.substring(0, 30)}...` : value}
+            {value.length > 15 ? `${value.substring(0, 15)}...` : value}
           </div>
         ),
       },
       {
         Header: "Location",
         accessor: "location",
+        Cell: ({ value }) => (
+          <div>
+            {value.length > 15 ? `${value.substring(0, 15)}...` : value}
+          </div>
+        ),
       },
       {
         Header: "End Date",
@@ -960,6 +989,7 @@ const OpportunitiesPage = (props) => {
                   name="imageFile"
                   onChange={handleImageChange}
                   className="mb-2"
+                  accept="image/jpeg, image/png"
                 />
                 {updateModelerrors.imageUrl && (
                   <p className="text-danger">{updateModelerrors.imageUrl}</p>

@@ -368,6 +368,10 @@ button {
   visibility: hidden;
 }
 
+.publication-filter{
+  height: 36.54px;
+}
+
 .publication-filter input[type="range"] {
   -webkit-appearance: none; 
   appearance: none;
