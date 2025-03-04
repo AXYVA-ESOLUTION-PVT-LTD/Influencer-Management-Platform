@@ -190,7 +190,7 @@ async function _getTickets(req, res) {
       .populate({
         path: "influencerId",
         model: "User",
-        select: ["firstName", "lastName"],
+        select: ["firstName", "lastName", "email"],
       })
       .collation({ locale: "en", strength: 2 })
       .sort({ updatedAt: "desc" })

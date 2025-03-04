@@ -54,9 +54,7 @@ const Login = (props) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
-    const {
-      loading,
-    } = useSelector((state) => state.Login);
+  const { loading } = useSelector((state) => state.Login);
 
   useEffect(() => {
     const token = localStorage.getItem("authUser");
@@ -254,6 +252,12 @@ const Login = (props) => {
                     onSubmit={(e) => {
                       e.preventDefault();
                       validation.handleSubmit();
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        validation.handleSubmit();
+                      }
                     }}
                   >
                     <FormGroup>

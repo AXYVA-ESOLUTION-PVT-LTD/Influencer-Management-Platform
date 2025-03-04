@@ -83,7 +83,7 @@ const OpportunitiesPage = (props) => {
   const publicationOptions = {
     Tiktok: [
       { value: "post", label: "Post" },
-      { value: "story", label: "Story" },
+      // { value: "story", label: "Story" },
     ],
     Instagram: [
       { value: "video", label: "Video" },

@@ -78,7 +78,7 @@ const NotificationDropdown = (props) => {
             ) : (
               notificationsData.map((notification) => (
                 <Link
-                  to=""
+                  to="/coupon-management"
                   key={notification._id}
                   className="text-reset notification-item"
                 >
