@@ -168,6 +168,7 @@ async function _authCallback(req, res) {
       });
 
       existingUser.username = userInfo.username;
+      existingUser.userId = userInfo.id;
       existingUser.platform = CONSTANT.INSTAGRAM;
       existingUser.isVerified = true;
       existingUser.accessToken = result.accessToken;

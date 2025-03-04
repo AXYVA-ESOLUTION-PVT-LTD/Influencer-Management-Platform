@@ -25,6 +25,7 @@ import {
   InputGroup,
   FormGroup,
   Button,
+  Spinner,
 } from "reactstrap";
 // Google Login
 import { GoogleLogin } from "@react-oauth/google";
@@ -53,6 +54,9 @@ const Login = (props) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
+    const {
+      loading,
+    } = useSelector((state) => state.Login);
 
   useEffect(() => {
     const token = localStorage.getItem("authUser");
@@ -338,8 +342,9 @@ const Login = (props) => {
                     validation.handleSubmit();
                   }}
                   size="lg"
+                  disabled={loading}
                 >
-                  Login
+                  Login {loading && <Spinner size="sm" color="light" />}
                 </Button>
               </div>
             </Col>

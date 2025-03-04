@@ -117,9 +117,9 @@ const BankDetails = () => {
       case "accountHolderName":
         if (!value.trim()) {
           formErrors.accountHolderName = "Account holder name is required.";
-        } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+        } else if (!/^[a-zA-Z\s]{1,50}$/.test(value)) {
           formErrors.accountHolderName =
-            "Account holder name must contain only letters and spaces.";
+            "Account holder name must contain only letters and spaces (max 50 characters).";
         } else {
           delete formErrors.accountHolderName;
         }
@@ -149,9 +149,9 @@ const BankDetails = () => {
       case "bankName":
         if (!value.trim()) {
           formErrors.bankName = "Bank name is required.";
-        } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+        } else if (!/^[a-zA-Z\s]{1,50}$/.test(value)) {
           formErrors.bankName =
-            "Bank name must contain only letters and spaces.";
+            "Bank name must contain only letters and spaces (max 50 characters).";
         } else {
           delete formErrors.bankName;
         }
@@ -160,9 +160,9 @@ const BankDetails = () => {
       case "branchName":
         if (!value.trim()) {
           formErrors.branchName = "Branch name is required.";
-        } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+        } else if (!/^[a-zA-Z\s]{1,50}$/.test(value)) {
           formErrors.branchName =
-            "Branch name must contain only letters and spaces.";
+            "Branch name must contain only letters and spaces (max 50 characters).";
         } else {
           delete formErrors.branchName;
         }
@@ -171,23 +171,27 @@ const BankDetails = () => {
       case "upiId":
         if (!value.trim()) {
           formErrors.upiId = "UPI ID is required.";
-        } else if (!/^[\w.-]+@[\w.-]+$/.test(value)) {
-          formErrors.upiId = "Invalid UPI ID. Format: username@bankname.";
+        } else if (!/^[a-zA-Z0-9._-]{2,50}@[a-zA-Z]{2,30}$/.test(value)) {
+          formErrors.upiId =
+            "Invalid UPI ID. Format: username@bankname (2-50 characters for username, 2-30 characters for bank name).";
         } else {
           delete formErrors.upiId;
         }
         break;
 
-      case "phoneNumber":
-        if (!value.trim()) {
-          formErrors.phoneNumber = "Phone number is required.";
-        } else if (!/^\d{10}$/.test(value)) {
-          formErrors.phoneNumber =
-            "Phone number must be a valid 10-digit number.";
-        } else {
-          delete formErrors.phoneNumber;
-        }
-        break;
+        case "phoneNumber":
+          if (!value.trim()) {
+              formErrors.phoneNumber = "Phone number is required.";
+          } else if (
+              !/^(\+?[1-9]\d{0,2})?\d{10}$/.test(value) 
+          ) {
+              formErrors.phoneNumber =
+                  "Invalid phone number. Use a valid 10-digit number or international format (e.g., +1234567890).";
+          } else {
+              delete formErrors.phoneNumber;
+          }
+          break;
+      
 
       default:
         break;
@@ -490,7 +494,7 @@ const BankDetails = () => {
               <FormGroup>
                 <Label for="accountNumber">Account Number</Label>
                 <Input
-                  type="text"
+                  type="number"
                   name="accountNumber"
                   id="accountNumber"
                   value={formData.accountNumber}
@@ -562,7 +566,7 @@ const BankDetails = () => {
             <FormGroup>
               <Label for="phoneNumber">Phone Number</Label>
               <Input
-                type="text"
+                type="number"
                 name="phoneNumber"
                 id="phoneNumber"
                 value={formData.phoneNumber}

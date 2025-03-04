@@ -194,10 +194,11 @@ async function _youtubeAuthCallback(req, res) {
       }
     }
 
-    const existingUser = await USER_COLLECTION.findById(user_Id);
-    if (!existingUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    const existingUser = await USER_COLLECTION.findById(user_Id).populate({
+      path: "roleId",
+      model: "Role",
+      select: ["name"],
+    });
 
     existingUser.username = channelInfo.snippet.title;
     existingUser.platform = CONSTANT.YOUTUBE;
@@ -271,7 +272,7 @@ async function getValidAccessToken(accessToken) {
     }
 
     const { accessToken, expiresIn, refreshToken } = user;
-    
+
     const userId = user._id;
 
     if (Date.now() < Number(expiresIn)) {
@@ -396,7 +397,7 @@ async function _fetchYouTubeChannelStats(req, res) {
 
       const videoIds = videosData.items
         .map((video) => video.id.videoId)
-        .filter(Boolean) 
+        .filter(Boolean)
         .join(",");
 
       if (videoIds) {
@@ -423,7 +424,7 @@ async function _fetchYouTubeChannelStats(req, res) {
       { youtube: youtubeData, updatedAt: new Date() },
       { upsert: true, new: true }
     );
-    
+
     return res.json({
       status: CONSTANT.SUCCESS,
       result: {
@@ -450,12 +451,15 @@ async function _getYouTubeAnalytics(req, res) {
       extractAccessToken
     );
 
-    const today = new Date().toISOString().split("T")[0]; 
+    const today = new Date().toISOString().split("T")[0];
 
-    const existingRecord = await MONTHLY_PERFORMANCE_COLLECTION.findOne({ userId });
+    const existingRecord = await MONTHLY_PERFORMANCE_COLLECTION.findOne({
+      userId,
+    });
 
     if (existingRecord) {
-      const updatedAt = existingRecord.updatedAt?.toISOString().split("T")[0] || null;
+      const updatedAt =
+        existingRecord.updatedAt?.toISOString().split("T")[0] || null;
 
       if (updatedAt === today) {
         return res.json({
@@ -482,7 +486,7 @@ async function _getYouTubeAnalytics(req, res) {
     let commentCountPerMonth = Array(12).fill(0);
     let likeCountPerMonth = Array(12).fill(0);
     let viewCountPerMonth = Array(12).fill(0);
-  
+
     async function fetchYouTubeAPI(url, accessToken) {
       try {
         const response = await fetch(url, {
@@ -596,7 +600,7 @@ async function _getYouTubeAnalytics(req, res) {
       postCountArray: postCountPerMonth,
       engagementRateArray: engagementRatePerMonth,
       commentCountArray: commentCountPerMonth,
-    }
+    };
 
     return res.json({
       status: "Success",
@@ -624,11 +628,11 @@ async function _getYouTubeDemographics(req, res) {
       extractAccessToken
     );
 
-    const today = new Date().toISOString().split("T")[0]; 
+    const today = new Date().toISOString().split("T")[0];
 
     const existingData = await AUDIENCE_INSIGHT.findOne({
       userId,
-      updatedAt: { $gte: new Date(today) }, 
+      updatedAt: { $gte: new Date(today) },
     });
 
     if (existingData) {
@@ -753,7 +757,7 @@ async function _getYouTubeDemographics(req, res) {
           ageDemographics: pieChartAgeData,
           genderDemographics: pieChartGenderData,
           countryViews: pieChartCountryData,
-          updatedAt: new Date(), 
+          updatedAt: new Date(),
         },
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }

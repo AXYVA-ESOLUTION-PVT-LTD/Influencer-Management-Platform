@@ -77,6 +77,32 @@ function PublicationPage() {
     shareCount: 0,
     viewCount: 0,
   });
+  const [user, setUser] = useState(null);
+
+  const publicationOptions = {
+    Tiktok: [
+      { value: "post", label: "Post" },
+      { value: "story", label: "Story" },
+    ],
+    Instagram: [
+      { value: "video", label: "Video" },
+      { value: "image", label: "Image" },
+    ],
+    Facebook: [
+      { value: "post", label: "Post" },
+      { value: "video", label: "Video" },
+    ],
+    YouTube: [{ value: "video", label: "Video" }],
+  };
+
+  const options = user ? publicationOptions[user.platform] || [] : [];
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user) {
+      setUser(user);
+    }
+  }, []);
 
   // Meta title
   document.title = "Publications | Brandraise ";
@@ -103,7 +129,23 @@ function PublicationPage() {
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
+  
     if (file) {
+      const allowedTypes = ["image/jpeg", "image/png"];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error("Only JPEG and PNG files are allowed!", {
+          position: "top-right",
+          autoClose: 3000, 
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        event.target.value = ""; 
+        return;
+      }
+  
       setNewImage(file);
     }
   };
@@ -153,7 +195,6 @@ function PublicationPage() {
   // Confirm record update
   const confirmUpdateRecord = () => {
     if (selectedRecord._id) {
-
       let payload = {
         _id: selectedRecord._id,
         opportunityId: selectedRecord.opportunityId._id,
@@ -293,6 +334,29 @@ function PublicationPage() {
             <a href={value} target="_blank" rel="noopener noreferrer">
               {value}
             </a>
+          );
+        },
+      },
+      {
+        Header: "Screen Shots",
+        accessor: "screenshot",
+        isVisible: true,
+        Cell: ({ value }) => {
+          const screenshot = value;
+
+          return (
+            <div>
+              {screenshot && (
+                <div>
+                  <span
+                    onClick={() => handleImageClick(screenshot)}
+                    className="publication-screenshot-link"
+                  >
+                    Image
+                  </span>
+                </div>
+              )}
+            </div>
           );
         },
       },
@@ -507,8 +571,12 @@ function PublicationPage() {
                   onChange={handleInputChange}
                   className="mb-3"
                 >
-                  <option value="post">Post</option>
-                  <option value="story">Story</option>
+                  <option value="">Select Type</option>
+                  {options.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </Input>
               </Col>
             </Row>

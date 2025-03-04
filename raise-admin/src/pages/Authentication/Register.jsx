@@ -11,6 +11,7 @@ import {
   InputGroupText,
   Alert,
   Button,
+  Spinner,
 } from "reactstrap";
 import * as Yup from "yup";
 import { useFormik } from "formik";
@@ -639,10 +640,10 @@ const Register = (props) => {
                   color="primary"
                   className="w-auto rounded-0 float-end"
                   onClick={handleSubmit}
-                  disabled={isSubmitting}
+                  disabled={loading}
                   size="lg"
                 >
-                  {isSubmitting ? "Submitting..." : "Submit"}
+                  Submit {loading && <Spinner size="sm" color="light" />}
                 </Button>
               </div>
             </Col>
