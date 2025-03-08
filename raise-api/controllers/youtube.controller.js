@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const { URLSearchParams } = require("url");
 const USER_COLLECTION = require("../module/user.module");
 const USER_DATA_COLLECTION = require("../module/userData.module");
+const USER_PROFILE_COLLECTION = require("../module/userProfile.module");
+const USER_POST_COLLECTION = require("../module/userPost.module");
 const AUDIENCE_INSIGHT = require("../module/audienceInsight.module");
 const MONTHLY_PERFORMANCE_COLLECTION = require("../module/monthlyPerformance.module");
 const CONSTANT = require("../config/constant");
@@ -218,12 +220,13 @@ async function _youtubeAuthCallback(req, res) {
       lastName: existingUser.lastName,
       roleId: existingUser.roleId,
       accessToken: existingUser.accessToken,
+      refreshToken: existingUser.refreshToken,
       platform: existingUser.platform,
       username: existingUser.username,
     };
 
     const newToken = jwt.sign(userObj, process.env.superSecret, {
-      expiresIn: 86400, 
+      expiresIn: 86400,
     });
 
     const populatedUser = await USER_COLLECTION.findById(
@@ -262,17 +265,15 @@ async function _youtubeAuthCallback(req, res) {
   }
 }
 
-async function getValidAccessToken(accessToken) {
-  const oldAccessToken = accessToken;
+async function getValidAccessToken(token) {
   try {
-    const user = await USER_COLLECTION.findOne({ accessToken: oldAccessToken });
+    const user = await USER_COLLECTION.findOne({ refreshToken : token });
 
     if (!user) {
       throw new Error("User not found in USER_COLLECTION.");
     }
 
-    const { accessToken, expiresIn, refreshToken } = user;
-
+    let { accessToken, expiresIn, refreshToken } = user;
     const userId = user._id;
 
     if (Date.now() < Number(expiresIn)) {
@@ -304,21 +305,22 @@ async function getValidAccessToken(accessToken) {
     }
 
     const responseData = await response.json();
+    const newAccessToken = responseData.access_token;
+    const newExpirationTimestamp = Date.now() + responseData.expires_in * 1000;
 
-    const { access_token, expires_in } = responseData;
-    const expirationTimestamp = Date.now() + expires_in * 1000;
-
+    // Update the database with the new token
     await USER_COLLECTION.updateOne(
       { _id: userId },
       {
         $set: {
-          accessToken: access_token,
-          expiresIn: expirationTimestamp,
+          accessToken: newAccessToken,
+          expiresIn: newExpirationTimestamp,
         },
       }
     );
 
-    return { accessToken, userId };
+    return { accessToken: newAccessToken, userId }; // Ensure the updated token is returned
+
   } catch (error) {
     console.error("Error handling access token:", error.message);
     throw new Error("Failed to retrieve a valid access token.");
@@ -380,6 +382,113 @@ async function _fetchYouTubeChannelStats(req, res) {
     const totalSubscribers = channel.statistics.subscriberCount || 0;
     const totalVideos = channel.statistics.videoCount || 0;
 
+    const channelDetailsData = await fetchYouTubeAPI(
+      `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${channel.id}`
+    );
+
+    const existingProfile = await USER_PROFILE_COLLECTION.findOne({ userId });
+
+    if (!existingProfile) {
+      const profile = new USER_PROFILE_COLLECTION({
+        userId: userId,
+        platform: CONSTANT.YOUTUBE,
+        name: channelDetailsData.items[0]?.snippet?.title || "Unknown",
+        description:
+          channelDetailsData.items[0]?.snippet?.description ||
+          "No description available",
+        category: "YouTube Channel", // YouTube does not provide category
+        profile_link: `https://www.youtube.com/channel/${channelDetailsData.items[0]?.id}`,
+        picture_url:
+          channelDetailsData.items[0]?.snippet?.thumbnails?.high?.url || null,
+        subscriber_count:
+          parseInt(channelDetailsData.items[0]?.statistics?.subscriberCount) ||
+          0,
+        total_views:
+          parseInt(channelDetailsData.items[0]?.statistics?.viewCount) || 0,
+        total_videos:
+          parseInt(channelDetailsData.items[0]?.statistics?.videoCount) || 0,
+      });
+
+      await profile.save();
+      console.log("YouTube profile inserted successfully!");
+    } else {
+      console.log("YouTube profile already exists. No insertion needed.");
+    }
+
+    async function fetchYouTubeVideos(userId, channelId) {
+      let nextPageToken = "";
+    
+      try {
+        do {
+          // 1️⃣ Fetch Video List (50 per request)
+          const videosData = await fetchYouTubeAPI(
+            `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&type=video&maxResults=50&pageToken=${nextPageToken}`
+          );
+    
+          if (!videosData.items || videosData.items.length === 0) {
+            console.log("No videos found.");
+            return;
+          }
+    
+          nextPageToken = videosData.nextPageToken || "";
+    
+          // 2️⃣ Extract Video IDs
+          const videoIds = videosData.items
+            .map((video) => video.id.videoId)
+            .filter(Boolean)
+            .join(",");
+    
+          if (!videoIds) continue; // If no valid video IDs, continue to next page
+    
+          // 3️⃣ Fetch Video Statistics
+          const statsData = await fetchYouTubeAPI(
+            `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoIds}`
+          );
+    
+          // 4️⃣ Prepare Data for Insertion
+          const videoStatsMap = {};
+          statsData.items.forEach((video) => {
+            videoStatsMap[video.id] = {
+              like_count: parseInt(video.statistics.likeCount || 0, 10),
+              comment_count: parseInt(video.statistics.commentCount || 0, 10),
+              view_count: parseInt(video.statistics.viewCount || 0, 10),
+            };
+          });
+
+          const videoDocs = videosData.items.map((video) => ({
+            post_id: video.id.videoId,
+            post_image_url: video.snippet.thumbnails.high.url,
+            post_url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+            post_title: video.snippet.title,
+            post_created_time: new Date(video.snippet.publishedAt),
+            platform: CONSTANT.YOUTUBE,
+            comment_count: videoStatsMap[video.id.videoId]?.comment_count || 0,
+            like_count: videoStatsMap[video.id.videoId]?.like_count || 0,
+            share_count: 0, // YouTube does not provide share count
+            view_count: videoStatsMap[video.id.videoId]?.view_count || 0,
+            userId: userId,
+          }));
+    
+          // 5️⃣ Filter Out Duplicates Before Inserting
+          for (const video of videoDocs) {
+            const existingPost = await USER_POST_COLLECTION.findOne({ post_id: video.post_id });
+            if (!existingPost) {
+              await USER_POST_COLLECTION.create(video);
+              console.log(`Inserted Video: ${video.post_id}`);
+            } else {
+              console.log(`Skipped (Already Exists): ${video.post_id}`);
+            }
+          }
+        } while (nextPageToken);
+    
+        console.log("✅ All videos processed successfully.");
+      } catch (error) {
+        console.error("❌ Error fetching YouTube videos:", error.message);
+      }
+    }
+
+    fetchYouTubeVideos(userId, channel.id);
+
     const playlistsData = await fetchYouTubeAPI(
       `https://www.googleapis.com/youtube/v3/playlists?part=id&channelId=${channel.id}&maxResults=50`
     );
@@ -418,6 +527,8 @@ async function _fetchYouTubeChannelStats(req, res) {
       totalPlaylists,
       totalLikes,
     };
+
+    console.log("Youtube Video Data : " + youtubeData);
 
     await USER_DATA_COLLECTION.findOneAndUpdate(
       { userId },

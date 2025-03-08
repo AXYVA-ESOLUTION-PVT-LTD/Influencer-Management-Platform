@@ -20,11 +20,13 @@ const CardComponent = ({
   share_url,
 }) => {
   return (
-    <Col md="2" className="mb-4">
-      <Card className="h-100">
-        <CardImg top width="100%" src={image} style={{ borderRadius: '8px', overflow: 'hidden' }}  alt="Card image cap" />
+    <Col md="2" className="mb-4 video-card-container">
+      <Card className="video-card">
+       <div className="video-card-img">
+       <CardImg top width="100%" src={image} className="video-card-image" alt="Card image cap" />
+       </div>
         <CardBody>
-          <CardTitle tag="h5">{title}</CardTitle>
+          <CardTitle tag="h5" className="video-card-title">{title}</CardTitle>
           <CardText className="text-muted">{uploadTime}</CardText>
           <Row>
             <Col className="d-flex align-items-center">

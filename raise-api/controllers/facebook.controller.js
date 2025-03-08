@@ -6,6 +6,8 @@ const FACEBOOK_APP_SECRET = process.env.FACEBOOK_APP_SECRET;
 const FACEBOOK_REDIRECT_URI = process.env.FACEBOOK_REDIRECT_URI;
 const FACEBOOK_CONFIG_ID = process.env.FACEBOOK_CONFIG_ID;
 const USER_COLLECTION = require("../module/user.module");
+const USER_PROFILE_COLLECTION = require("../module/userProfile.module");
+const USER_POST_COLLECTION = require("../module/userPost.module");
 const USER_DATA_COLLECTION = require("../module/userData.module");
 const MONTHLY_PERFORMANCE_COLLECTION = require("../module/monthlyPerformance.module");
 const jwt = require("jsonwebtoken");
@@ -199,6 +201,32 @@ const getPagePosts = async (pageId, pageAccessToken) => {
   );
 };
 
+const fetchPageDetails = async (pageId, pageAccessToken) => {
+  try {
+    const response = await fetch(
+      `https://graph.facebook.com/v21.0/${pageId}?fields=id,name,about,category,fan_count,followers_count,website,link,picture{url},cover{source}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${pageAccessToken}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.error) {
+      console.error("Error fetching page details:", data.error);
+      return { status: "Fail", message: data.error.message };
+    }
+
+    return { status: "Success", data };
+  } catch (error) {
+    console.error("API Error:", error);
+    return { status: "Fail", message: "Error fetching page details." };
+  }
+};
+
 const getPageFollowers = async (pageId, pageAccessToken) => {
   return fetchFacebookData(
     `https://graph.facebook.com/v21.0/${pageId}?fields=followers_count`,
@@ -260,29 +288,55 @@ async function _getFacebookUserData(req, res) {
       .send({ status: "Fail", message: "Missing access token" });
 
   try {
-     // Find userId from accessToken in USER_COLLECTION
-     const user = await USER_COLLECTION.findOne({ accessToken });
-     if (!user) {
-       return res
-         .status(404)
-         .send({ status: "Fail", message: "User not found" });
-     }
- 
-     const userId = user._id;
- 
-     let userData = await USER_DATA_COLLECTION.findOne({ userId });
- 
-     if (userData && isToday(userData.updatedAt)) {
-       return res.send({
-         status: "Success",
-         message: "facebook user data fetched from database.",
-         userInfo: userData.facebook,
-       });
-     }
+    // Find userId from accessToken in USER_COLLECTION
+    const user = await USER_COLLECTION.findOne({ accessToken });
+    if (!user) {
+      return res
+        .status(404)
+        .send({ status: "Fail", message: "User not found" });
+    }
+
+    const userId = user._id;
+
+    let userData = await USER_DATA_COLLECTION.findOne({ userId });
+
+    if (userData && isToday(userData.updatedAt)) {
+      return res.send({
+        status: "Success",
+        message: "facebook user data fetched from database.",
+        userInfo: userData.facebook,
+      });
+    }
 
     const pageDetails = await getPageDetails(accessToken);
     if (!pageDetails)
       return res.send({ status: "Fail", message: "No pages found." });
+
+    const pageData = await fetchPageDetails(
+      pageDetails.id,
+      pageDetails.access_token
+    );
+
+    const existingProfile = await USER_PROFILE_COLLECTION.findOne({ userId });
+
+    if (!existingProfile) {
+      const profile = new USER_PROFILE_COLLECTION({
+        userId: userId,
+        platform: CONSTANT.FACEBOOK,
+        name: pageData?.data?.name || "Unknown",
+        description: pageData?.data?.about || "No description available",
+        category: pageData?.data?.category || "Uncategorized",
+        profile_link: pageData?.data?.link || null,
+        picture_url: pageData?.data?.picture?.data?.url || null,
+        fan_count: pageData?.data?.fan_count || 0,
+        follower_count: pageData?.data?.followers_count || 0,
+      });
+
+      await profile.save();
+      console.log("Profile inserted successfully!");
+    } else {
+      console.log("Profile already exists. No insertion needed.");
+    }
 
     const [postsData, followersData] = await Promise.all([
       getPagePosts(pageDetails.id, pageDetails.access_token),
@@ -302,6 +356,40 @@ async function _getFacebookUserData(req, res) {
         userInfo,
         posts: [],
       });
+
+    // Get all existing post IDs from the database
+    const existingPosts = await USER_POST_COLLECTION.find(
+      { post_id: { $in: posts.map((post) => post?.id) } },
+      { post_id: 1 } // Only fetch the post_id field
+    );
+
+    const existingPostIds = new Set(existingPosts.map((post) => post.post_id)); // Convert to Set for fast lookup
+
+    const newPostsDataArray = posts
+      .filter((post) => post?.id && !existingPostIds.has(post.id)) // Exclude existing posts
+      .map((post) => {
+        return new USER_POST_COLLECTION({
+          userId: userId,
+          post_id: post.id,
+          post_image_url: post.full_picture || null,
+          post_url: post.permalink_url || null,
+          post_title: post.message || "No Title",
+          post_created_time: post.created_time || new Date().toISOString(),
+          platform: CONSTANT.FACEBOOK,
+          comment_count: post.comments?.summary?.total_count || 0,
+          like_count: post.reactions?.summary?.total_count || 0,
+          share_count: 0,
+          view_count: 0,
+        });
+      });
+
+    // Insert only new posts
+    if (newPostsDataArray.length > 0) {
+      await USER_POST_COLLECTION.insertMany(newPostsDataArray);
+      console.log("New posts inserted successfully!");
+    } else {
+      console.log("No new posts to insert.");
+    }
 
     const engagementStats = calculateEngagementStats(posts);
     

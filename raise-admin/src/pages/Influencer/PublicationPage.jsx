@@ -15,10 +15,7 @@ import {
 } from "reactstrap";
 // Import components
 import Pagination from "../../components/Common/Pagination";
-import Breadcrumbs from "../../components/Common/Breadcrumb";
 import TableContainer from "../../components/Common/TableContainer";
-import publicationData from "../../data/publicationData";
-import PublicationSearching from "../../components/Publications/PublicationSearching";
 import ColumnSelector from "../../components/Common/ColumnSelector";
 import "../../assets/themes/colors.scss";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,6 +26,7 @@ import {
 } from "../../store/publication/actions";
 import { toast } from "react-toastify";
 import axios from "axios";
+import InfluencerPublicationSearching from "../../components/Publications/InfluencerPublicationSearching";
 function PublicationPage() {
   const [data, setData] = useState([]);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -66,8 +64,6 @@ function PublicationPage() {
   const [isSearching, setIsSearching] = useState(false);
 
   const [filterFields, setFilterFields] = useState({
-    influencer: "",
-    platform: "",
     status: "",
     type: "",
     engagementRate: 0,
@@ -481,7 +477,7 @@ function PublicationPage() {
           </div>
         </div>
 
-        <PublicationSearching
+        <InfluencerPublicationSearching
           filterFields={filterFields}
           setFilterFields={setFilterFields}
           setIsSearching={setIsSearching}

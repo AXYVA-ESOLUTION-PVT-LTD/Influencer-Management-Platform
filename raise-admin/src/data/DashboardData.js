@@ -112,6 +112,62 @@ export const areaChartOptions = {
   ],
 };  
 
+export const lineChartOptions = {
+  chart: {
+    height: 350,
+    type: "line",
+  },
+  stroke: {
+    width: 3,
+    curve: "smooth",
+    dropShadow: {
+      enabled: true,
+      color: "var(--primary-purple)", // Shadow color
+      top: 5,
+      left: 0,
+      blur: 5,
+      opacity: 0.4, // Adjust transparency
+    },
+  },
+  markers: {
+    size: 6,
+    colors: ["var(--primary-purple)"],
+    strokeColors: "var(--primary-white)",
+    strokeWidth: 2,
+    hover: {
+      size: 8,
+    },
+  },
+  xaxis: {
+    categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    title: {
+      text: "Month",
+    },
+    labels: {
+      style: {
+        colors: "var(--primary-black)",
+        fontSize: "12px",
+      },
+    },
+  },
+  yaxis: {
+    title: {
+      text: "Values",
+    },
+    labels: {
+      style: {
+        colors: "var(--primary-black)",
+        fontSize: "12px",
+      },
+    },
+  },
+  tooltip: {
+    shared: true,
+    intersect: false,
+  },
+  colors: ["var(--primary-purple)"],
+};
+
 export const areaChartSeries = [
   {
     name: "Posts Published",

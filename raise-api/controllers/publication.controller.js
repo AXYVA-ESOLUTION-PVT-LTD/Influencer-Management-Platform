@@ -540,23 +540,24 @@ async function _updatePublicationById(req, res) {
 
         const screenshot = req.file;
         let videoStats = {}; // Declare videoStats outside to avoid scoping issues
-
-        if (existingUser.platform === CONSTANT.TIKTOK) {
-          const videoId = getVideoIdFromUrl(publicationLink);
-          videoStats = await tiktokVideoData(videoId, accessToken);
-        } else if (existingUser.platform === CONSTANT.INSTAGRAM) {
-          const videoId = extractInstagramPostId(publicationLink);
-          videoStats = await getInstagramPostData(
-            videoId,
-            accessToken,
-            existingUser.userId
-          );
-        } else if (existingUser.platform === CONSTANT.FACEBOOK) {
-          const videoId = extractPostIdFromUrl(publicationLink);
-          videoStats = await fetchFacebookPagePosts(videoId, accessToken);
-        } else if (existingUser.platform === CONSTANT.YOUTUBE) {
-          const targetVideoId = extractVideoId(publicationLink);
-          videoStats = await getYoutubeData(targetVideoId, accessToken);
+        if(type !== "story") {
+          if (existingUser.platform === CONSTANT.TIKTOK) {
+            const videoId = getVideoIdFromUrl(publicationLink);
+            videoStats = await tiktokVideoData(videoId, accessToken);
+          } else if (existingUser.platform === CONSTANT.INSTAGRAM) {
+            const videoId = extractInstagramPostId(publicationLink);
+            videoStats = await getInstagramPostData(
+              videoId,
+              accessToken,
+              existingUser.userId
+            );
+          } else if (existingUser.platform === CONSTANT.FACEBOOK) {
+            const videoId = extractPostIdFromUrl(publicationLink);
+            videoStats = await fetchFacebookPagePosts(videoId, accessToken);
+          } else if (existingUser.platform === CONSTANT.YOUTUBE) {
+            const targetVideoId = extractVideoId(publicationLink);
+            videoStats = await getYoutubeData(targetVideoId, accessToken);
+          }
         }
 
         const publicationObj = {

@@ -1,13 +1,21 @@
 const { validationResult } = require("express-validator");
 const CONSTANT = require("../config/constant");
 const USER_COLLECTION = require("../module/user.module");
+const USER_DATA_COLLECTION = require("../module/userData.module");
+const MONTHLY_PERFORMANCE_COLLECTION = require("../module/monthlyPerformance.module");
 const ROLE_COLLECTION = require("../module/role.module");
 const WALLET_COLLECTION = require("../module/wallet.module");
+const PUBLICATION_COLLECTION = require("../module/publication.module");
+const USER_PROFILE_COLLECTION = require("../module/userProfile.module");
+const USER_POST_COLLECTION = require("../module/userPost.module");
+const AUDIENCE_INSIGHT = require("../module/audienceInsight.module");
+const TICKET_NOTIFICATION_COLLECTION = require("../module/ticketnotification.module.js");
 const {
   generatePassword,
   sendEmail,
   encryptPassword,
 } = require("../config/common");
+const moment = require("moment");
 
 const json = {};
 
@@ -15,6 +23,13 @@ exports.addInfluencer = _addInfluencer;
 exports.getInfluencers = _getInfluencers;
 exports.updateInfluencer = _updateInfluencerById;
 
+exports.getUserProfileData = _getUserProfileData;
+exports.getUserBasicData = _getUserBasicData;
+exports.getUserPostStatisticsData = _getUserPostStatisticsData;
+exports.getUserMonthlyStatisticsData = _getUserMonthlyStatisticsData;
+exports.getUserDemographicStatistics = _getUserDemographicStatistics;
+exports.getUserPublicationData = _getUserPublicationData;
+exports.getUserMediaData = _getUserMediaData;
 /*
 TYPE: Post
 TODO: Add new Influencer
@@ -111,7 +126,7 @@ async function _addInfluencer(req, res) {
 
     const wallet = new WALLET_COLLECTION({
       influencerId: user._id,
-      balance: 0
+      balance: 0,
     });
 
     await wallet.save();
@@ -463,5 +478,377 @@ async function _updateInfluencerById(req, res) {
       error: e,
     };
     return res.send(json);
+  }
+}
+
+// 1. Get Influencer Profile information
+async function _getUserProfileData(req, res) {
+  try {
+    const { id } = req.params;
+
+    // Check if the user exists
+    const user = await USER_COLLECTION.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+     // Find user data from UserProfile collection
+     const userProfileData = await USER_PROFILE_COLLECTION.findOne({
+      userId: user._id,
+    });
+
+    if (!userProfileData) {
+      return res.status(404).json({ message: "No data found for this user" });
+    }
+
+    const responseData = {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      country: user.country,
+      ...userProfileData.toObject(), // Merge userProfileData
+    };
+
+    return res.status(200).json({
+      status: CONSTANT.SUCCESS,
+      result: {
+        message: "User profile data fetched successfully",
+        data: responseData,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching user profile data:", error);
+    json.status = CONSTANT.FAIL;
+    json.result = {
+      message: "Internal Server Error",
+      error: error.message,
+    };
+    return res.status(500).json(json);
+  }
+}
+
+// 2. Get Influencer Basic Data
+async function _getUserBasicData(req, res) {
+  try {
+    const { id } = req.params;
+
+    // Check if the user exists
+    const user = await USER_COLLECTION.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Find user data from UserData collection
+    const userData = await USER_DATA_COLLECTION.findOne({ userId: user._id });
+
+    if (!userData) {
+      return res.status(404).json({ message: "No data found for this user" });
+    }
+
+    // Extract platform-specific data
+    const platforms = {
+      facebook: userData.facebook,
+      instagram: userData.instagram,
+      youtube: userData.youtube,
+      tiktok: userData.tiktok,
+    };
+
+    // Function to check if an object has only empty or null values
+    const isObjectEmpty = (obj) =>
+      !obj ||
+      Object.values(obj).every(
+        (value) => value === null || value === undefined
+      );
+
+    // Remove empty platform objects
+    const filteredPlatforms = Object.fromEntries(
+      Object.entries(platforms).filter(([_, value]) => !isObjectEmpty(value))
+    );
+
+    json.status = CONSTANT.SUCCESS;
+    json.result = {
+      message: "User data fetched successfully",
+      data: {
+        platforms: filteredPlatforms,
+      },
+    };
+
+    return res.status(200).json(json);
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    json.status = CONSTANT.FAIL;
+    json.result = {
+      message: "Internal Server Error",
+      error: error.message,
+    };
+    return res.status(500).json(json);
+  }
+}
+
+// 3. Get Influencer Post Statistics Data
+async function _getUserPostStatisticsData(req, res) {
+  try {
+    const { id } = req.params;
+
+    // Check if the user exists
+    const user = await USER_COLLECTION.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const startDate = moment().startOf("year").toDate(); // Start of the year
+    const endDate = moment().endOf("day").toDate(); // End of the current day
+
+    // Define query to fetch data within the year and for the specific user
+    const query = {
+      createdAt: { $gte: startDate, $lte: endDate },
+      from: user._id,
+    };
+
+    // Initialize arrays with zero values for **all 12 months**
+    const approvedCounts = Array(12).fill(0);
+    const declinedCounts = Array(12).fill(0);
+    const onHoldCounts = Array(12).fill(0);
+
+    // Fetch relevant ticket notifications
+    const ticketNotifications = await TICKET_NOTIFICATION_COLLECTION.find(
+      query,
+      {
+        status: 1,
+        createdAt: 1,
+      }
+    );
+
+    // Process notifications and count by month
+    ticketNotifications.forEach(({ status, createdAt }) => {
+      const monthIndex = new Date(createdAt).getMonth(); // Get month index (0-11)
+      if (status === "Approved") approvedCounts[monthIndex]++;
+      else if (status === "Declined") declinedCounts[monthIndex]++;
+      else if (status === "On Hold") onHoldCounts[monthIndex]++;
+    });
+
+    return res.status(200).json({
+      status: CONSTANT.SUCCESS,
+      result: {
+        message: ticketNotifications.length
+          ? "Ticket engagement statistics fetched successfully"
+          : "No ticket engagement statistics found",
+        data: {
+          approvedCounts,
+          declinedCounts,
+          onHoldCounts,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching ticket engagement statistics:", error);
+    return res.status(500).json({
+      status: CONSTANT.FAIL,
+      result: {
+        message: "Failed to fetch ticket engagement statistics",
+        error: error.message,
+      },
+    });
+  }
+}
+
+// 4. Get Influencer Monthly Data
+async function _getUserMonthlyStatisticsData(req, res) {
+  try {
+    const { id } = req.params;
+
+    // Validate if the user exists
+    const user = await USER_COLLECTION.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        status: CONSTANT.FAIL,
+        message: "User not found",
+      });
+    }
+
+    // Fetch Monthly Performance Data
+    const monthlyPerformance = await MONTHLY_PERFORMANCE_COLLECTION.findOne({
+      userId: user._id,
+    });
+
+    if (!monthlyPerformance) {
+      return res.status(404).json({
+        status: CONSTANT.FAIL,
+        message: "No monthly performance data found for this user.",
+      });
+    }
+
+    return res.status(200).json({
+      status: CONSTANT.SUCCESS,
+      result: {
+        message: "Monthly analytics data fetched successfully.",
+        data: {
+          postCountArray: monthlyPerformance.monthlyPostCount || [],
+          engagementRateArray: Array.isArray(
+            monthlyPerformance.monthlyEngagementRate
+          )
+            ? monthlyPerformance.monthlyEngagementRate.map((val) =>
+                val ? parseFloat(val.toFixed(2)) : 0
+              )
+            : [],
+          commentCountArray: monthlyPerformance.monthlyCommentCount || [],
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching user monthly statistics:", error);
+
+    return res.status(500).json({
+      status: CONSTANT.FAIL,
+      result: {
+        message: "Internal Server Error",
+        error: error.message,
+      },
+    });
+  }
+}
+
+// 5. get Instagram Demographic Information
+async function _getUserDemographicStatistics(req, res) {
+  try {
+    const { id } = req.params;
+
+    // Check if the user exists
+    const user = await USER_COLLECTION.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Fetch demographic data
+    const demographicData = await AUDIENCE_INSIGHT.findOne({
+      userId: user._id,
+    });
+
+    if (!demographicData) {
+      return res.status(404).json({
+        status: CONSTANT.FAIL,
+        message: "No demographic insights found for this user.",
+      });
+    }
+
+    return res.status(200).json({
+      status: CONSTANT.SUCCESS,
+      result: {
+        message: "demographic insights retrieved successfully.",
+        data: demographicData,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching user demographic statistics:", error);
+    return res.status(500).json({
+      status: CONSTANT.FAIL,
+      result: {
+        message: "Internal server error",
+        error: error.message,
+      },
+    });
+  }
+}
+
+// 6. Get User Publication Data
+async function _getUserPublicationData(req, res) {
+  try {
+    const { id } = req.params;
+    const limit = req.body.limit ? req.body.limit : 10;
+    const pageCount = req.body.pageCount ? req.body.pageCount : 0;
+
+    const skip = limit * pageCount;
+
+    // Check if the user exists
+    const user = await USER_COLLECTION.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const userId = user._id;
+
+    var query = { isDeleted: false, influencerId: userId };
+
+    var totalRecords = await PUBLICATION_COLLECTION.countDocuments(query);
+    var result = await PUBLICATION_COLLECTION.find(query)
+      .collation({ locale: "en", strength: 2 })
+      .sort({ updatedAt: "desc" })
+      .skip(skip)
+      .limit(limit)
+      .populate({
+        path: "influencerId",
+        model: "User",
+        select: ["username", "platform"],
+      })
+      .populate({
+        path: "opportunityId",
+        model: "Opportunity",
+        select: ["title"],
+      });
+    if (!result) {
+      json.status = CONSTANT.FAIL;
+      json.result = {
+        message: "Publications not found!",
+        error: "Publications not found!",
+      };
+      return res.send(json);
+    } else {
+      json.status = CONSTANT.SUCCESS;
+      json.result = {
+        message: "Publications found successfully!",
+        data: result,
+        totalRecords: totalRecords,
+      };
+      return res.send(json);
+    }
+  } catch (e) {
+    console.error(
+      "Controller: publication | Method: _getPublications | Error: ",
+      e
+    );
+    json.status = CONSTANT.FAIL;
+    json.result = {
+      message: "An error occurred while get publications!",
+      error: e,
+    };
+    return res.send(json);
+  }
+}
+
+// 7. Get Video Data
+async function _getUserMediaData(req, res) {
+  try {
+    const { id } = req.params;
+
+    // Check if the user exists
+    const user = await USER_COLLECTION.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Fetch all media posts for the user
+    const videoPosts = await USER_POST_COLLECTION.find({ userId: user._id });
+
+    if (!videoPosts.length) {
+      return res.status(404).json({
+        status: CONSTANT.FAIL,
+        message: "No media posts found for this user.",
+      });
+    }
+
+    return res.status(200).json({
+      status: CONSTANT.SUCCESS,
+      result: {
+        message: "User media posts retrieved successfully.",
+        data: videoPosts,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching user media posts:", error);
+    return res.status(500).json({
+      status: CONSTANT.FAIL,
+      result: {
+        message: "An error occurred while retrieving media posts.",
+        error: error.message,
+      },
+    });
   }
 }

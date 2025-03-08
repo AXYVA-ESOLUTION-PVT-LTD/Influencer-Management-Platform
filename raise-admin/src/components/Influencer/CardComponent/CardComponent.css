@@ -1,4 +1,26 @@
-.card-img {
-    border-radius: 8px; 
-    overflow: hidden;
-  }
+.video-card-container .video-card{
+  height: 380px;
+}
+
+.video-card-container .video-card-img {
+   height: 200px;
+}
+
+.video-card-container .video-card .video-card-image{
+  border-radius: 2px; 
+  height: 100% ;
+  width: 100% ;
+  overflow: hidden;
+  object-fit: cover;
+}
+
+.video-card-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limits to 2 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  font-size: 16px;
+  font-weight: bold;
+}

@@ -7,6 +7,7 @@ import {
   fetchTicketsUrl,
   readOpportunityUrl,
   removeOpportunityImageUrl,
+  trackOpportunityViewApi,
   updateOpportunityUrl,
   updateTicketUrl,
   uploadCsvUrl,
@@ -28,6 +29,8 @@ import {
   getOpportunitySuccess,
   removeOpportunityImageError,
   removeOpportunityImageSuccess,
+  trackOpportunityViewError,
+  trackOpportunityViewSuccess,
   updateOpportunityError,
   updateOpportunitySuccess,
   updateTicketError,
@@ -45,6 +48,7 @@ import {
   FETCH_TICKETS_REQUEST,
   GET_OPPORTUNITY_REQUEST,
   REMOVE_OPPORTUNITY_IMAGE_REQUEST,
+  TRACK_OPPORTUNITY_VIEW_REQUEST,
   UPDATE_OPPORTUNITY_REQUEST,
   UPDATE_TICKET_REQUEST,
   UPLOAD_CSV_REQUEST,
@@ -123,6 +127,7 @@ function* onDeleteOpportunity(action) {
         isLoading: false,
         autoClose: true,
       });
+      
       yield put(deleteOpportunitySuccess(response?.result?.data));
       yield put(getOpportunity());
     } else {
@@ -160,6 +165,7 @@ function* onUpdateOpportunity(action) {
         isLoading: false,
         autoClose: true,
       });
+      
       yield put(updateOpportunitySuccess(response?.result?.data));
       yield put(getOpportunity()); // Refresh opportunities list
     } else {
@@ -274,7 +280,7 @@ function* onCreateTicket(action) {
       { influencerId, opportunityId, description },
       token
     );
-    yield put(createTicketSuccess(response.data.result));
+    yield put(createTicketSuccess(response.result.data));
   } catch (error) {
     yield put(createTicketError(error.message || "Failed to create ticket"));
   }
@@ -345,6 +351,16 @@ function* onUploadCsv(action) {
   }
 }
 
+function* onTrackOpportunityView(action) {
+  const opportunityId = action.payload;
+  const token = localStorage.getItem("authUser");
+  try {
+    const response = yield call(trackOpportunityViewApi, opportunityId, token);
+    yield put(trackOpportunityViewSuccess(response.result.data));
+  } catch (error) {
+    yield put(trackOpportunityViewError(error.message || "Failed to track opportunity view"));
+  }
+}
 
 function* OpportunitySaga() {
   yield takeEvery(GET_OPPORTUNITY_REQUEST, fetchOpportunity);
@@ -358,6 +374,7 @@ function* OpportunitySaga() {
   yield takeEvery(UPDATE_TICKET_REQUEST, onUpdateTicket);
   yield takeEvery(DELETE_TICKET_REQUEST, onDeleteTicket);
   yield takeEvery(UPLOAD_CSV_REQUEST, onUploadCsv);
+  yield takeEvery(TRACK_OPPORTUNITY_VIEW_REQUEST, onTrackOpportunityView);
 }
 
 export default OpportunitySaga;

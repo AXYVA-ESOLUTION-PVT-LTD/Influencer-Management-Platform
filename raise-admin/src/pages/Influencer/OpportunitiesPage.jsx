@@ -35,6 +35,7 @@ import {
   createTicketRequest,
   fetchTicketsRequest,
   getOpportunity,
+  trackOpportunityViewRequest,
 } from "../../store/opportunity/actions";
 import {
   createNotification,
@@ -52,6 +53,7 @@ const OpportunitiesPage = (props) => {
     totalOpportunities,
     currentPage,
     totalRecords,
+    ticketId,
   } = useSelector((state) => state.Opportunity);
   // const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("1");
@@ -63,6 +65,8 @@ const OpportunitiesPage = (props) => {
   const [role, setRole] = useState("");
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [detailsOpportunity, setDetailsOpportunity] = useState(null);
+  const [viewDetailsModelOpen, setViewDetailsModelOpen] = useState(false);
+  const [viewDetailsOpportunity,setViewDetailsOpportunity] = useState(null);
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(0);
   const [appliedOpportunities, setAppliedOpportunities] = useState([]);
@@ -132,8 +136,7 @@ const OpportunitiesPage = (props) => {
   
   const publicationOptions = {
     Tiktok: [
-      { value: "post", label: "Post" },
-      // { value: "story", label: "Story" },
+      { value: "post", label: "Post" }
     ],
     Instagram: [
       { value: "reel", label: "Reel" },
@@ -194,13 +197,6 @@ const OpportunitiesPage = (props) => {
       })
     );
 
-    const newTicket = {
-      title: `Applied for ${selectedOpportunity.title}`,
-      description: description,
-    };
-
-    dispatch(createTicketNotification(newTicket));
-
     const newNotification = {
       userId: USER_ID,
       title: `Applied for ${selectedOpportunity.title}`,
@@ -215,8 +211,19 @@ const OpportunitiesPage = (props) => {
     ]);
 
     setModalOpen(false);
-    setDescription("");
   };
+
+  useEffect(() => {
+    if (ticketId) {
+      const newTicket = {
+        title: `Applied for ${selectedOpportunity?.title}`,
+        description: description,
+        ticketId: ticketId,
+      };
+      dispatch(createTicketNotification(newTicket));
+      setDescription("");
+    }
+  }, [ticketId]);
 
   const toggle = (tab) => {
     if (activeTab !== tab) {
@@ -257,7 +264,14 @@ const OpportunitiesPage = (props) => {
     }, 1000);
   };
 
+  const handleViewDetails = (opportunity) => {
+    dispatch(trackOpportunityViewRequest(opportunity._id));
+    setViewDetailsOpportunity(opportunity);
+    setViewDetailsModelOpen(true);
+  };
+
   const handleDetailsView = (opportunity) => {
+    dispatch(trackOpportunityViewRequest(opportunity?.opportunity?._id));
     setDetailsOpportunity(opportunity);
     setDetailsModalOpen(true);
   };
@@ -327,7 +341,6 @@ const OpportunitiesPage = (props) => {
     }
 
     if (showScreenshotField && screenshot) {
-      console.log("Story Data Pass");
       const formData = new FormData();
       formData.append("opportunityId", selectedTicket.opportunity._id);
       formData.append("type", publicationType);
@@ -336,7 +349,6 @@ const OpportunitiesPage = (props) => {
 
       dispatch(createPublication({ formData, isFormData: true }));
     } else {
-      console.log("Normal Data Pass");
       const payload = {
         selectedTicket,
         publicationType,
@@ -409,7 +421,7 @@ const OpportunitiesPage = (props) => {
                     <div className="no-opportunities-heading">
                       <Spinner style={{ color: "var(--primary-purple)" }} />
                     </div>
-                  ) : filteredOpportunities.length > 0 ? (
+                  ) : filteredOpportunities?.length > 0 ? (
                     <>
                       <Row className="d-flex flex-wrap">
                         {filteredOpportunities.map((opportunity) => (
@@ -503,6 +515,17 @@ const OpportunitiesPage = (props) => {
                                         }
                                       >
                                         Apply
+                                      </Button>
+                                    </Col>
+                                    <Col xs="12" className="mt-1">
+                                      <Button
+                                        color="primary"
+                                        className="w-100"
+                                        onClick={() =>
+                                          handleViewDetails(opportunity)
+                                        }
+                                      >
+                                        View More
                                       </Button>
                                     </Col>
                                   </Row>
@@ -717,6 +740,89 @@ const OpportunitiesPage = (props) => {
               </Button>
               <Button color="primary" onClick={handleTicketCreation}>
                 Confirm
+              </Button>
+            </ModalFooter>
+          </Modal>
+
+          <Modal
+            isOpen={viewDetailsModelOpen}
+            toggle={() => setViewDetailsModelOpen(!viewDetailsModelOpen)}
+            size="lg"
+          >
+            <ModalHeader toggle={() => setViewDetailsModelOpen(!viewDetailsModelOpen)}>
+              {viewDetailsOpportunity?.title || "Opportunity Details"}
+            </ModalHeader>
+            <ModalBody>
+              {/* Image Section */}
+              {viewDetailsOpportunity?.imageUrl && (
+                <div className="text-center mb-3">
+                  <img
+                    src={getImageUrl(viewDetailsOpportunity.imageUrl)}
+                    alt={`Image for ${viewDetailsOpportunity.title}`}
+                    className="img-fluid rounded opportunity-image"
+                  />
+                </div>
+              )}
+
+              {/* Opportunity Details */}
+              <Row>
+                <Col xs="12">
+                  <div className="model-format">
+                    <p>
+                      <strong>Brand</strong>
+                    </p>
+                    <p>: {viewDetailsOpportunity?.brand}</p>
+
+                    <p>
+                      <strong>Description</strong>
+                    </p>
+                    <p>: {viewDetailsOpportunity?.description}</p>
+
+                    <p>
+                      <strong>Type</strong>
+                    </p>
+                    <p>: {viewDetailsOpportunity?.type}</p>
+
+                    <p>
+                      <strong>Location</strong>
+                    </p>
+                    <p>: {viewDetailsOpportunity?.location}</p>
+
+                    <p>
+                      <strong>End Date</strong>
+                    </p>
+                    <p>
+                      :{" "}
+                      {new Date(
+                        viewDetailsOpportunity?.endDate
+                      ).toLocaleDateString()}
+                    </p>
+
+                    <p>
+                      <strong>Status:</strong>
+                    </p>
+                    <p>
+                      :{" "}
+                      <span
+                        className={`badge ${
+                          viewDetailsOpportunity?.status === "Active"
+                            ? "badge-active"
+                            : "badge-inactive"
+                        }`}
+                      >
+                        {viewDetailsOpportunity?.status}
+                      </span>
+                    </p>
+                  </div>
+                </Col>
+              </Row>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                color="secondary"
+                onClick={() => setViewDetailsModelOpen(false)}
+              >
+                Close
               </Button>
             </ModalFooter>
           </Modal>

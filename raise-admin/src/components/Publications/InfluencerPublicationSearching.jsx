@@ -6,71 +6,14 @@ import ROLES from "../../constants/role";
 import { getInfluencers } from "../../store/influencers/actions";
 import Select from "react-select";
 
-const PublicationSearching = ({
+const InfluencerPublicationSearching = ({
   filterFields,
   setFilterFields,
   setIsSearching,
 }) => {
-  const dispatch = useDispatch();
-  const { influencers, totalInfluencers } = useSelector(
-    (state) => state.Influencer
-  );
-  const [influencerPage, setInfluencerPage] = useState(0);
-  const [influencerData, setInfluencerData] = useState([]);
-
-  useEffect(() => {
-    dispatch(
-      getInfluencers({
-        roleName: ROLES.INFLUENCER,
-        limit: 10,
-        pageCount: influencerPage,
-        allrecord: false,
-        email: "",
-        firstName: "",
-        lastName: "",
-      })
-    );
-  }, [influencerPage, dispatch]);
-
-  useEffect(() => {
-    const uniqueInfluencers = new Map();
-    influencerData.forEach((item) => uniqueInfluencers.set(item._id, item));
-    influencers.forEach((item) => uniqueInfluencers.set(item._id, item));
-    setInfluencerData(Array.from(uniqueInfluencers.values()));
-  }, [influencers]);
-
-  const handleMenuScrollToBottom = () => {
-    if (influencerData.length < totalInfluencers) {
-      setInfluencerPage((prevPage) => prevPage + 1);
-    }
-  };
-
-  const influencersOptions = influencerData
-    ?.filter((inf) => inf.username)
-    .map((item) => ({
-      value: item.username,
-      label: item.username,
-    }));
-
-  const handleMenuClose = () => {
-    setInfluencerData([]);
-    setInfluencerPage(0);
-    dispatch(
-      getInfluencers({
-        roleName: ROLES.INFLUENCER,
-        limit: 10,
-        pageCount: influencerPage,
-        allrecord: false,
-        email: "",
-        firstName: "",
-        lastName: "",
-      })
-    );
-  };
 
   const handleFilter = (e) => {
     const { name, value } = e.target;
-
 
     setFilterFields((prev) => ({
       ...prev,
@@ -81,22 +24,12 @@ const PublicationSearching = ({
     }));
   };
 
-  const handleInfluencerFilter = (selectedOption, action) => {
-    const { name } = action;
-    setFilterFields((prev) => ({
-      ...prev,
-      [name]: selectedOption ? selectedOption.value : "",
-    }));
-  };
-
   const handleSearch = () => {
     setIsSearching((prev) => !prev);
   };
 
   const handleClear = () => {
     setFilterFields({
-      influencer: "",
-      platform: "",
       status: "",
       type: "",
       engagementRate: 0,
@@ -112,77 +45,6 @@ const PublicationSearching = ({
   return (
     <div>
       <Row className="align-items-center">
-        <Col xs="12" sm="6" md="2">
-          <FormGroup>
-            <Label for="influencer">Influencer</Label>
-            {/* <Input
-              type="text"
-              placeholder="Enter Influencer"
-              className="form-control"
-              name="influencer"
-              value={filterFields.influencer}
-              onChange={handleFilter}
-            /> */}
-            <Select
-              options={
-                influencersOptions.some(
-                  (option) => option.value === filterFields.influencer
-                )
-                  ? influencersOptions
-                  : filterFields.influencer
-                  ? [
-                      ...influencersOptions,
-                      {
-                        value: filterFields.influencer,
-                        label: filterFields.influencer,
-                      },
-                    ]
-                  : influencersOptions
-              }
-              value={
-                filterFields.influencer
-                  ? influencersOptions.find(
-                      (option) => option.value === filterFields.influencer
-                    ) || {
-                      value: filterFields.influencer,
-                      label: filterFields.influencer,
-                    }
-                  : null // ✅ Shows placeholder when no influencer is selected
-              }
-              onChange={handleInfluencerFilter}
-              onMenuScrollToBottom={handleMenuScrollToBottom}
-              onMenuClose={handleMenuClose}
-              name="influencer"
-              placeholder="-- Select Influencer --" // ✅ Placeholder will now work
-              styles={{
-                menu: (provided) => ({
-                  ...provided,
-                  maxHeight: 300,
-                  overflowY: "auto",
-                }),
-              }}
-            />
-          </FormGroup>
-        </Col>
-
-        <Col xs="12" sm="6" md="2">
-          <FormGroup>
-            <Label for="platform">Social Network</Label>
-            <Input
-              type="select"
-              className="form-control"
-              name="platform"
-              value={filterFields.platform}
-              onChange={handleFilter}
-            >
-              <option value="">Select Platform</option>
-              <option value="Tiktok">Tiktok</option>
-              <option value="Instagram">Instagram</option>
-              <option value="YouTube">Youtube</option>
-              <option value="Facebook">Facebook</option>
-            </Input>
-          </FormGroup>
-        </Col>
 
         <Col xs="12" sm="6" md="2">
           <FormGroup>
@@ -215,8 +77,8 @@ const PublicationSearching = ({
             >
               <option value="">Select Type</option>
               <option value="post">Post</option>
-              <option value="reel">Reel</option>
               <option value="story">Story</option>
+              <option value="reel">Reels</option>
               <option value="video">Video</option>
             </Input>
           </FormGroup>
@@ -361,4 +223,4 @@ const PublicationSearching = ({
   );
 };
 
-export default PublicationSearching;
+export default InfluencerPublicationSearching;

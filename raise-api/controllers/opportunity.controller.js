@@ -2,6 +2,7 @@ const { validationResult } = require("express-validator");
 const CONSTANT = require("../config/constant");
 const OPPORTUNITY_COLLECTION = require("../module/opportunity.module");
 const TICKET_COLLECTION = require("../module/ticket.module");
+const USER_COLLECTION = require("../module/user.module");
 const COMMON = require("../config/common");
 const { getSortOption } = require("../helper/getSortOption");
 const path = require("path");
@@ -16,6 +17,8 @@ exports.updateOpportunity = _updateOpportunity;
 exports.uploadOpportunityImage = _uploadOpportunityImage;
 exports.removeOpportunityImage = _removeOpportunityImage;
 exports.csvupload = _csvupload;
+exports.trackOpportunityView =_trackOpportunityView;
+
 /*
 TYPE: Get
 TODO: Get all opportunities
@@ -552,3 +555,44 @@ async function _csvupload(req, res) {
     });
   }
 }
+
+async function _trackOpportunityView(req, res) {
+  try {
+    const { id } = req.decoded;
+    const { opportunityId } = req.params;
+
+    // Check if user exists
+    const userExists = await USER_COLLECTION.findById(id);
+    if (!userExists) {
+      return res.status(404).json({ status: "fail", message: "User not found" });
+    }
+
+    // Find opportunity and check if user ID exists in views
+    const opportunity = await OPPORTUNITY_COLLECTION.findById(opportunityId);
+    if (!opportunity) {
+      return res.status(404).json({ status: "fail", message: "Opportunity not found" });
+    }
+
+    if (!opportunity.views.includes(userExists._id)) {
+      opportunity.views.push(userExists._id);
+      await opportunity.save();
+    }
+
+    return res.status(200).json({
+      status: CONSTANT.SUCCESS,
+      result: {
+        message: "View tracked successfully",
+      },
+    });
+    } catch (error) {
+      console.error("Error tracking opportunity view:", error);
+    
+      return res.status(500).json({
+        status: CONSTANT.FAIL,
+        result: {
+          message: "Internal Server Error",
+          error: error.message,
+        },
+      });
+    }
+  }     

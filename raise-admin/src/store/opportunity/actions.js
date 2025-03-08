@@ -20,6 +20,9 @@ import {
   REMOVE_OPPORTUNITY_IMAGE_ERROR,
   REMOVE_OPPORTUNITY_IMAGE_REQUEST,
   REMOVE_OPPORTUNITY_IMAGE_SUCCESS,
+  TRACK_OPPORTUNITY_VIEW_ERROR,
+  TRACK_OPPORTUNITY_VIEW_REQUEST,
+  TRACK_OPPORTUNITY_VIEW_SUCCESS,
   UPDATE_OPPORTUNITY_ERROR,
   UPDATE_OPPORTUNITY_REQUEST,
   UPDATE_OPPORTUNITY_SUCCESS,
@@ -236,3 +239,17 @@ export const uploadCsvError = (error) => {
   };
 };
 
+export const trackOpportunityViewRequest = (opportunityId) => ({
+  type: TRACK_OPPORTUNITY_VIEW_REQUEST,
+  payload: opportunityId,
+});
+
+export const trackOpportunityViewSuccess = (data) => ({
+  type: TRACK_OPPORTUNITY_VIEW_SUCCESS,
+  payload: data,
+});
+
+export const trackOpportunityViewError = (error) => ({
+  type: TRACK_OPPORTUNITY_VIEW_ERROR,
+  payload: error,
+});

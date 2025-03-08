@@ -327,6 +327,7 @@ async function _login(req, res) {
           roleId: existUser.roleId,
           loginType: existUser.loginType,
           accessToken: existUser.accessToken,
+          refreshToken : existUser.refreshToken,
           platform: existUser.platform,
           username: existUser.username,
         };

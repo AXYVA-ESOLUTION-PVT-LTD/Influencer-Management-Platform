@@ -26,6 +26,7 @@ import ROLES from "../../constants/role";
 import Pagination from "../../components/Common/Pagination";
 import InfluencerFiltering from "../../components/Common/InfluencerFiltering";
 import "../../assets/themes/colors.scss";
+import { Link } from "react-router-dom";
 const InfluencerManagement = (props) => {
   // State for modals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -184,7 +185,11 @@ const InfluencerManagement = (props) => {
   const updateInfluncerValidation = useFormik({
     enableReinitialize: true,
     initialValues: {
-      status: selectedInfluencer ? (selectedInfluencer.status ? "Active" : "Inactive") : "Active",
+      status: selectedInfluencer
+        ? selectedInfluencer.status
+          ? "Active"
+          : "Inactive"
+        : "Active",
     },
     validationSchema: Yup.object({
       status: Yup.string().required("Status is required"),
@@ -214,7 +219,7 @@ const InfluencerManagement = (props) => {
         allrecord: false,
       })
     );
-  }, [dispatch, limit, pageCount, isSearching, sortOrder, sortBy]);
+  }, [dispatch, limit, pageCount, isSearching, sortOrder, sortBy ]);
 
   // Toggle modals
   const toggleUpdateModal = () => {
@@ -246,6 +251,22 @@ const InfluencerManagement = (props) => {
 
   const columns = useMemo(
     () => [
+      {
+        Header: "Username",
+        accessor: "username",
+        Cell: ({ row }) => (
+          <Link
+            to={`/influencers/${row.original._id}`}
+            style={{
+              color: "blue",
+              textDecoration: "underline",
+              cursor: "pointer",
+            }}
+          >
+            {row.original.username}
+          </Link>
+        ),
+      },
       {
         Header: "First Name",
         accessor: "firstName",

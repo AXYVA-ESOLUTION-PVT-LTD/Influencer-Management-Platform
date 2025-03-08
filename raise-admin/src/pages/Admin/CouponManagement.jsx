@@ -93,6 +93,11 @@ const CouponManagement = (props) => {
 
     dispatch(createNotification(newNotification));
 
+    setCouponCode("");
+    setIsValid(true);
+    setErrorMessage("");
+    setIsEditModalOpen(false);
+    
     dispatch(
       fetchTicketsRequest({
         limit,
@@ -100,10 +105,6 @@ const CouponManagement = (props) => {
         ...filterFields,
       })
     );
-    setCouponCode("");
-    setIsValid(true);
-    setErrorMessage("");
-    setIsEditModalOpen(false);
   };
 
   document.title = "Coupon Management | Brandraise ";

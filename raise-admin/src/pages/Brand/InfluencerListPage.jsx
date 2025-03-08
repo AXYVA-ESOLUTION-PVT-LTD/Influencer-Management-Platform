@@ -1,286 +1,150 @@
-import React, { useState } from "react";
-import {
-  Container,
-  Card,
-  CardBody,
-  CardTitle,
-  CardText,
-  Button,
-  FormGroup,
-  Input,
-  Row,
-  Col,
-  CardImg,
-  Pagination,
-  PaginationItem,
-  PaginationLink,
-} from "reactstrap";
-// Import Breadcrumb
-import Breadcrumbs from "../../components/Common/Breadcrumb";
-
-// i18n
+import React, { useEffect, useMemo, useState } from "react";
 import { withTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import '../../assets/themes/colors.scss';
+import { useDispatch, useSelector } from "react-redux";
+import { Container, Spinner } from "reactstrap";
+import TableContainer from "../../components/Common/TableContainer"; // Adjust import path if necessary
+import { getInfluencers } from "../../store/influencers/actions";
+import ROLES from "../../constants/role";
+import Pagination from "../../components/Common/Pagination";
+import InfluencerFiltering from "../../components/Common/InfluencerFiltering";
+import "../../assets/themes/colors.scss";
+import { Link } from "react-router-dom";
 const InfluencerListPage = (props) => {
+  const [limit, setLimit] = useState(10);
+  const [pageCount, setPageCount] = useState(0);
+
+  const [filterFields, setFilterFields] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+  });
+  const [isSearching, setIsSearching] = useState(false);
+
+  const [sortBy, setSortBy] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
+
   // Meta title
-  document.title = "Influencers | Brandraise ";
+  document.title = "Influencer | Brandraise ";
 
-  const sampleInfluencers = [
-    {
-      id: 1,
-      name: "Alice Johnson",
-      status: "approved",
-      followers: 15000,
-      image: "https://via.placeholder.com/150?text=Alice+Johnson",
-    },
-    {
-      id: 2,
-      name: "Bob Brown",
-      status: "pending",
-      followers: 12000,
-      image: "https://via.placeholder.com/150?text=Bob+Brown",
-    },
-    {
-      id: 3,
-      name: "Catherine Lee",
-      status: "approved",
-      followers: 15000,
-      image: "https://via.placeholder.com/150?text=Catherine+Lee",
-    },
-    {
-      id: 4,
-      name: "David Wilson",
-      status: "pending",
-      followers: 12000,
-      image: "https://via.placeholder.com/150?text=David+Wilson",
-    },
-    {
-      id: 5,
-      name: "Emily Davis",
-      status: "approved",
-      followers: 15000,
-      image: "https://via.placeholder.com/150?text=Emily+Davis",
-    },
-    {
-      id: 6,
-      name: "Frank Miller",
-      status: "pending",
-      followers: 12000,
-      image: "https://via.placeholder.com/150?text=Frank+Miller",
-    },
-    {
-      id: 7,
-      name: "Grace Martinez",
-      status: "approved",
-      followers: 15000,
-      image: "https://via.placeholder.com/150?text=Grace+Martinez",
-    },
-    {
-      id: 8,
-      name: "Henry Thompson",
-      status: "pending",
-      followers: 12000,
-      image: "https://via.placeholder.com/150?text=Henry+Thompson",
-    },
-    {
-      id: 9,
-      name: "Ivy Harris",
-      status: "approved",
-      followers: 15000,
-      image: "https://via.placeholder.com/150?text=Ivy+Harris",
-    },
-    {
-      id: 10,
-      name: "Jack Scott",
-      status: "pending",
-      followers: 12000,
-      image: "https://via.placeholder.com/150?text=Jack+Scott",
-    },
-    {
-      id: 11,
-      name: "Karen Lewis",
-      status: "approved",
-      followers: 15000,
-      image: "https://via.placeholder.com/150?text=Karen+Lewis",
-    },
-    {
-      id: 12,
-      name: "Larry Young",
-      status: "pending",
-      followers: 12000,
-      image: "https://via.placeholder.com/150?text=Larry+Young",
-    },
-    {
-      id: 13,
-      name: "Mia Walker",
-      status: "approved",
-      followers: 15000,
-      image: "https://via.placeholder.com/150?text=Mia+Walker",
-    },
-    {
-      id: 14,
-      name: "Nate Allen",
-      status: "pending",
-      followers: 12000,
-      image: "https://via.placeholder.com/150?text=Nate+Allen",
-    },
-    {
-      id: 15,
-      name: "Olivia King",
-      status: "approved",
-      followers: 15000,
-      image: "https://via.placeholder.com/150?text=Olivia+King",
-    },
-    {
-      id: 16,
-      name: "Paul Wright",
-      status: "pending",
-      followers: 12000,
-      image: "https://via.placeholder.com/150?text=Paul+Wright",
-    },
-    {
-      id: 17,
-      name: "Quinn Adams",
-      status: "approved",
-      followers: 15000,
-      image: "https://via.placeholder.com/150?text=Quinn+Adams",
-    },
-    {
-      id: 18,
-      name: "Riley Green",
-      status: "pending",
-      followers: 12000,
-      image: "https://via.placeholder.com/150?text=Riley+Green",
-    },
-  ];
+  const dispatch = useDispatch();
 
-  // State for influencers, filters, and pagination
-  const [filter, setFilter] = useState("all");
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [currentPage, setCurrentPage] = useState(1);
-  const navigate = useNavigate();
-  const influencersPerPage = 8;
+  const { influencers, loading, error, totalInfluencers, currentPage } =
+    useSelector((state) => state.Influencer);
 
-  // Filter and sort influencers
-  const filteredInfluencers = sampleInfluencers
-    .filter((inf) => filter === "all" || inf.status === filter)
-    .sort((a, b) => {
-      if (sortOrder === "asc") return a.name.localeCompare(b.name);
-      return b.name.localeCompare(a.name);
-    });
+  // Get Influencer when Mount
+  useEffect(() => {
+    dispatch(
+      getInfluencers({
+        roleName: ROLES.INFLUENCER,
+        limit,
+        pageCount,
+        ...filterFields,
+        sortBy,
+        sortOrder,
+        allrecord: false,
+      })
+    );
+  }, [dispatch, limit, pageCount, isSearching, sortOrder, sortBy]);
 
-  // Pagination logic
-  const indexOfLastInfluencer = currentPage * influencersPerPage;
-  const indexOfFirstInfluencer = indexOfLastInfluencer - influencersPerPage;
-  const currentInfluencers = filteredInfluencers.slice(
-    indexOfFirstInfluencer,
-    indexOfLastInfluencer
+  const columns = useMemo(
+    () => [
+      {
+        Header: "Username",
+        accessor: "username",
+        Cell: ({ row }) => (
+          <Link
+            to={`/influencers/${row.original._id}`}
+            style={{
+              color: "blue",
+              textDecoration: "underline",
+              cursor: "pointer",
+            }}
+          >
+            {row.original.username}
+          </Link>
+        ),
+      },
+      {
+        Header: "First Name",
+        accessor: "firstName",
+      },
+      {
+        Header: "Last Name",
+        accessor: "lastName",
+      },
+      {
+        Header: "Email",
+        accessor: "email",
+      },
+      {
+        Header: "Phone Number",
+        accessor: "phoneNumber",
+        Cell: ({ value }) => (value ? value : "-"),
+      },
+      {
+        Header: "City",
+        accessor: "city",
+        Cell: ({ value }) => (value ? value : "-"),
+      },
+      {
+        Header: "Country",
+        accessor: "country",
+        Cell: ({ value }) => (value ? value : "-"),
+      },
+    ],
+    []
   );
-
-  const totalPages = Math.ceil(filteredInfluencers.length / influencersPerPage);
-
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
-  const handleViewProfile = (id) => {
-    navigate(`/influencers/${id}`);
-  };
 
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          {/* Render Breadcrumb */}
-          {/* <Breadcrumbs
-            title={props.t("Influencers")}
-            breadcrumbItem={props.t("Influencers")}
-          /> */}
-
-          {/* Filters */}
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h4
-              className="font-size-18 text-uppercase"
-            >
-              Influencers
-            </h4>
-            <FormGroup className="d-flex mb-3">
-            <Input
-              type="select"
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              style={{ width: "150px", marginRight: "10px" }}
-            >
-              <option value="all">All</option>
-              <option value="approved">Approved</option>
-              <option value="pending">Pending</option>
-            </Input>
-            <Button
-              style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}
-              onClick={() =>
-                setSortOrder((prevSortOrder) =>
-                  prevSortOrder === "asc" ? "desc" : "asc"
-                )
-              }
-            >
-              Sort by Name {sortOrder === "asc" ? "↑" : "↓"}
-            </Button>
-          </FormGroup>
+            <h4 className="font-size-18 text-uppercase">Influencers</h4>
           </div>
-          
+          {/* filtering */}
+          <InfluencerFiltering
+            filterFields={filterFields}
+            setFilterFields={setFilterFields}
+            setIsSearching={setIsSearching}
+          />
 
-          {/* Influencers Grid */}
-          <Row>
-            {currentInfluencers.map((influencer) => (
-              <Col md={6} xl={3} key={influencer.id} className="mb-4">
-                <Card className="h-100">
-                  <CardBody>
-                    <Row className="align-items-center">
-                      <Col xs={6}>
-                        <CardImg
-                          className="img-fluid"
-                          src={influencer.image}
-                          alt={influencer.name}
-                          style={{
-                            height: "140px",
-                            width: "140px",
-                            objectFit: "cover",
-                          }}
-                        />
-                      </Col>
-                      <Col xs={6}>
-                        <CardTitle className="mt-0">
-                          {influencer.name}
-                        </CardTitle>
-                        <CardText>Status: {influencer.status}</CardText>
-                        <CardText>
-                          Followers: {influencer.followers.toLocaleString()}
-                        </CardText>
-                        <Button
-                          style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }}
-                          onClick={() => handleViewProfile(influencer.id)}
-                        >
-                          View Profile
-                        </Button>
-                      </Col>
-                    </Row>
-                  </CardBody>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-
-          {/* Pagination */}
-          <Pagination aria-label="Page navigation example">
-            {[...Array(totalPages).keys()].map((page) => (
-              <PaginationItem key={page + 1} active={page + 1 === currentPage} >
-                <PaginationLink onClick={() => handlePageChange(page + 1)} style={page + 1 === currentPage ? { backgroundColor  : "var(--primary-purple)" ,color  :  "var(--primary-white)"}:{}}>
-                  {page + 1}
-                </PaginationLink>
-              </PaginationItem> 
-            ))}
-          </Pagination>
+          {loading ? (
+            <div className="text-center space-top">
+              <Spinner style={{ color: "var(--primary-purple)" }} />{" "}
+            </div>
+          ) : (
+            <>
+              {influencers.length ? (
+                <>
+                  <TableContainer
+                    columns={columns}
+                    data={influencers}
+                    isGlobalFilter={false}
+                    isAddOptions={false}
+                    customPageSize={10}
+                    className="custom-header-css"
+                    isPagination={false}
+                    isSorting={false}
+                    setSortBy={setSortBy}
+                    sortBy={sortBy}
+                    setSortOrder={setSortOrder}
+                    sortOrder={sortOrder}
+                  />
+                  <Pagination
+                    totalData={totalInfluencers}
+                    setLimit={setLimit}
+                    setPageCount={setPageCount}
+                    limit={limit}
+                    pageCount={pageCount}
+                    currentPage={pageCount}
+                  />
+                </>
+              ) : (
+                <h1 className="text-center space-top">No Influencer Found</h1>
+              )}
+            </>
+          )}
         </Container>
       </div>
     </React.Fragment>

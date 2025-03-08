@@ -1,3 +1,9 @@
 export const CREATE_BRAND_API = "/brand/createBrand";
 export const GET_BRAND_API = "/brand/getBrands";
 export const UPDATE_BRAND_API = "/brand";
+export const GET_BRAND_STATISTICS_API = "/brand/getBrandDataStatistics";
+export const GET_OPPORTUNITY_STATISTICS_API = "/brand/getOpportunityStatistics";
+export const GET_INFLUENCER_STATISTICS_API = "/brand/getInflucersStatistics";
+export const GET_INFLUENCER_STATISTICS_BY_PLATFORM_API = "/brand/getInfluencerStatisticsByPlatform";
+export const GET_INFLUENCER_STATISTICS_BY_COUNTRY_API = "/brand/getInfluencerStatisticsByCountry";
+export const GET_ALL_PUBLICATIONS_BY_BRAND_API = "/brand/getAllPublicationsByBrand";

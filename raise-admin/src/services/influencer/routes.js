@@ -1,3 +1,10 @@
 export const CREATE_INFLUENCER_API = "/influencer/createInfluencer";
 export const GET_INFLUENCER_API = "/influencer/getInfluencers";
 export const UPDATE_INFLUENCER_API = "/influencer";
+export const GET_INFLUENCER_PROFILE_API = "/influencer/influencer-profile";
+export const GET_INFLUENCER_BASIC_DATA_API = "/influencer/influencer-basics";
+export const GET_INFLUENCER_POST_STATISTICS_API = "/influencer/influencer-statistics";
+export const GET_INFLUENCER_MONTHLY_STATISTICS_API = "/influencer/influencer-monthly-statistics";
+export const GET_INFLUENCER_DEMOGRAPHIC_DATA_API = "/influencer/influencer-demographics";
+export const GET_INFLUENCER_PUBLICATION_DATA_API = "/influencer/influencer-publications";
+export const GET_INFLUENCER_MEDIA_DATA_API = "/influencer/influencer-media";

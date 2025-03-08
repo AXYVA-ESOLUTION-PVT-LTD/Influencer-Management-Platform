@@ -1,220 +1,503 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
+import React, { useEffect, useMemo, useState } from "react";
 import {
-  Row,
-  Col,
-  Card,
-  CardImg,
-  CardBody,
-  CardTitle,
-  CardText,
-  Input,
-  Pagination,
-  PaginationItem,
-  PaginationLink,
-  FormGroup,
-  Modal,
-  ModalHeader,
-  ModalBody,
   Button,
+  Col,
+  Dropdown,
+  DropdownMenu,
+  DropdownToggle,
+  Input,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  Row,
+  Spinner,
 } from "reactstrap";
-
+import Pagination from "../../components/Common/Pagination";
 // Import components
-import Breadcrumbs from "../../components/Common/Breadcrumb";
-import '../../assets/themes/colors.scss';
+import TableContainer from "../../components/Common/TableContainer";
+import PublicationSearching from "../../components/Publications/PublicationSearching";
+import ColumnSelector from "../../components/Common/ColumnSelector";
+import "../../assets/themes/colors.scss";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getPublication,
+  updatePublicationStatus,
+} from "../../store/publication/actions";
+import { getAllPublicationsByBrand } from "../../store/actions";
+import { Link } from "react-router-dom";
 function PublicationsListPage() {
-  document.title =
-  "Publications | Brandraise";
+  const [data, setData] = useState([]);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [isShowFilter, setIsShowFilter] = useState(false);
+  const [limit, setLimit] = useState(10);
+  const [pageCount, setPageCount] = useState(0);
+  const [isHeaderDropDown, setIsHeaderDropDown] = useState(false);
+  const [isViewImageModalOpen, setIsViewImageModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
+  const [newImage, setNewImage] = useState(null);
 
-  const data = [
-    { id: 1, title: "Research on AI", author: "Jennifer Chang", publicationDate: "2023/01/15", journal: "AI Journal", volume: "15", pages: "45-67" },
-    { id: 2, title: "Advances in Robotics", author: "Gavin Joyce", publicationDate: "2023/02/20", journal: "Robotics Today", volume: "22", pages: "78-89" },
-    { id: 3, title: "Machine Learning Trends", author: "Angelica Ramos", publicationDate: "2023/03/05", journal: "Tech Review", volume: "10", pages: "123-135" },
-    { id: 4, title: "Data Science Overview", author: "Doris Wilder", publicationDate: "2023/04/12", journal: "Data Science Monthly", volume: "8", pages: "10-25" },
-    { id: 5, title: "Quantum Computing Basics", author: "Caesar Vance", publicationDate: "2023/05/28", journal: "Quantum Tech", volume: "4", pages: "50-60" },
-    { id: 6, title: "Cloud Computing", author: "Yuri Berry", publicationDate: "2023/06/15", journal: "Cloud Tech Today", volume: "12", pages: "30-40" },
-    { id: 7, title: "Cybersecurity Trends", author: "Jenette Caldwell", publicationDate: "2023/07/10", journal: "Security Weekly", volume: "5", pages: "95-105" },
-    { id: 8, title: "Blockchain Innovations", author: "Dai Rios", publicationDate: "2023/08/25", journal: "Blockchain Review", volume: "7", pages: "12-22" },
-    { id: 9, title: "Big Data Analytics", author: "Bradley Greer", publicationDate: "2023/09/30", journal: "Big Data Journal", volume: "14", pages: "65-80" },
-    { id: 10, title: "Artificial Intelligence Ethics", author: "Gloria Little", publicationDate: "2023/10/22", journal: "Ethics in AI", volume: "9", pages: "33-47" },
-    { id: 11, title: "Natural Language Processing", author: "Paul Byrd", publicationDate: "2023/11/19", journal: "NLP Weekly", volume: "6", pages: "55-70" },
-    { id: 12, title: "Digital Transformation", author: "Michael Silva", publicationDate: "2024/01/04", journal: "Tech Innovations", volume: "11", pages: "88-102" },
-    { id: 13, title: "Robotics and Automation", author: "Tatyana Fitzpatrick", publicationDate: "2024/02/12", journal: "Automation Today", volume: "13", pages: "22-35" },
-    { id: 14, title: "AI in Healthcare", author: "Haley Kennedy", publicationDate: "2024/03/30", journal: "Healthcare Tech", volume: "17", pages: "44-58" },
-    { id: 15, title: "Fintech Innovations", author: "Charde Marshall", publicationDate: "2024/04/15", journal: "Fintech Monthly", volume: "18", pages: "60-75" },
-    { id: 16, title: "Internet of Things", author: "Quinn Flynn", publicationDate: "2024/05/20", journal: "IoT Journal", volume: "20", pages: "80-90" },
-    { id: 17, title: "Augmented Reality", author: "Jena Gaines", publicationDate: "2024/06/25", journal: "AR Today", volume: "16", pages: "22-40" },
-    { id: 18, title: "Tech and Society", author: "Sonya Frost", publicationDate: "2024/07/30", journal: "Tech and Society Review", volume: "23", pages: "110-125" },
-    { id: 19, title: "Emerging Technologies", author: "Colleen Hurst", publicationDate: "2024/08/12", journal: "Emerging Tech Journal", volume: "19", pages: "77-89" },
-    { id: 20, title: "Data Privacy", author: "Rhona Davidson", publicationDate: "2024/09/18", journal: "Privacy Tech", volume: "15", pages: "65-80" },
-  ];
+  const [filterHeader, setFilterHeader] = useState({
+    "opportunityId.title": true,
+    createdAt: true,
+    "influencerId.username": true,
+    "influencerId.platform": true,
+    status: true,
+    type: true,
+    publicationLink: true,
+    screenshot: true,
+    engagementRate: true,
+    followerCount: true,
+    likeCount: true,
+    commentCount: true,
+    shareCount: true,
+    viewCount: true,
+  });
 
-  // State for search, filter, and pagination
-  const [searchTerm, setSearchTerm] = useState("");
-  const [yearFilter, setYearFilter] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedPublication, setSelectedPublication] = useState(null);
-  const publicationsPerPage = 5;
+  const [isSearching, setIsSearching] = useState(false);
 
-  // Filter and search logic
-  const filteredData = data
-    .filter((publication) => {
-      // Filter by year
-      if (yearFilter !== "all") {
-        const publicationYear = publication.publicationDate.split("/")[0];
-        if (publicationYear !== yearFilter) {
-          return false;
-        }
-      }
-      // Search by title, author, or journal
-      return (
-        publication.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        publication.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        publication.journal.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    });
+  const [filterFields, setFilterFields] = useState({
+    influencer: "",
+    platform: "",
+    status: "",
+    type: "",
+    engagementRate: 0,
+    followerCount: 0,
+    likeCount: 0,
+    commentCount: 0,
+    shareCount: 0,
+    viewCount: 0,
+  });
 
-  // Pagination logic
-  const indexOfLastPublication = currentPage * publicationsPerPage;
-  const indexOfFirstPublication = indexOfLastPublication - publicationsPerPage;
-  const currentPublications = filteredData.slice(
-    indexOfFirstPublication,
-    indexOfLastPublication
+  // Meta title
+  document.title = "Publications | Brandraise ";
+
+  const dispatch = useDispatch();
+  const { publications, totalPublications, publicationsLoading, error } =
+    useSelector((state) => state.Brand);
+  const toggleUpdateModal = () => {
+    setIsUpdateModalOpen(!isUpdateModalOpen);
+  };
+
+  const toggleViewModal = () => setIsViewModalOpen(!isViewModalOpen);
+
+  useEffect(() => {
+    dispatch(getAllPublicationsByBrand({ limit, pageCount, ...filterFields }));
+  }, [dispatch, limit, pageCount, isSearching]);
+
+  const confirmUpdateRecord = () => {
+    if (selectedRecord._id) {
+      let payload = {
+        _id: selectedRecord._id,
+        status: selectedRecord.status,
+      };
+
+      dispatch(updatePublicationStatus(payload));
+      setImageUrl(null);
+    }
+    toggleUpdateModal();
+  };
+
+  // Handle input change for update
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setSelectedRecord({ ...selectedRecord, [name]: value });
+  };
+
+  const toggleViewImageModal = () => {
+    setIsViewImageModalOpen(!isViewImageModalOpen);
+  };
+
+  const handleImageClick = (image) => {
+    setSelectedImage(image);
+    toggleViewImageModal();
+  };
+
+  const getImageUrl = (
+    value,
+    basePath = import.meta.env.VITE_APP_PUBLICATION_IMAGE_URL
+  ) => {
+    return `${basePath}${value}`;
+  };
+
+  const columns = useMemo(
+    () => [
+      {
+        Header: "Title",
+        accessor: "opportunityId.title",
+        isVisible: filterHeader.project,
+      },
+      {
+        Header: "Post Date",
+        accessor: "createdAt",
+        isVisible: filterHeader.postDate,
+        Cell: ({ value }) => {
+          const date = new Date(value);
+          const formattedDate = `${String(date.getDate()).padStart(
+            2,
+            "0"
+          )}.${String(date.getMonth() + 1).padStart(
+            2,
+            "0"
+          )}.${date.getFullYear()} ${String(date.getHours()).padStart(
+            2,
+            "0"
+          )}:${String(date.getMinutes()).padStart(2, "0")}`;
+          return formattedDate;
+        },
+      },
+      {
+        Header: "Influencer",
+        accessor: "influencerId.username",
+        isVisible: filterHeader.influencer,
+        Cell: ({ row }) => (
+          <Link
+            to={`/influencers/${row.original.influencerId._id}`}
+            style={{
+              color: "blue",
+              textDecoration: "underline",
+              cursor: "pointer",
+            }}
+          >
+            {row.original.influencerId.username}
+          </Link>
+        ),
+      },
+      {
+        Header: "Social Network",
+        accessor: "influencerId.platform",
+        isVisible: filterHeader.socialNetwork,
+      },
+      {
+        Header: "Status",
+        accessor: "status",
+        isVisible: filterHeader.status,
+        Cell: ({ value }) => {
+          let badgeClass = "";
+          let badgeText = value;
+
+          switch (value) {
+            case "Pending":
+              badgeClass = "badge bg-warning";
+              badgeText = "Pending";
+              break;
+            case "Declined":
+              badgeClass = "badge bg-danger";
+              badgeText = "Declined";
+              break;
+            case "Cancelled":
+              badgeClass = "badge bg-secondary";
+              badgeText = "Cancelled";
+              break;
+            case "Published":
+              badgeClass = "badge bg-success";
+              badgeText = "Published";
+              break;
+            default:
+              badgeClass = "badge bg-light";
+              badgeText = "Unknown";
+              break;
+          }
+
+          return <span className={badgeClass}>{badgeText}</span>;
+        },
+      },
+      { Header: "Type", accessor: "type", isVisible: filterHeader.type },
+      {
+        Header: "Publication Link",
+        accessor: "publicationLink",
+        isVisible: true,
+        Cell: ({ value }) => {
+          return (
+            <a href={value} target="_blank" rel="noopener noreferrer">
+              {value}
+            </a>
+          );
+        },
+      },
+      {
+        Header: "Screen Shots",
+        accessor: "screenshot",
+        isVisible: true,
+        Cell: ({ value }) => {
+          const screenshot = value;
+
+          return (
+            <div>
+              {screenshot && (
+                <div>
+                  <span
+                    onClick={() => handleImageClick(screenshot)}
+                    className="publication-screenshot-link"
+                  >
+                    Image
+                  </span>
+                </div>
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        Header: "Engagement Rate (ER)",
+        accessor: "engagementRate",
+        isVisible: filterHeader.ER,
+      },
+      {
+        Header: "Follower",
+        accessor: "followerCount",
+        isVisible: filterHeader.follower,
+      },
+      {
+        Header: "Like",
+        accessor: "likeCount",
+        isVisible: filterHeader.likes,
+      },
+      {
+        Header: "Comments",
+        accessor: "commentCount",
+        isVisible: filterHeader.comments,
+      },
+      {
+        Header: "share",
+        accessor: "shareCount",
+        isVisible: filterHeader.shares,
+      },
+      {
+        Header: "Views",
+        accessor: "viewCount",
+        isVisible: filterHeader.views,
+      },
+    ],
+    [filterHeader]
   );
 
-  const totalPages = Math.ceil(filteredData.length / publicationsPerPage);
+  const visibleColumns = useMemo(
+    () => columns.filter((column) => filterHeader[column.accessor]),
+    [columns, filterHeader]
+  );
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
-  const toggleModal = () => setModalOpen(!modalOpen);
-
-  const handleViewMore = (publication) => {
-    setSelectedPublication(publication);
-    toggleModal();
-  };
+  const toggleFilterModal = () => setIsShowFilter(!isShowFilter);
 
   return (
     <div className="page-content">
       <div className="container-fluid">
         {/* <Breadcrumbs title="Publications" breadcrumbItem="Publications" /> */}
         <div className="d-flex justify-content-between align-items-center mb-3">
-            <h4 className="font-size-18 text-uppercase">
+          <h4 className="header-title font-size-18 text-uppercase">
             Publications
-            </h4>
+          </h4>
+          <div className="d-flex gap-2">
+            <Dropdown
+              isOpen={isHeaderDropDown}
+              toggle={() => setIsHeaderDropDown(!isHeaderDropDown)}
+              className="d-inline-block publication-filter-icon"
+            >
+              <DropdownToggle>
+                <i className="bx bx-filter"></i>
+              </DropdownToggle>
+              <DropdownMenu className="dropdown-menu-end publication-filter-container">
+                <ColumnSelector
+                  columns={columns}
+                  filterHeader={filterHeader}
+                  setFilterHeader={setFilterHeader}
+                />
+              </DropdownMenu>
+            </Dropdown>
           </div>
-        {/* Search and Filter */}
-        <Row>
-          <Col md={6} className="mb-3 mb-md-0">
-            <Input
-              type="text"
-              placeholder="Search by title, author, or journal..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </Col>
-          <Col md={3} className="mb-3 mb-md-0">
-            <FormGroup>
-              <Input
-                type="select"
-                value={yearFilter}
-                onChange={(e) => setYearFilter(e.target.value)}
-              >
-                <option value="all">All Years</option>
-                <option value="2023">2023</option>
-                <option value="2024">2024</option>
-              </Input>
-            </FormGroup>
-          </Col>
-        </Row>
+        </div>
 
-        <Row>
-          {currentPublications.map((publication) => (
-            <Col lg={6} key={publication.id}>
-              <Card className="mb-4">
-                <Row className="no-gutters align-items-center">
-                  <Col md={4}>
-                    <CardImg
-                      className="img-fluid"
-                      src="https://media.istockphoto.com/id/482783107/photo/world-of-books.jpg?s=612x612&w=0&k=20&c=9WgP-LFqYrOZKWOCwHvA7tXmDpeNVS7x7b-GZ1yW7xM="
-                      alt={publication.title}
-                    />
-                  </Col>
-                  <Col md={8}>
-                    <CardBody>
-                      <CardTitle>{publication.title}</CardTitle>
-                      <CardText>
-                        <strong>Author:</strong> {publication.author}
-                      </CardText>
-                      <CardText>
-                        <strong>Publication Date:</strong>{" "}
-                        {publication.publicationDate}
-                      </CardText>
-                      <CardText>
-                        <strong>Journal:</strong> {publication.journal}
-                      </CardText>
-                      <CardText>
-                        <strong>Volume:</strong> {publication.volume}
-                      </CardText>
-                      <CardText>
-                        <strong>Pages:</strong> {publication.pages}
-                      </CardText>
-                      <Button style={{ backgroundColor: "var(--primary-purple)", color: "var(--primary-white)" }} onClick={() => handleViewMore(publication)}>
-                        View More Details
-                      </Button>
-                    </CardBody>
-                  </Col>
-                </Row>
-              </Card>
-            </Col>
-          ))}
-        </Row>
+        <PublicationSearching
+          filterFields={filterFields}
+          setFilterFields={setFilterFields}
+          setIsSearching={setIsSearching}
+        />
 
-        {/* Pagination */}
-        <Pagination aria-label="Page navigation example">
-          {[...Array(totalPages).keys()].map((page) => (
-            <PaginationItem key={page + 1} active={page + 1 === currentPage}>
-              <PaginationLink onClick={() => handlePageChange(page + 1)} style={page + 1 === currentPage ? { backgroundColor: "var(--primary-purple)", color: "var(--primary-white)"}:{}}>
-                {page + 1}
-              </PaginationLink>
-            </PaginationItem>
-          ))}
-        </Pagination>
+        {publicationsLoading ? (
+          <div className="text-center space-top">
+            <Spinner style={{ color: "var(--primary-purple)" }} />{" "}
+          </div>
+        ) : (
+          <>
+            {publications?.length ? (
+              <>
+                <TableContainer
+                  columns={visibleColumns}
+                  data={publications}
+                  isGlobalFilter={true}
+                  isAddOptions={false}
+                  customPageSize={10}
+                  className="custom-header-css"
+                  isPagination={false}
+                />
+                <Pagination
+                  totalData={totalPublications}
+                  setLimit={setLimit}
+                  setPageCount={setPageCount}
+                  limit={limit}
+                  pageCount={pageCount}
+                  currentPage={pageCount}
+                />
+              </>
+            ) : (
+              <h1 className="text-center space-top">No publications Found</h1>
+            )}
+          </>
+        )}
 
-         {/* Modal for Publication Details */}
-         <Modal isOpen={modalOpen} toggle={toggleModal}>
-          <ModalHeader
-           toggle={toggleModal}>
-            {selectedPublication ? selectedPublication.title : ""}
-          </ModalHeader>
+        {/* Update Modal */}
+        <Modal isOpen={isUpdateModalOpen} toggle={toggleUpdateModal}>
+          <ModalHeader toggle={toggleUpdateModal}>Update Record</ModalHeader>
           <ModalBody>
-            {selectedPublication && (
-              <div>
-                <p><strong>Author:</strong> {selectedPublication.author}</p>
-                <p><strong>Publication Date:</strong> {selectedPublication.publicationDate}</p>
-                <p><strong>Journal:</strong> {selectedPublication.journal}</p>
-                <p><strong>Volume:</strong> {selectedPublication.volume}</p>
-                <p><strong>Pages:</strong> {selectedPublication.pages}</p>
-                <a
-                  href={`https://dummyurl.com/${selectedPublication.id}`} 
-                  target="_blank"
-                  rel="demo"
+            <Row>
+              <Col md={12}>
+                <label>Status</label>
+                <Input
+                  type="select"
+                  name="status"
+                  value={selectedRecord?.status}
+                  onChange={handleInputChange}
+                  className="mb-3"
                 >
-                  View Full Publication
+                  {["Pending", "Declined", "Cancelled", "Published"].map(
+                    (status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    )
+                  )}
+                </Input>
+              </Col>
+            </Row>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              style={{
+                backgroundColor: "var(--primary-purple)",
+                color: "var(--primary-white)",
+              }}
+              onClick={confirmUpdateRecord}
+            >
+              Save
+            </Button>
+            <Button color="secondary" onClick={toggleUpdateModal}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </Modal>
+
+        {/* View Modal */}
+        <Modal isOpen={isViewModalOpen} toggle={toggleViewModal}>
+          <ModalHeader toggle={toggleViewModal}>View Record</ModalHeader>
+          <ModalBody>
+            <div className="model-format">
+              <p>
+                <strong>Title</strong>
+              </p>
+              <p>: {selectedRecord?.opportunityId?.title}</p>
+
+              <p>
+                <strong>Post Date</strong>
+              </p>
+              <p>: {new Date(selectedRecord?.createdAt).toLocaleString()}</p>
+
+              <p>
+                <strong>Influencer</strong>
+              </p>
+              <p>: {selectedRecord?.influencerId?.username}</p>
+
+              <p>
+                <strong>Social Network</strong>
+              </p>
+              <p>: {selectedRecord?.influencerId?.platform}</p>
+
+              <p>
+                <strong>Status</strong>
+              </p>
+              <p>
+                : <span>{selectedRecord?.status}</span>
+              </p>
+
+              <p>
+                <strong>Type</strong>
+              </p>
+              <p>: {selectedRecord?.type}</p>
+
+              <p>
+                <strong>Publication Link</strong>
+              </p>
+              <p className="publicatio-link-box">
+                :&nbsp;
+                <a
+                  className="publication-link"
+                  href={selectedRecord?.publicationLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {selectedRecord?.publicationLink}
                 </a>
-              </div>
+              </p>
+
+              <p>
+                <strong>Engagement Rate (ER)</strong>
+              </p>
+              <p>: {selectedRecord?.engagementRate}</p>
+
+              <p>
+                <strong>Follower Count</strong>
+              </p>
+              <p>: {selectedRecord?.followerCount}</p>
+
+              <p>
+                <strong>Like Count</strong>
+              </p>
+              <p>: {selectedRecord?.likeCount}</p>
+
+              <p>
+                <strong>Comments Count</strong>
+              </p>
+              <p>: {selectedRecord?.commentCount}</p>
+
+              <p>
+                <strong>Share Count</strong>
+              </p>
+              <p>: {selectedRecord?.shareCount}</p>
+            </div>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button color="secondary" onClick={toggleViewModal}>
+              Close
+            </Button>
+          </ModalFooter>
+        </Modal>
+
+        <Modal
+          isOpen={isViewImageModalOpen} // Control modal visibility
+          toggle={toggleViewImageModal} // Close modal on background click
+          size="lg"
+        >
+          <ModalBody>
+            {selectedImage && (
+              <img
+                src={getImageUrl(selectedImage)}
+                alt="Selected"
+                className="publication-image"
+              />
             )}
           </ModalBody>
+          <ModalFooter>
+            <Button color="secondary" onClick={toggleViewImageModal}>
+              Close
+            </Button>
+          </ModalFooter>
         </Modal>
       </div>
     </div>
   );
 }
-
-PublicationsListPage.propTypes = {
-  preGlobalFilteredRows: PropTypes.any,
-};
 
 export default PublicationsListPage;

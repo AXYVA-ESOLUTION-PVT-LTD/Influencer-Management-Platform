@@ -15,21 +15,16 @@ import {
 } from "reactstrap";
 import Pagination from "../../components/Common/Pagination";
 // Import components
-import Breadcrumbs from "../../components/Common/Breadcrumb";
 import TableContainer from "../../components/Common/TableContainer";
-import publicationData from "../../data/publicationData";
 import PublicationSearching from "../../components/Publications/PublicationSearching";
 import ColumnSelector from "../../components/Common/ColumnSelector";
 import "../../assets/themes/colors.scss";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  deletePublication,
   getPublication,
-  updatePublication,
   updatePublicationStatus,
 } from "../../store/publication/actions";
-import { toast } from "react-toastify";
-import axios from "axios";
+import { Link } from "react-router-dom";
 function PublicationsPage() {
   const [data, setData] = useState([]);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -164,6 +159,18 @@ function PublicationsPage() {
         Header: "Influencer",
         accessor: "influencerId.username",
         isVisible: filterHeader.influencer,
+        Cell: ({ row }) => (
+          <Link
+            to={`/influencers/${row.original.influencerId._id}`}
+            style={{
+              color: "blue",
+              textDecoration: "underline",
+              cursor: "pointer",
+            }}
+          >
+            {row.original.influencerId.username}
+          </Link>
+        ),
       },
       {
         Header: "Social Network",

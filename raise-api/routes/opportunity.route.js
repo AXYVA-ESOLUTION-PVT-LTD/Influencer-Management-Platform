@@ -67,6 +67,13 @@ router.post(
   Opportunity.removeOpportunityImage
 );
 
+router.post(
+  "/trackOpportunityView/:opportunityId",
+  auth,
+  Opportunity.trackOpportunityView
+);
+
+
 router.post("/csvupload", auth, upload.single("file"), Opportunity.csvupload);
 
 module.exports = router;

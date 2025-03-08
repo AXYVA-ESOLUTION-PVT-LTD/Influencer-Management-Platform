@@ -189,7 +189,7 @@ function* fetchInstagramDemographics() {
 function* fetchYouTubeUserData() {
   try {
     const user = JSON.parse(localStorage.getItem("user"));
-    const accessToken = user?.accessToken;
+    const accessToken = user?.refreshToken;
 
     if (!accessToken) {
       throw new Error("Access token not found in localStorage");
@@ -210,7 +210,7 @@ function* fetchYouTubeUserData() {
 function* fetchYouTubeMonthlyPerformanceAnalytics() {
   try {
     const user = JSON.parse(localStorage.getItem("user"));
-    const accessToken = user?.accessToken;
+    const accessToken = user?.refreshToken;
     
     if (!accessToken) { 
       throw new Error("Access token not found in localStorage");
@@ -219,7 +219,6 @@ function* fetchYouTubeMonthlyPerformanceAnalytics() {
     const response = yield call(getYouTubeMonthlyPerformanceAnalyticsUrl, accessToken);
 
     if (response?.status === "Success") {
-      console.log(response)
       yield put(getYouTubeMonthlyPerformanceAnalyticsSuccess(response.result.data));
     } else {
       throw new Error(response?.result?.message || "Failed to fetch YouTube monthly performance analytics.");
@@ -232,7 +231,7 @@ function* fetchYouTubeMonthlyPerformanceAnalytics() {
 function* fetchYouTubeDemographics() {
   try {
     const user = JSON.parse(localStorage.getItem("user"));
-    const accessToken = user?.accessToken;
+    const accessToken = user?.refreshToken;
 
     if (!accessToken) {
       throw new Error("Access token not found in localStorage");

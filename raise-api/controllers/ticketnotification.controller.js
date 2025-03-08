@@ -30,12 +30,14 @@ async function _createTicketNotification(req, res) {
       return res.send(json);
     }
 
-    const { title, description } = req.body;
+    const { title, description , ticketId } = req.body;
+  
     const user = req.user;
     const notification = await TICKET_NOTIFICATION_COLLECTION.create({
       title,
       description,
       from: user._id,
+      ticketId : ticketId,
     });
 
     await notification.populate({

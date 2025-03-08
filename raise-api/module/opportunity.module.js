@@ -33,6 +33,10 @@ const opportunitySchema = new mongoose.Schema(
       type: String,
       default: "Active",
     },
+    views: {
+      type: [mongoose.Schema.Types.ObjectId],
+      default: [],
+    },
     isDeleted: {
       type: Boolean,
       default: false,

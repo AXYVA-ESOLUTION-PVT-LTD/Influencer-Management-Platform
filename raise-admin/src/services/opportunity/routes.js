@@ -9,3 +9,4 @@ export const GET_TICKET = "/ticket/getTickets";
 export const CREATE_TICKET = "/ticket/createTicket";
 export const UPDATE_TICKET = "/ticket/updateTicketById";
 export const DELETE_TICKET = "/ticket/removeTicketById";
+export const TRACK_OPPORTUNITY_VIEW_URL = "/opportunity/trackOpportunityView";
