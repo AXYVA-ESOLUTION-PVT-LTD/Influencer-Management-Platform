@@ -13,7 +13,7 @@ import {
   uploadCsvUrl,
   uploadOpportunityImageUrl,
 } from "../../services/opportunity/index";
-import { addRoleFail } from "../actions";
+import { addRoleFail, createTicketNotification } from "../actions";
 import {
   createOpportunitySuccess,
   createTicketError,
@@ -23,6 +23,7 @@ import {
   deleteTicketError,
   deleteTicketSuccess,
   fetchTicketsError,
+  fetchTicketsRequest,
   fetchTicketsSuccess,
   getOpportunity,
   getOpportunityError,
@@ -272,7 +273,7 @@ function* onFetchTickets(action) {
 }
 
 function* onCreateTicket(action) {
-  const { influencerId, opportunityId, description } = action.payload;
+  const { influencerId, opportunityId, description, title } = action.payload;
   const token = localStorage.getItem("authUser");
   try {
     const response = yield call(
@@ -281,6 +282,12 @@ function* onCreateTicket(action) {
       token
     );
     yield put(createTicketSuccess(response.result.data));
+    const newTicket = {
+      title: title,
+      description: description,
+      ticketId: response.result.data._id,
+    };
+    yield put(createTicketNotification(newTicket));
   } catch (error) {
     yield put(createTicketError(error.message || "Failed to create ticket"));
   }
@@ -295,7 +302,21 @@ function* onUpdateTicket(action) {
       { influencerId, opportunityId, couponCode, id },
       token
     );
-    yield put(updateTicketSuccess(response.data));
+
+    if (response?.status === STATUS.SUCCESS) {
+      yield put(updateTicketSuccess());
+      yield put(
+        fetchTicketsRequest({
+          limit: 10,
+          pageCount: 0,
+          brand: "",
+          title: "",
+          influencerName: "",
+        })
+      );
+    } else {
+      throw new Error(response?.result?.error || "Failed to update ticket.");
+    }
   } catch (error) {
     yield put(
       updateTicketError(error.response?.data || "Failed to update ticket")
@@ -308,7 +329,16 @@ function* onDeleteTicket(action) {
   const token = localStorage.getItem("authUser");
   try {
     yield call(deleteTicketUrl, ticketId, token);
-    yield put(deleteTicketSuccess({ id: ticketId }));
+    yield put(deleteTicketSuccess());
+    yield put(
+      fetchTicketsRequest({
+        limit: 10,
+        pageCount: 0,
+        brand: "",
+        title: "",
+        influencerName: "",
+      })
+    );
   } catch (error) {
     yield put(
       deleteTicketError(error.response?.data || "Failed to delete ticket")

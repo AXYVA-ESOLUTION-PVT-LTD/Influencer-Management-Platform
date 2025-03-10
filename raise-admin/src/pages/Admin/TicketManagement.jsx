@@ -415,13 +415,6 @@ const TicketManagement = () => {
       setValidationErrors({ transactionId: false, status: false });
       handleCloseEditTransactionModal();
 
-      // get Transaction
-      dispatch(
-        getTransaction({
-          limit: newLimit,
-          pageCount: newPageCount,
-        })
-      );
     }
   };
 

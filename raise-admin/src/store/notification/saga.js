@@ -7,7 +7,7 @@ import {
   createNotificationFail,
   createNotificationSuccess,
   createTicketNotificationFail,
-  createTicketNotificationSuccess, fetchUnreadNotifications, fetchUnreadNotificationsFail, fetchUnreadNotificationsSuccess, getTicketNotificationFail,
+  createTicketNotificationSuccess, fetchUnreadNotifications, fetchUnreadNotificationsFail, fetchUnreadNotificationsSuccess, getTicketNotification, getTicketNotificationFail,
   getTicketNotificationSuccess, markNotificationAsReadFail, markNotificationAsReadSuccess, updateTicketNotificationFail,
   updateTicketNotificationSuccess
 } from "./actions";
@@ -77,7 +77,18 @@ function* updateTicketNotifications(action) {
         isLoading: false,
         autoClose: true,
       });
-      yield put(updateTicketNotificationSuccess(response.result.data));
+      yield put(updateTicketNotificationSuccess());
+
+      yield put(
+        getTicketNotification({
+          limit: 10,
+          pageCount: 0,
+          title: "",
+          name: "",
+          email: "",
+          status: "",
+        })
+      );
     } else {
       throw new Error(response?.result?.error || 'Failed to update notification. Please try again later.');
     }

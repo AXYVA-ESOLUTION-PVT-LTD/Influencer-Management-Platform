@@ -54,7 +54,7 @@ const InfluencerManagement = (props) => {
 
   const dispatch = useDispatch();
 
-  const { influencers, loading, error, totalInfluencers, currentPage } =
+  const { influencers, loading, error, totalInfluencers, addInfluencerLoading, currentPage } =
     useSelector((state) => state.Influencer);
 
   const createInfluncerValidation = useFormik({
@@ -153,7 +153,7 @@ const InfluencerManagement = (props) => {
   });
 
   useEffect(() => {
-    if (!loading && isSubmitting) {
+    if (!addInfluencerLoading && isSubmitting) {
       if (!error) {
         createInfluncerValidation.resetForm();
         toggleCreateModal();
@@ -163,7 +163,7 @@ const InfluencerManagement = (props) => {
       }
       setIsSubmitting(false);
     }
-  }, [loading, error, isSubmitting]);
+  }, [addInfluencerLoading, error, isSubmitting]);
 
   const formatErrorMessage = (error) => {
     if (!error) return null;

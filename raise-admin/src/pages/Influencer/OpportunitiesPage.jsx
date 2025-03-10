@@ -53,7 +53,6 @@ const OpportunitiesPage = (props) => {
     totalOpportunities,
     currentPage,
     totalRecords,
-    ticketId,
   } = useSelector((state) => state.Opportunity);
   // const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("1");
@@ -186,6 +185,7 @@ const OpportunitiesPage = (props) => {
       createTicketRequest({
         influencerId: influencer,
         opportunityId: selectedOpportunity._id,
+        title: `Applied for ${selectedOpportunity?.title}`,
         description,
       })
     );
@@ -209,21 +209,10 @@ const OpportunitiesPage = (props) => {
       ...prevApplied,
       selectedOpportunity._id,
     ]);
-
+    
+    setDescription("");
     setModalOpen(false);
   };
-
-  useEffect(() => {
-    if (ticketId) {
-      const newTicket = {
-        title: `Applied for ${selectedOpportunity?.title}`,
-        description: description,
-        ticketId: ticketId,
-      };
-      dispatch(createTicketNotification(newTicket));
-      setDescription("");
-    }
-  }, [ticketId]);
 
   const toggle = (tab) => {
     if (activeTab !== tab) {

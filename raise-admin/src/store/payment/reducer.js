@@ -53,6 +53,12 @@ const initialState = {
   error: null,
   paymentMethods: null,
   paymentMethodsloading :false,
+  createTransactionLoading: false,
+  updateTransactionLoading: false,
+  deleteTransactionLoading: false,
+  getWalletLoading: false,
+  updateWalletLoading: false,
+  getWalletAmountLoading: false,
   // fieldValue: null,
   // fieldNames: null,
   updatedField: null,
@@ -91,84 +97,81 @@ const Payment = (state = initialState, action) => {
     case GET_WALLET_AMOUNT_REQUEST:
       return {
         ...state,
-        loading: true,
+        getWalletAmountLoading: true,
         error: null,
       };
     case GET_WALLET_AMOUNT_SUCCESS:
       return {
         ...state,
-        loading: false,
+        getWalletAmountLoading: false,
         walletAmount: action.payload.balance,
         error: null,
       };
     case GET_WALLET_AMOUNT_ERROR:
       return {
         ...state,
-        loading: false,
+        getWalletAmountLoading: false,
         error: action.payload,
       };
     case CREATE_TRANSACTION_REQUEST:
       return {
         ...state,
-        loading: true,
+        createTransactionLoading: true,
         error: null,
       };
     case CREATE_TRANSACTION_SUCCESS:
       return {
         ...state,
-        loading: false,
+        createTransactionLoading: false,
         error: null,
       };
     case CREATE_TRANSACTION_ERROR:
       return {
         ...state,
-        loading: false,
+        createTransactionLoading: false,
         error: action.payload,
       };
-    case REMOVE_TRANSACTION_REQUEST:
-      return {
-        ...state,
-        loading: true,
-        error: null,
-      };
-    case REMOVE_TRANSACTION_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        transaction: state.transaction.filter(
-          (transaction) => transaction._id !== action.payload
-        ),
-        error: null,
-      };
-    case REMOVE_TRANSACTION_ERROR:
-      return {
-        ...state,
-        loading: false,
-        error: action.payload,
-      };
-    // Update transaction actions
+      // Update transaction actions
+      case REMOVE_TRANSACTION_REQUEST:
+        return {
+          ...state,
+          deleteTransactionLoading: true,
+          error: null,
+        };
+      case REMOVE_TRANSACTION_SUCCESS:
+        return {
+          ...state,
+          deleteTransactionLoading: false,
+          error: null,
+        };
+      case REMOVE_TRANSACTION_ERROR:
+        return {
+          ...state,
+          deleteTransactionLoading: false,
+          error: action.payload,
+        };
     case UPDATE_TRANSACTION_REQUEST:
       return {
         ...state,
-        loading: true,
+        updateTransactionLoading: true,
         error: null,
       };
     case UPDATE_TRANSACTION_SUCCESS:
       return {
         ...state,
-        loading: false,
+        updateTransactionLoading: false,
         error: null,
       };
     case UPDATE_TRANSACTION_ERROR:
       return {
         ...state,
-        loading: false,
+        updateTransactionLoading: false,
         error: action.payload,
       };
     case GET_WALLET:
       return {
         ...state,
-        loading: true,
+        getWalletLoading: true,
         error: null,
       };
     case GET_WALLET_SUCCESS:
@@ -176,20 +179,20 @@ const Payment = (state = initialState, action) => {
         ...state,
         wallets: [...action.payload.wallets],
         totalWallets: action.payload.totalWallets,
-        loading: false,
+        getWalletLoading: false,
         error: null,
       };
     case GET_WALLET_FAIL:
       return {
         ...state,
-        loading: false,
+        getWalletLoading: false,
         error: action.payload,
       };
 
     case UPDATE_WALLET:
       return {
         ...state,
-        loading: true,
+        updateWalletLoading: true,
         error: null,
       };
     case UPDATE_WALLET_SUCCESS:
@@ -199,13 +202,13 @@ const Payment = (state = initialState, action) => {
         wallets: state.wallets.map((wallet) =>
           wallet._id === updatedWalletId ? { ...action.payload } : wallet
         ),
-        loading: false,
+        updateWalletLoading: false,
       };
     case UPDATE_WALLET_FAIL:
       return {
         ...state,
         error: action.payload,
-        loading: false,
+        updateWalletLoading: false,
       };
     case GET_PAYMENT_METHOD:
       return {

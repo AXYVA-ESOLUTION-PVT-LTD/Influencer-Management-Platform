@@ -42,10 +42,11 @@ const initialState = {
   opportunitiesData: [],
   csvUploadResult: [],
   totalOpportunities: null,
-  ticketId: null,
   totalRecords: null,
   currentPage: null,
   loading: false,
+  updateLoading: false,
+  deleteLoading: false,
   trackingOpportunityViewLoading: false,
   error: null,
   trackingOpportunityViewError  : null
@@ -218,64 +219,53 @@ const Opportunity = (state = initialState, action) => {
       return {
         ...state,
         loading: true,
-        ticketId: null,
         error: null,
       };
     case CREATE_TICKET_SUCCESS:
       return {
         ...state,
         loading: false,
-        ticketId: action.payload._id,
         error: null,
       };
     case CREATE_TICKET_ERROR:
       return {
         ...state,
         loading: false,
-        ticketId: null,
         error: action.payload,
       };
 
     case UPDATE_TICKET_REQUEST:
       return {
         ...state,
-        loading: true,
+        updateLoading: true,
         error: null,
       };
-      case UPDATE_TICKET_SUCCESS:
-        return {
-          ...state,
-          loading: false,
-          opportunitiesData: state.opportunitiesData.map((ticket) =>
-            ticket._id === action.payload.data._id ? action.payload.data : ticket
-          ),
-          error: null,
-        };
+    case UPDATE_TICKET_SUCCESS:
+      return {
+        ...state,
+        updateLoading: false,
+      };
     case UPDATE_TICKET_ERROR:
       return {
         ...state,
-        loading: false,
+        updateLoading: false,
         error: action.payload,
       };
     case DELETE_TICKET_REQUEST:
       return {
         ...state,
-        loading: true,
+        deleteLoading: true,
         error: null,
       };
-      case DELETE_TICKET_SUCCESS:
-        return {
-          ...state,
-          loading: false,
-          opportunitiesData: state.opportunitiesData.filter(
-            (ticket) => ticket._id !== action.payload.id
-          ),
-          error: null,
-        };
+    case DELETE_TICKET_SUCCESS:
+      return {
+        ...state,
+        deleteLoading: false,
+      };
     case DELETE_TICKET_ERROR:
       return {
         ...state,
-        loading: false,
+        deleteLoading: false,
         error: action.payload,
       };
 

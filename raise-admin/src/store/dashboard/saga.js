@@ -15,7 +15,7 @@ import {
 } from "./actionTypes";
 import { getTikTokUserDataSuccess, getTikTokUserDataFail, getMonthlyPerformanceAnalyticsSuccess, getMonthlyPerformanceAnalyticsFail, getTicketEngagementStatisticsSuccess, getTicketEngagementStatisticsFail, getFacebookUserDataSuccess, getFacebookUserDataFail, getFacebookMonthlyPerformanceAnalyticsSuccess, getFacebookMonthlyPerformanceAnalyticsFail, getInstagramUserDataSuccess, getInstagramUserDataFail, getInstagramMonthlyPerformanceAnalyticsSuccess, getInstagramMonthlyPerformanceAnalyticsFail, getInstagramDemographicsSuccess, getInstagramDemographicsFail, getYouTubeMonthlyPerformanceAnalyticsSuccess, getYouTubeMonthlyPerformanceAnalyticsFail, getYouTubeUserDataFail, getYouTubeUserDataSuccess, getYouTubeDemographicsSuccess, getYouTubeDemographicsFail } from "./actions";
 import { getFacebookMonthlyPerformanceAnalyticsUrl, getFacebookUserDataUrl, getInstagramDemographicsUrl, getInstagramMonthlyPerformanceAnalyticsUrl, getInstagramUserDataUrl, getMonthlyPerformanceAnalyticsUrl, getTicketEngagementStatisticsUrl, getTikTokUserDataUrl, getYouTubeDemographicsUrl, getYouTubeMonthlyPerformanceAnalyticsUrl, getYouTubeUserDataUrl } from "../../services/dashboard";
-
+import STATUS from "../../constants/status";
 
 function* fetchTikTokUserData() {
   try {
@@ -28,8 +28,7 @@ function* fetchTikTokUserData() {
 
     const response = yield call(getTikTokUserDataUrl, accessToken);
     
-    if (response?.status == "Success") {
-      console.log("response: " + JSON.stringify(response));
+    if (response?.status == STATUS.SUCCESS) {
       yield put(getTikTokUserDataSuccess(response?.result?.userInfo?.user));
       
     } else {
@@ -51,7 +50,7 @@ function* fetchMonthlyPerformanceAnalytics() {
 
     const response = yield call(getMonthlyPerformanceAnalyticsUrl, accessToken);
 
-    if (response?.status === "Success") {
+    if (response?.status === STATUS.SUCCESS) {
       yield put(getMonthlyPerformanceAnalyticsSuccess(response.result));
     } else {
       throw new Error(response?.result?.message || "Failed to fetch monthly performance analytics.");
@@ -72,7 +71,7 @@ function* fetchFacebookUserData() {
 
     const response = yield call(getFacebookUserDataUrl, accessToken);
 
-    if (response?.status === "Success") {
+    if (response?.status === STATUS.SUCCESS) {
       yield put(getFacebookUserDataSuccess(response.userInfo));
     } else {
       throw new Error(response?.result?.message || "Failed to fetch Facebook user data.");
@@ -93,7 +92,7 @@ function* fetchFacebookMonthlyPerformanceAnalytics() {
 
     const response = yield call(getFacebookMonthlyPerformanceAnalyticsUrl, accessToken);
 
-    if (response?.status === "Success") {
+    if (response?.status === STATUS.SUCCESS) {
       yield put(getFacebookMonthlyPerformanceAnalyticsSuccess(response.result));
     } else {
       throw new Error(response?.result?.message || "Failed to fetch Facebook monthly performance analytics.");
@@ -113,7 +112,7 @@ function* fetchTicketEngagementStatistics() {
 
     const response = yield call(getTicketEngagementStatisticsUrl, token);
 
-    if (response?.status === "Success") {
+    if (response?.status === STATUS.SUCCESS) {
       yield put(getTicketEngagementStatisticsSuccess(response?.result?.data));
     } else {
       throw new Error(response?.result?.message || "Failed to fetch ticket engagement statistics.");
@@ -134,7 +133,7 @@ function* fetchInstagramUserData() {
 
     const response = yield call(getInstagramUserDataUrl, accessToken);
 
-    if (response?.status === "Success") {
+    if (response?.status === STATUS.SUCCESS) {
       yield put(getInstagramUserDataSuccess(response.userInfo));
     } else {
       throw new Error(response?.result?.message || "Failed to fetch Instagram user data.");
@@ -155,7 +154,7 @@ function* fetchInstagramMonthlyPerformanceAnalytics() {
 
     const response = yield call(getInstagramMonthlyPerformanceAnalyticsUrl, accessToken);
 
-    if (response?.status === "Success") {
+    if (response?.status === STATUS.SUCCESS) {
       yield put(getInstagramMonthlyPerformanceAnalyticsSuccess(response.result));
     } else {
       throw new Error(response?.result?.message || "Failed to fetch Instagram monthly performance analytics.");
@@ -176,7 +175,7 @@ function* fetchInstagramDemographics() {
 
     const response = yield call(getInstagramDemographicsUrl, accessToken);
 
-    if (response?.status === "Success") {
+    if (response?.status === STATUS.SUCCESS) {
       yield put(getInstagramDemographicsSuccess(response.result.data));
     } else {
       throw new Error(response?.result?.message || "Failed to fetch Instagram demographics.");
@@ -197,7 +196,7 @@ function* fetchYouTubeUserData() {
 
     const response = yield call(getYouTubeUserDataUrl, accessToken);
 
-    if (response?.status === "Success") {
+    if (response?.status === STATUS.SUCCESS) {
       yield put(getYouTubeUserDataSuccess(response.result.data));
     } else {
       throw new Error(response?.result?.message || "Failed to fetch YouTube user data.");
@@ -218,7 +217,7 @@ function* fetchYouTubeMonthlyPerformanceAnalytics() {
 
     const response = yield call(getYouTubeMonthlyPerformanceAnalyticsUrl, accessToken);
 
-    if (response?.status === "Success") {
+    if (response?.status === STATUS.SUCCESS) {
       yield put(getYouTubeMonthlyPerformanceAnalyticsSuccess(response.result.data));
     } else {
       throw new Error(response?.result?.message || "Failed to fetch YouTube monthly performance analytics.");
@@ -239,7 +238,7 @@ function* fetchYouTubeDemographics() {
 
     const response = yield call(getYouTubeDemographicsUrl, accessToken);
 
-    if (response?.status === "Success") {
+    if (response?.status === STATUS.SUCCESS) {
       yield put(getYouTubeDemographicsSuccess(response.result.data));
     } else {
       throw new Error(response?.result?.message || "Failed to fetch YouTube demographics.");

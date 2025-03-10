@@ -34,7 +34,7 @@ const BrandManagement = (props) => {
 
   const dispatch = useDispatch();
 
-  const { brands, loading, error, totalBrands } = useSelector(
+  const { brands, loading, error, addBrandLoading, totalBrands } = useSelector(
     (state) => state.Brand
   );
 
@@ -138,7 +138,7 @@ const BrandManagement = (props) => {
   });
 
   useEffect(() => {
-    if (!loading && isSubmitting) {
+    if (!addBrandLoading && isSubmitting) {
       if (!error) {
         createBrandValidation.resetForm();
         toggleCreateModal();
@@ -148,7 +148,7 @@ const BrandManagement = (props) => {
       }
       setIsSubmitting(false);
     }
-  }, [loading, error, isSubmitting]);
+  }, [addBrandLoading, error, isSubmitting]);
 
   const formatErrorMessage = (error) => {
     if (!error) return null;

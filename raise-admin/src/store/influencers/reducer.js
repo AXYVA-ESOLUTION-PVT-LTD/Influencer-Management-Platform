@@ -51,6 +51,8 @@ const INIT_STATE = {
   loadingDemographicData: false,
   loadingPublicationData: false,
   loadingMediaData: false,
+  addInfluencerLoading: false,
+  updateInfluencerLoading: false,
   error: {},
   errorProfile: {},
   errorBasicData: {},
@@ -86,45 +88,37 @@ const Influencer = (state = INIT_STATE, action) => {
     case ADD_INFLUENCER:
       return {
         ...state,
-        loading: true,
+        addInfluencerLoading: true,
         error: null,
       };
     case ADD_INFLUENCER_SUCCESS:
       return {
         ...state,
-        influencers: [...state.influencers, action.payload],
-        totalInfluencers : state.totalInfluencers + 1,
-        loading:false
+        addInfluencerLoading: false,
       };
     case ADD_INFLUENCER_FAIL:
       return {
         ...state,
         error: action.payload,
-        loading:false
+        addInfluencerLoading: false,
       };
 
     case UPDATE_INFLUENCER:
       return {
         ...state,
-        loading: true,
+        updateInfluencerLoading: true,
         error: null,
       };
     case UPDATE_INFLUENCER_SUCCESS:
-      const { _id: updatedInfluencerId } = action.payload;
       return {
         ...state,
-        influencers: state.influencers.map((influencer) =>
-          influencer._id === updatedInfluencerId
-            ? { ...action.payload }
-            : influencer
-        ),
-        loading: false,
+        updateInfluencerLoading: false,
       };
     case UPDATE_INFLUENCER_FAIL:
       return {
         ...state,
         error: action.payload,
-        loading: false,
+        updateInfluencerLoading: false,
       };
     case GET_INFLUENCER_PROFILE:
       return { ...state, loadingProfile: true, errorProfile: null };

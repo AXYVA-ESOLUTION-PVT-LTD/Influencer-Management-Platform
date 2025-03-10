@@ -19,6 +19,7 @@ import {
   addBrandSuccess,
   getAllPublicationsByBrandFail,
   getAllPublicationsByBrandSuccess,
+  getBrand,
   getBrandFail,
   getBrandListFail,
   getBrandListSuccess,
@@ -82,9 +83,6 @@ function* fetchBrandList(action) {
   }
 }
 
-
-
-
 // Add a new influencer
 function* onAddBrand(action) {
   // const id = toast.loading("Creating brand...");
@@ -106,6 +104,7 @@ function* onAddBrand(action) {
         }
       );
       yield put(addBrandSuccess(response.result.data.brand));
+      yield put(getBrand({ roleName: "Brand", limit: 10, pageCount: 0, allrecord: false }));
     } else {
       if (
         response?.result?.details &&
@@ -155,6 +154,7 @@ function* onUpdateBrand(action) {
         autoClose: true,
       });
       yield put(updateBrandSuccess(response?.result?.data?.brand));
+      yield put(getBrand({ roleName: "Brand", limit: 10, pageCount: 0, allrecord: false }));
     } else {
       throw new Error(
         response?.result?.error ||
