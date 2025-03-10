@@ -6,6 +6,8 @@ const INSTAGRAM_APP_SECRET = process.env.INSTAGRAM_APP_SECRET;
 const INSTAGRAM_REDIRECT_URI = process.env.INSTAGRAM_REDIRECT_URI;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 const USER_COLLECTION = require("../module/user.module");
+const USER_PROFILE_COLLECTION = require("../module/userProfile.module");
+const USER_POST_COLLECTION = require("../module/userPost.module");
 const USER_DATA_COLLECTION = require("../module/userData.module");
 const AUDIENCE_INSIGHT_COLLECTION = require("../module/audienceInsight.module");
 const MONTHLY_PERFORMANCE_COLLECTION = require("../module/monthlyPerformance.module");
@@ -236,6 +238,121 @@ const isToday = (date) => {
   );
 };
 
+
+async function fetchInstagramUserProfileInfo(accessToken, userId) {
+  try {
+    // Check if the profile already exists
+    const existingProfile = await USER_PROFILE_COLLECTION.findOne({ userId });
+
+    if (existingProfile) {
+      console.log("⏭️ Instagram profile already exists. Skipping insertion.");
+      return; // Exit the function if the profile exists
+    }
+
+    // Fetch user profile data from Instagram API
+    const profileUrl = `https://graph.instagram.com/me?fields=id,username,account_type,followers_count,follows_count,media_count,profile_picture_url,biography&access_token=${accessToken}`;
+    const userProfileResponse = await fetch(profileUrl, { method: "GET" });
+    const userProfile = await userProfileResponse.json();
+
+    if (userProfile.error) {
+      throw new Error(userProfile.error.message);
+    }
+
+    // Insert new Instagram profile into the database
+    await USER_PROFILE_COLLECTION.create({
+      name: userProfile.username,
+      platform: CONSTANT.INSTAGRAM, 
+      description: userProfile.biography || "",
+      profile_link: `https://www.instagram.com/${userProfile.username}`,
+      picture_url: userProfile.profile_picture_url || "",
+      follower_count: userProfile.followers_count || 0,
+      follows_count: userProfile.follows_count || 0,
+      total_videos : userProfile.media_count || 0,
+      userId,
+    });
+
+    console.log("✅ Instagram profile inserted successfully!");
+  } catch (error) {
+    console.error("❌ Error fetching Instagram user data:", error.message);
+  }
+}
+
+async function fetchInstagramUserMedia(accessToken, userId) {
+  try {
+    let nextPageUrl = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,timestamp,thumbnail_url&access_token=${accessToken}`;
+    
+    let totalInserted = 0;
+
+    do {
+      // Fetch media posts data
+      const mediaResponse = await fetch(nextPageUrl, { method: "GET" });
+      const mediaData = await mediaResponse.json();
+
+      if (mediaData.error) {
+        throw new Error(mediaData.error.message);
+      }
+
+      console.log("Fetched Media Data:", JSON.stringify(mediaData));
+
+      // Extract post IDs for insights fetching
+      const postIds = mediaData.data.map((post) => post.id);
+      let insightsMap = {};
+
+      if (postIds.length > 0) {
+        // Fetch insights for all posts
+        const insightsUrl = `https://graph.instagram.com?ids=${postIds.join(",")}&fields=insights.metric(likes,comments,shares,reach,impressions,plays)&access_token=${accessToken}`;
+        const insightsResponse = await fetch(insightsUrl, { method: "GET" });
+        const insightsData = await insightsResponse.json();
+
+        console.log("Fetched Insights Data:", JSON.stringify(insightsData));
+
+        // Map insights data
+        for (const postId in insightsData) {
+          const insights = insightsData[postId]?.insights?.data || [];
+          insightsMap[postId] = insights.reduce((acc, metric) => {
+            acc[metric.name] = metric.values[0]?.value || 0;
+            return acc;
+          }, {});
+        }
+      }
+
+      // Prepare media posts for insertion
+      const mediaDocs = mediaData.data.map((post) => ({
+        post_id: post.id,
+        post_image_url: post.media_type === "VIDEO" ? post.thumbnail_url : post.media_url || "",
+        post_url: post.permalink,
+        post_title: post.caption || "",
+        post_created_time: new Date(post.timestamp),
+        platform: CONSTANT.INSTAGRAM,
+        comment_count: insightsMap[post.id]?.comments || 0,
+        like_count: insightsMap[post.id]?.likes || 0,
+        share_count: insightsMap[post.id]?.shares || 0,
+        view_count: post.media_type === "VIDEO" ? insightsMap[post.id]?.plays || 0 : 0,
+        userId: userId,
+      }));
+
+      // Insert only if not already present
+      for (const media of mediaDocs) {
+        const existingPost = await USER_POST_COLLECTION.findOne({ post_id: media.post_id });
+        if (!existingPost) {
+          await USER_POST_COLLECTION.create(media);
+          console.log(`✅ Inserted Post: ${media.post_id}`);
+          totalInserted++;
+        } else {
+          console.log(`⏭️ Skipped (Already Exists): ${media.post_id}`);
+        }
+      }
+
+      // Check if there is a next page
+      nextPageUrl = mediaData.paging?.next || null;
+    } while (nextPageUrl);
+
+    console.log(`🎉 Done! Total Posts Inserted: ${totalInserted}`);
+  } catch (error) {
+    console.error("❌ Error fetching Instagram media posts:", error.message);
+  }
+}
+
 async function _getInstagramUserData(req, res) {
   try {
     const accessToken = req.headers.authorization?.split(" ")[1];
@@ -276,6 +393,9 @@ async function _getInstagramUserData(req, res) {
       totalPosts: userInfo.media_count || 0,
       totalLikes: userInfo.totalLikes || 0,
     };
+
+    fetchInstagramUserProfileInfo(accessToken, userId);
+    fetchInstagramUserMedia(accessToken, userId);
 
     // Case 1: If no document exists, create new record
     if (!userData) {

@@ -3,9 +3,9 @@ import { Card, CardBody, CardTitle, CardText } from 'reactstrap';
 
 const MetricCard = ({ title, value }) => {
   return (
-    <Card className="text-left">
+    <Card className="text-left margin-bottom-metric-card">
       <CardBody>
-        <CardTitle tag="h6" className="mb-3">
+        <CardTitle tag="h6">
           {title}
         </CardTitle>
         <CardText tag="h3">{value}</CardText>

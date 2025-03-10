@@ -84,9 +84,9 @@ const TicketFiltering = ({ setFilterFields, filterFields, setIsSearching }) => {
               onChange={handleFilter}
             >
               <option value="">Select Status</option>
-              <option value="Pending">Pending</option>
-              <option value="Read">Read</option>
-              <option value="Completed">Completed</option>
+              <option value="Declined">Declined</option>
+              <option value="On Hold">On Hold</option>
+              <option value="Approved">Approved</option>
             </Input>
           </FormGroup>
         </Col>

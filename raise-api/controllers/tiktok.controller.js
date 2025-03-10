@@ -5,6 +5,8 @@ const CLIENT_ID = process.env.PROD_TIKTOK_CLIENT_ID;
 const CLIENT_SECRET = process.env.PROD_TIKTOK_CLIENT_SECRET;
 const REDIRECT_URI = process.env.PROD_REDIRECT_URI;
 const USER_COLLECTION = require("../module/user.module");
+const USER_PROFILE_COLLECTION = require("../module/userProfile.module");
+const USER_POST_COLLECTION = require("../module/userPost.module");
 const USER_DATA_COLLECTION = require("../module/userData.module");
 const MONTHLY_PERFORMANCE_COLLECTION = require("../module/monthlyPerformance.module");
 const jwt = require("jsonwebtoken");
@@ -266,6 +268,80 @@ const isToday = (date) => {
   );
 };
 
+async function fetchAndStoreTikTokProfile(userInfo, userId) {
+  try {
+    // Check if the profile already exists
+    const existingProfile = await USER_PROFILE_COLLECTION.findOne({ userId });
+
+    if (existingProfile) {
+      console.log("⏭️ TikTok profile already exists. Skipping insertion.");
+      return; // Exit the function if the profile exists
+    }
+
+    // Insert new TikTok profile into the database
+    await USER_PROFILE_COLLECTION.create({
+      name: userInfo?.data?.user?.username,
+      platform: CONSTANT.TIKTOK,
+      description: userInfo?.data?.user?.bio_description || "",
+      profile_link: userInfo?.data?.user?.profile_deep_link,
+      picture_url: userInfo?.data?.user?.avatar_large_url || userInfo?.data?.user?.avatar_url || "",
+      follower_count: userInfo?.data?.user?.follower_count || 0,
+      follows_count: userInfo?.data?.user?.following_count || 0,
+      total_videos: userInfo?.data?.user?.video_count || 0,
+      userId,
+    });
+
+    console.log("✅ TikTok profile inserted successfully!");
+  } catch (error) {
+    console.error("❌ Error inserting TikTok user data:", error.message);
+  }
+}
+
+async function fetchAndStoreTiktokVideo(videoData, userId) {
+  if (!videoData?.data?.videos || !Array.isArray(videoData.data.videos)) {
+    console.error("Invalid video data format");
+    return;
+  }
+
+  const videos = videoData.data.videos.map((video) => ({
+    post_id: video.id,
+    post_image_url: video.cover_image_url || "",
+    post_url: video.share_url,
+    post_title: video.title || "",
+    post_created_time: new Date(video.create_time * 1000), // Convert Unix timestamp to Date
+    platform: CONSTANT.TIKTOK,
+    comment_count: video.comment_count || 0,
+    like_count: video.like_count || 0,
+    share_count: video.share_count || 0,
+    view_count: video.view_count || 0,
+    userId, // Pass userId dynamically when calling this function
+  }));
+
+  try {
+    // Fetch existing post IDs from the database
+    const existingPosts = await USER_POST_COLLECTION.find(
+      { post_id: { $in: videos.map((v) => v.post_id) } },
+      { post_id: 1 }
+    );
+
+    const existingPostIds = new Set(existingPosts.map((post) => post.post_id));
+
+    // Filter out videos that already exist
+    const newVideos = videos.filter((video) => !existingPostIds.has(video.post_id));
+
+    if (newVideos.length === 0) {
+      console.log("No new videos to store.");
+      return;
+    }
+
+    // Insert only new videos
+    await USER_POST_COLLECTION.insertMany(newVideos);
+    console.log(`${newVideos.length} new videos stored successfully!`);
+  } catch (error) {
+    console.error("Error storing videos:", error);
+  }
+};
+
 async function _getTikTokUserData(req, res) {
   let accessToken = req.headers.authorization?.split(" ")[1];
 
@@ -350,6 +426,10 @@ async function _getTikTokUserData(req, res) {
       throw new Error("Failed to fetch video data.");
     }
 
+    // console.log("userInfo : " + JSON.stringify(userInfo))
+    fetchAndStoreTikTokProfile(userInfo, userId);
+    // console.log("videoData : " + JSON.stringify(videoData))
+    fetchAndStoreTiktokVideo(videoData, userId);
     // Extract required data
     const UserBasicInfo = userInfo?.data;
     const userVideoData = videoData?.data?.videos || [];

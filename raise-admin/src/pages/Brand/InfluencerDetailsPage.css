@@ -1,0 +1,15 @@
+.media-scroll-container {
+    overflow-x: auto;  /* Enables horizontal scrolling */
+    white-space: nowrap; /* Prevents wrapping */
+    padding: 10px;
+  }
+  
+  .media-scroll-container::-webkit-scrollbar {
+    height: 6px; /* Adjust scrollbar thickness */
+  }
+  
+  .media-scroll-container::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2); /* Customize scrollbar thumb */
+    border-radius: 10px;
+  }
+  

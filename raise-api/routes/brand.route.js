@@ -35,4 +35,34 @@ router.put(
   Brand.updateBrandById
 );
 
+// Get Brand Data Statistics
+router.post("/getBrandDataStatistics", auth, Brand.getBrandDataStatistics);
+
+// Get opportunity Statistics
+router.post("/getOpportunityStatistics", auth, Brand.getOpportunityStatistics);
+
+// Get Influencers Statistics
+router.post("/getInflucersStatistics", auth, Brand.getInfluencersStatistics);
+
+// Get Brand Influencer Statistics
+router.post(
+  "/getInfluencerStatisticsByPlatform",
+  auth,
+  Brand.getBrandInfluencerStatistics
+);
+
+// Get Brand Influencer Statistics
+router.post(
+  "/getInfluencerStatisticsByCountry",
+  auth,
+  Brand.getBrandInfluencerStatisticsByCountry
+);
+
+// Get AllPublications By Brand
+router.post(
+  "/getAllPublicationsByBrand",
+  auth,
+  Brand.getAllPublicationsByBrand
+);
+
 module.exports = router;

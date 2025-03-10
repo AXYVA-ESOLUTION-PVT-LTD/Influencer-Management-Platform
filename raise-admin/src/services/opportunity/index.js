@@ -7,6 +7,7 @@ import {
   GET_OPPORTUNITY_URL,
   GET_TICKET,
   REMOVE_OPPORTUNITY_IMAGE_URL,
+  TRACK_OPPORTUNITY_VIEW_URL,
   UPDATE_TICKET,
   UPLOAD_CSV_URL,
   UPLOAD_OPPORTUNITY_IMAGE_URL,
@@ -131,4 +132,16 @@ export const uploadCsvUrl = (formData, token) => {
       "Content-Type": "multipart/form-data",
     },
   });
+};
+
+export const trackOpportunityViewApi = (opportunityId, token) => {
+  return post(
+    `${TRACK_OPPORTUNITY_VIEW_URL}/${opportunityId}`,
+    {}, 
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 };

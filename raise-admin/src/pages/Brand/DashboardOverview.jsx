@@ -1,44 +1,101 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import {
   Container,
   Row,
-  Col,
-  Card,
-  CardBody,
-  CardTitle,
-  Form,
-  FormGroup,
-  Label,
-  Input,
+  Col, Spinner
 } from "reactstrap";
 // Import Breadcrumb
-import Breadcrumbs from "../../components/Common/Breadcrumb";
 import StatisticsBox from "../../components/Common/StatisticsBox";
 import Highcharts from "highcharts";
-import HighchartsReact from "highcharts-react-official";
 import Highcharts3d from "highcharts/highcharts-3d";
 import Mixchart from "../../components/Common/Chart/Mixchart";
 import Barchart from "../../components/Common/Chart/Barchart";
-import PieChart from "../../components/Common/Chart/PieChart";
 
 Highcharts3d(Highcharts);
 // i18n
 import { withTranslation } from "react-i18next";
 import {
-  areaChartOptions,
-  areaChartSeries,
   barChartOptions,
-  barChartSeries,
-  dataBoxes,
   donutChartOptions,
-  pieChart1Data,
-  pieChart2Data,
-  pieChart3Data,
+  lineChartOptions
 } from "../../data/DashboardData";
+import {
+  getBrandStatistics,
+  getInfluencerStatistics,
+  getInfluencerStatisticsByCountry,
+  getInfluencerStatisticsByPlatform,
+  getOpportunityStatistics,
+} from "../../store/actions";
+import { useDispatch, useSelector } from "react-redux";
+import PieChart from "../../components/Common/Chart/PieChart";
 
 const DashboardOverview = (props) => {
   // Meta title
   document.title = "Dashboard | Brandraise";
+
+  const dispatch = useDispatch();
+
+  const {
+    brandStatisticsLoading,
+    opportunityStatisticsLoading,
+    influencerStatisticsLoading,
+    brandStatistics,
+    opportunityStatistics,
+    influencerStatistics,
+    influencerStatisticsByPlatform,
+    influencerStatisticsByPlatformLoading,
+    influencerStatisticsByCountry,
+    influencerStatisticsByCountryLoading,
+  } = useSelector((state) => state.Brand);
+
+  useEffect(() => {
+    dispatch(getBrandStatistics());
+    dispatch(getOpportunityStatistics());
+    dispatch(getInfluencerStatistics());
+    dispatch(getInfluencerStatisticsByCountry())
+    dispatch(getInfluencerStatisticsByPlatform())
+  }, []);
+
+  const areaChartSeriesTemplate = [
+    {
+      name: "Posts Published",
+      data: opportunityStatistics?.monthlyOpportunities,
+    },
+  ];
+
+  const dataBoxes = [
+    {
+      title: "Active influencers",
+      value: brandStatistics?.activeInfluencerCount ||0 ,
+    },
+    {
+      title: "Posts published",
+      value: brandStatistics?.opportunityCount || 0,
+    },
+    {
+      title: "Views",
+      value: brandStatistics?.totalViews || 0,
+    },
+  ];
+
+  const barChartSeries = [
+    {
+      name: "Approved",
+      data: influencerStatistics?.approvedCounts,
+    },
+    {
+      name: "Declined",
+      data: influencerStatistics?.declinedCounts,
+    },
+    {
+      name: "On hold",
+      data: influencerStatistics?.onHoldCounts,
+    },
+  ];
+
+  const pieChart1Options = influencerStatisticsByCountry?.countryChartData;
+
+  const pieChart2Options = influencerStatisticsByPlatform?.pieChartData;
 
   return (
     <React.Fragment>
@@ -50,21 +107,26 @@ const DashboardOverview = (props) => {
             breadcrumbItem={props.t("Brand Dashboard")}
           /> */}
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h4 className="font-size-18 text-uppercase">
-            Brand Dashboard
-            </h4>
+            <h4 className="font-size-18 text-uppercase">Brand Dashboard</h4>
           </div>
           <Row className="mt-4">
-            {dataBoxes.map((box, index) => (
-              <StatisticsBox key={index} box={box} />
-            ))}
+            {brandStatisticsLoading ? (
+              <div className="d-flex justify-content-center align-items-center w-100 box-loading-container">
+                <Spinner color="primary" className="chart-loading-spinner" />
+              </div>
+            ) : (
+              dataBoxes.map((box, index) => (
+                <StatisticsBox key={index} box={box} />
+              ))
+            )}
           </Row>
           <Row className="mt-4">
             <Col md={6}>
               <Mixchart
-                options={areaChartOptions}
-                series={areaChartSeries}
+                options={lineChartOptions}
+                series={areaChartSeriesTemplate}
                 title="Post statistics"
+                loading={opportunityStatisticsLoading}
               />
             </Col>
             <Col md={6}>
@@ -72,29 +134,25 @@ const DashboardOverview = (props) => {
                 options={barChartOptions}
                 series={barChartSeries}
                 title="Influencers statistics"
+                loading={influencerStatisticsLoading}
               />
             </Col>
           </Row>
           <Row>
-            <Col md={4}>
+            <Col md={6}>
               <PieChart
                 chartoptions={donutChartOptions}
-                chartdata={pieChart1Data}
-                title="Top followers locations"
+                chartdata={pieChart1Options}
+                title="Influencer locations"
+                loading={influencerStatisticsByCountryLoading}
               />
             </Col>
-            <Col md={4}>
+            <Col md={6}>
               <PieChart
                 chartoptions={donutChartOptions}
-                chartdata={pieChart2Data}
-                title="Top topics"
-              />
-            </Col>
-            <Col md={4}>
-              <PieChart
-                chartoptions={donutChartOptions}
-                chartdata={pieChart3Data}
-                title="Post on social networks"
+                chartdata={pieChart2Options}
+                title="Influencer Platform"
+                loading={influencerStatisticsByPlatformLoading}
               />
             </Col>
           </Row>

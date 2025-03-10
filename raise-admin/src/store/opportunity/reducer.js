@@ -20,6 +20,9 @@ import {
   REMOVE_OPPORTUNITY_IMAGE_ERROR,
   REMOVE_OPPORTUNITY_IMAGE_REQUEST,
   REMOVE_OPPORTUNITY_IMAGE_SUCCESS,
+  TRACK_OPPORTUNITY_VIEW_ERROR,
+  TRACK_OPPORTUNITY_VIEW_REQUEST,
+  TRACK_OPPORTUNITY_VIEW_SUCCESS,
   UPDATE_OPPORTUNITY_ERROR,
   UPDATE_OPPORTUNITY_REQUEST,
   UPDATE_OPPORTUNITY_SUCCESS,
@@ -39,10 +42,13 @@ const initialState = {
   opportunitiesData: [],
   csvUploadResult: [],
   totalOpportunities: null,
+  ticketId: null,
   totalRecords: null,
   currentPage: null,
   loading: false,
+  trackingOpportunityViewLoading: false,
   error: null,
+  trackingOpportunityViewError  : null
 };
 
 const Opportunity = (state = initialState, action) => {
@@ -212,18 +218,21 @@ const Opportunity = (state = initialState, action) => {
       return {
         ...state,
         loading: true,
+        ticketId: null,
         error: null,
       };
     case CREATE_TICKET_SUCCESS:
       return {
         ...state,
         loading: false,
+        ticketId: action.payload._id,
         error: null,
       };
     case CREATE_TICKET_ERROR:
       return {
         ...state,
         loading: false,
+        ticketId: null,
         error: action.payload,
       };
 
@@ -233,12 +242,15 @@ const Opportunity = (state = initialState, action) => {
         loading: true,
         error: null,
       };
-    case UPDATE_TICKET_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        error: null,
-      };
+      case UPDATE_TICKET_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+          opportunitiesData: state.opportunitiesData.map((ticket) =>
+            ticket._id === action.payload.data._id ? action.payload.data : ticket
+          ),
+          error: null,
+        };
     case UPDATE_TICKET_ERROR:
       return {
         ...state,
@@ -251,12 +263,15 @@ const Opportunity = (state = initialState, action) => {
         loading: true,
         error: null,
       };
-    case DELETE_TICKET_SUCCESS:
-      return {
-        ...state,
-        loading: false,
-        error: null,
-      };
+      case DELETE_TICKET_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+          opportunitiesData: state.opportunitiesData.filter(
+            (ticket) => ticket._id !== action.payload.id
+          ),
+          error: null,
+        };
     case DELETE_TICKET_ERROR:
       return {
         ...state,
@@ -283,6 +298,24 @@ const Opportunity = (state = initialState, action) => {
         ...state,
         loading: false,
         error: action.payload,
+      };
+    case TRACK_OPPORTUNITY_VIEW_REQUEST:
+      return {
+        ...state,
+        trackingOpportunityViewLoading: true,
+        trackingOpportunityViewError: null,
+      };
+    case TRACK_OPPORTUNITY_VIEW_SUCCESS:
+      return {
+        ...state,
+        trackingOpportunityViewLoading: false,
+        trackingOpportunityViewError: null,
+      };
+    case TRACK_OPPORTUNITY_VIEW_ERROR:
+      return {
+        ...state,
+        trackingOpportunityViewLoading: false,
+        trackingOpportunityViewError: action.payload,
       };
 
     default:

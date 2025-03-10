@@ -20,6 +20,11 @@ const ticketNotificationSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    ticketId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Ticket",
+      required: true, 
+    },
   },
   { timestamps: true }
 );

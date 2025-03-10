@@ -231,7 +231,7 @@ button {
 
 .opportunity-image{
   max-height: 200px;
-  object-fit: cover;
+  object-fit: contain;
   width: 100%;
 }
 
@@ -451,4 +451,22 @@ button {
 
 .react-tel-input .form-control {
   width: 100% !important;
+}
+
+.influencer-custom-height {
+  height: 90%;
+}
+
+.margin-bottom-metric-card {
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .influencer-custom-height {
+    height: 90%;
+  }
+
+  .margin-bottom-metric-card {
+    margin-bottom: 24px;
+  }
 }

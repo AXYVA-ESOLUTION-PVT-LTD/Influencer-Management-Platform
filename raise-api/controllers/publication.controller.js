@@ -69,8 +69,8 @@ async function _addPublication(req, res) {
       }
 
       const screenshot = req.file;
-      let videoStats = {}; // Declare videoStats outside to avoid scoping issues
-
+      let videoStats = {}; 
+     if(type !== "story") {
       if (existingUser.platform === CONSTANT.TIKTOK) {
         const videoId = getVideoIdFromUrl(publicationLink);
         videoStats = await tiktokVideoData(videoId, accessToken);
@@ -88,7 +88,7 @@ async function _addPublication(req, res) {
         const targetVideoId = extractVideoId(publicationLink);
         videoStats = await getYoutubeData(targetVideoId, accessToken);
       }
-
+    }
       const publicationObj = {
         influencerId: id,
         opportunityId: opportunityId,
@@ -101,10 +101,10 @@ async function _addPublication(req, res) {
       }
 
       publicationObj.followerCount = Follower_count || 0;
-      publicationObj.likeCount = videoStats.likes || 0;
-      publicationObj.commentCount = videoStats.comments || 0;
-      publicationObj.shareCount = videoStats.shares || 0;
-      publicationObj.viewCount = videoStats.views || 0;
+      publicationObj.likeCount = videoStats?.likes || 0;
+      publicationObj.commentCount = videoStats?.comments || 0;
+      publicationObj.shareCount = videoStats?.shares || 0;
+      publicationObj.viewCount = videoStats?.views || 0;
 
       if (videoStats && videoStats.views > 0) {
         let engagementRate =
@@ -540,23 +540,24 @@ async function _updatePublicationById(req, res) {
 
         const screenshot = req.file;
         let videoStats = {}; // Declare videoStats outside to avoid scoping issues
-
-        if (existingUser.platform === CONSTANT.TIKTOK) {
-          const videoId = getVideoIdFromUrl(publicationLink);
-          videoStats = await tiktokVideoData(videoId, accessToken);
-        } else if (existingUser.platform === CONSTANT.INSTAGRAM) {
-          const videoId = extractInstagramPostId(publicationLink);
-          videoStats = await getInstagramPostData(
-            videoId,
-            accessToken,
-            existingUser.userId
-          );
-        } else if (existingUser.platform === CONSTANT.FACEBOOK) {
-          const videoId = extractPostIdFromUrl(publicationLink);
-          videoStats = await fetchFacebookPagePosts(videoId, accessToken);
-        } else if (existingUser.platform === CONSTANT.YOUTUBE) {
-          const targetVideoId = extractVideoId(publicationLink);
-          videoStats = await getYoutubeData(targetVideoId, accessToken);
+        if(type !== "story") {
+          if (existingUser.platform === CONSTANT.TIKTOK) {
+            const videoId = getVideoIdFromUrl(publicationLink);
+            videoStats = await tiktokVideoData(videoId, accessToken);
+          } else if (existingUser.platform === CONSTANT.INSTAGRAM) {
+            const videoId = extractInstagramPostId(publicationLink);
+            videoStats = await getInstagramPostData(
+              videoId,
+              accessToken,
+              existingUser.userId
+            );
+          } else if (existingUser.platform === CONSTANT.FACEBOOK) {
+            const videoId = extractPostIdFromUrl(publicationLink);
+            videoStats = await fetchFacebookPagePosts(videoId, accessToken);
+          } else if (existingUser.platform === CONSTANT.YOUTUBE) {
+            const targetVideoId = extractVideoId(publicationLink);
+            videoStats = await getYoutubeData(targetVideoId, accessToken);
+          }
         }
 
         const publicationObj = {

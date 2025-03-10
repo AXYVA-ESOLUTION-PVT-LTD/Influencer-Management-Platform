@@ -1,12 +1,33 @@
 import { call, put, takeEvery } from "redux-saga/effects";
 import {
   ADD_INFLUENCER,
+  GET_INFLUENCER_BASIC_DATA,
+  GET_INFLUENCER_DEMOGRAPHIC_DATA,
+  GET_INFLUENCER_MEDIA_DATA,
+  GET_INFLUENCER_MONTHLY_STATISTICS,
+  GET_INFLUENCER_POST_STATISTICS,
+  GET_INFLUENCER_PROFILE,
+  GET_INFLUENCER_PUBLICATION_DATA,
   GET_INFLUENCERS,
   UPDATE_INFLUENCER,
 } from "./actionTypes";
 import {
   addInfluencerFail,
   addInfluencerSuccess,
+  getInfluencerBasicDataFail,
+  getInfluencerBasicDataSuccess,
+  getInfluencerDemographicDataFail,
+  getInfluencerDemographicDataSuccess,
+  getInfluencerMediaDataFail,
+  getInfluencerMediaDataSuccess,
+  getInfluencerMonthlyStatisticsFail,
+  getInfluencerMonthlyStatisticsSuccess,
+  getInfluencerPostStatisticsFail,
+  getInfluencerPostStatisticsSuccess,
+  getInfluencerProfileFail,
+  getInfluencerProfileSuccess,
+  getInfluencerPublicationDataFail,
+  getInfluencerPublicationDataSuccess,
   getInfluencersFail,
   getInfluencersSuccess,
   updateInfluencerFail,
@@ -16,6 +37,13 @@ import {
 import { toast } from "react-toastify";
 import {
   createInfluencersUrl,
+  getInfluencerBasicDataUrl,
+  getInfluencerDemographicDataUrl,
+  getInfluencerMediaDataUrl,
+  getInfluencerMonthlyStatisticsUrl,
+  getInfluencerPostStatisticsUrl,
+  getInfluencerProfileUrl,
+  getInfluencerPublicationDataUrl,
   getInfluencersUrl,
   updateInfluencerUrl,
 } from "../../services/influencer";
@@ -151,32 +179,185 @@ function* onUpdateInfluencer(action) {
   }
 }
 
-// // Delete an influencer
-// function* onDeleteInfluencer({ payload: influencerId }) {
-//   try {
-//     yield call(deleteInfluencers, influencerId);
-//     yield put(deleteInfluencerSuccess(influencerId));
-//   } catch (error) {
-//     yield put(deleteInfluencerFail(error));
-//   }
-// }
+function* fetchInfluencerProfile(action) {
+  try {
+    const token = localStorage.getItem("authUser");
+    const response = yield call(getInfluencerProfileUrl, action.payload, token);
 
-// // Fetch details of a specific influencer
-// function* fetchInfluencerDetail({ influencerId }) {
-//   try {
-//     const response = yield call(readInfluencersDetail, influencerId);
-//     yield put(getInfluencerDetailSuccess(response.result.data));
-//   } catch (error) {
-//     yield put(getInfluencerDetailFail(error));
-//   }
-// }
+    if (response?.status === STATUS.SUCCESS) {
+      yield put(getInfluencerProfileSuccess(response.result.data));
+    } else {
+      throw new Error(response?.result?.error || "Failed to fetch profile.");
+    }
+  } catch (error) {
+    yield put(
+      getInfluencerProfileFail(error.message || "Failed to fetch profile.")
+    );
+  }
+}
+
+function* fetchInfluencerBasicData(action) {
+  try {
+    const token = localStorage.getItem("authUser");
+    const response = yield call(
+      getInfluencerBasicDataUrl,
+      action.payload,
+      token
+    );
+    if (response?.status === STATUS.SUCCESS) {
+      yield put(getInfluencerBasicDataSuccess(response.result.data.platforms));
+    } else {
+      throw new Error(response?.data?.error || "Failed to fetch basic data.");
+    }
+  } catch (error) {
+    yield put(
+      getInfluencerBasicDataFail(error.message || "Failed to fetch basic data.")
+    );
+  }
+}
+
+function* fetchInfluencerPostStatistics(action) {
+  try {
+    const token = localStorage.getItem("authUser");
+    const response = yield call(
+      getInfluencerPostStatisticsUrl,
+      action.payload,
+      token
+    );
+    if (response?.status === STATUS.SUCCESS) {
+      yield put(getInfluencerPostStatisticsSuccess(response.result.data));
+    } else {
+      throw new Error(
+        response?.data?.error || "Failed to fetch post statistics."
+      );
+    }
+  } catch (error) {
+    yield put(
+      getInfluencerPostStatisticsFail(
+        error.message || "Failed to fetch post statistics."
+      )
+    );
+  }
+}
+
+function* fetchInfluencerMonthlyStatistics(action) {
+  try {
+    const token = localStorage.getItem("authUser");
+    const response = yield call(
+      getInfluencerMonthlyStatisticsUrl,
+      action.payload,
+      token
+    );
+    if (response?.status === STATUS.SUCCESS) {
+      yield put(getInfluencerMonthlyStatisticsSuccess(response.result.data));
+    } else {
+      throw new Error(
+        response?.data?.error || "Failed to fetch monthly statistics."
+      );
+    }
+  } catch (error) {
+    yield put(
+      getInfluencerMonthlyStatisticsFail(
+        error.message || "Failed to fetch monthly statistics."
+      )
+    );
+  }
+}
+
+function* fetchInfluencerDemographicData(action) {
+  try {
+    const token = localStorage.getItem("authUser");
+    const response = yield call(
+      getInfluencerDemographicDataUrl,
+      action.payload,
+      token
+    );
+    if (response?.status === STATUS.SUCCESS) {
+      yield put(getInfluencerDemographicDataSuccess(response.result.data));
+    } else {
+      throw new Error(
+        response?.result?.error || "Failed to fetch demographic data."
+      );
+    }
+  } catch (error) {
+    yield put(
+      getInfluencerDemographicDataFail(
+        error.message || "Failed to fetch demographic data."
+      )
+    );
+  }
+}
+
+function* fetchInfluencerPublicationData(action) {
+  try {
+    const token = localStorage.getItem("authUser");
+    const { id, limit, pageCount } = action.payload;
+
+    const response = yield call(
+      getInfluencerPublicationDataUrl,
+      id,
+      { limit, pageCount },
+      token
+    );
+    if (response?.status === STATUS.SUCCESS) {
+      yield put(getInfluencerPublicationDataSuccess(response.result));
+    } else {
+      throw new Error(
+        response?.result?.error || "Failed to fetch publication data."
+      );
+    }
+  } catch (error) {
+    yield put(
+      getInfluencerPublicationDataFail(
+        error.message || "Failed to fetch publication data."
+      )
+    );
+  }
+}
+
+function* fetchInfluencerMediaData(action) {
+  try {
+    const token = localStorage.getItem("authUser");
+    const response = yield call(
+      getInfluencerMediaDataUrl,
+      action.payload,
+      token
+    );
+    if (response?.status === STATUS.SUCCESS) {
+      yield put(getInfluencerMediaDataSuccess(response.result.data));
+    } else {
+      throw new Error(response?.result?.error || "Failed to fetch media data.");
+    }
+  } catch (error) {
+    yield put(
+      getInfluencerMediaDataFail(error.message || "Failed to fetch media data.")
+    );
+  }
+}
 
 function* InfluencersSaga() {
   yield takeEvery(GET_INFLUENCERS, fetchInfluencers);
   yield takeEvery(ADD_INFLUENCER, onAddNewInfluencer);
   yield takeEvery(UPDATE_INFLUENCER, onUpdateInfluencer);
-  // yield takeEvery(DELETE_INFLUENCER, onDeleteInfluencer);
-  // yield takeEvery(GET_SPECIFIC_INFLUENCER, fetchInfluencerDetail);
+  yield takeEvery(GET_INFLUENCER_PROFILE, fetchInfluencerProfile);
+  yield takeEvery(GET_INFLUENCER_BASIC_DATA, fetchInfluencerBasicData);
+  yield takeEvery(
+    GET_INFLUENCER_POST_STATISTICS,
+    fetchInfluencerPostStatistics
+  );
+  yield takeEvery(
+    GET_INFLUENCER_MONTHLY_STATISTICS,
+    fetchInfluencerMonthlyStatistics
+  );
+  yield takeEvery(
+    GET_INFLUENCER_DEMOGRAPHIC_DATA,
+    fetchInfluencerDemographicData
+  );
+  yield takeEvery(
+    GET_INFLUENCER_PUBLICATION_DATA,
+    fetchInfluencerPublicationData
+  );
+  yield takeEvery(GET_INFLUENCER_MEDIA_DATA, fetchInfluencerMediaData);
 }
 
 export default InfluencersSaga;

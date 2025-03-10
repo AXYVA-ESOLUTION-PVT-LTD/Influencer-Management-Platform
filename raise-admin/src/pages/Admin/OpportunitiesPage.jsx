@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { withTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -29,12 +29,14 @@ import axios from "axios";
 import { UPLOAD_OPPORTUNITY_IMAGE_URL } from "../../services/opportunity/routes";
 import { getBrand } from "../../store/brand/actions";
 import ROLES from "../../constants/role";
+import Select from "react-select";
+
 const OpportunitiesPage = (props) => {
   const dispatch = useDispatch();
 
   const { opportunities, error, loading, totalOpportunities, currentPage } =
     useSelector((state) => state.Opportunity);
-  const { brands } = useSelector((state) => state.Brand);
+  const { brands, totalBrands } = useSelector((state) => state.Brand);
 
   // State for modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -70,13 +72,16 @@ const OpportunitiesPage = (props) => {
   const [filterFields, setFilterFields] = useState({
     title: "",
     type: "",
+    brand: "",
   });
   const [sortBy, setSortBy] = useState("");
   const [sortOrder, setSortOrder] = useState("");
   const [csvFile, setCsvFile] = useState(null);
   const [limit, setLimit] = useState(10);
   const [pageCount, setPageCount] = useState(0);
-  const [brandData,setBrandData] = useState([]);
+  const [brandData, setBrandData] = useState([]);
+  const [brandPage, setBrandPage] = useState(0);
+
   // Meta title`
   document.title = "Opportunity | Brandraise ";
 
@@ -107,6 +112,8 @@ const OpportunitiesPage = (props) => {
   const toggleUpdateModal = () => {
     // If the modal is being closed, reset the errors
     if (isUpdateModalOpen) {
+      setBrandData([]);
+      setBrandPage(0);
       setupdateModelErrors({});
     }
 
@@ -131,18 +138,50 @@ const OpportunitiesPage = (props) => {
   }, [dispatch, limit, pageCount, sortBy, isSearching, sortOrder, sortBy]);
 
   useEffect(() => {
+    if (brandData.length < totalBrands || totalBrands === null) {
+      dispatch(
+        getBrand({
+          roleName: ROLES.BRAND,
+          allrecord: false,
+          limit: 10,
+          pageCount: brandPage,
+        })
+      );
+    }
+  }, [brandPage, dispatch]);
+
+  useEffect(() => {
+    const uniqueBrands = new Map();
+    brandData.forEach((brand) => uniqueBrands.set(brand._id, brand));
+    brands.forEach((brand) => uniqueBrands.set(brand._id, brand));
+    setBrandData(Array.from(uniqueBrands.values()));
+  }, [brands]);
+
+  const handleMenuScrollToBottom = () => {
+    if (brandData.length < totalBrands) {
+      setBrandPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const brandOptions = brandData
+    ?.filter((brand) => brand.companyName)
+    .map((brand) => ({
+      value: brand.companyName,
+      label: brand.companyName,
+    }));
+
+  const handleMenuClose = () => {
+    setBrandData([]);
+    setBrandPage(0);
     dispatch(
       getBrand({
         roleName: ROLES.BRAND,
-        allrecord: true,
+        allrecord: false,
+        limit: 10,
+        pageCount: 0,
       })
     );
-  }, []);
-
-
-  useEffect(()=>{
-      setBrandData(brands);
-  },[brands]);
+  };
 
   useEffect(() => {
     // When updating the record, format the date as YYYY-MM-DD if it's not already.
@@ -239,6 +278,17 @@ const OpportunitiesPage = (props) => {
     }
   };
 
+  const handleDropdownNewOpportunity = (selectedOption) => {
+    setOpportunityDetails((prev) => ({
+      ...prev,
+      brand: selectedOption ? selectedOption.value : "", // Handle null cases
+    }));
+
+    if (errors.brand) {
+      setErrors((prev) => ({ ...prev, brand: null })); // Clear errors if any
+    }
+  };
+
   // Handle view
   const handleViewOpportunity = (opportunity) => {
     setSelectedOpportunity(opportunity);
@@ -293,15 +343,15 @@ const OpportunitiesPage = (props) => {
 
   const handleNewImageChange = (e) => {
     const file = e.target.files[0];
-  
+
     if (file) {
       const allowedTypes = ["image/jpeg", "image/png"];
-      
+
       if (!allowedTypes.includes(file.type)) {
         setErrors({ imageUrl: "Only JPG and PNG files are allowed." });
-        setnewImageFile(null); 
+        setnewImageFile(null);
       } else {
-        setErrors({}); 
+        setErrors({});
         setnewImageFile(file);
       }
     }
@@ -435,31 +485,41 @@ const OpportunitiesPage = (props) => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-  
+
     if (file) {
       const allowedTypes = ["image/jpeg", "image/png"];
-  
+
       if (!allowedTypes.includes(file.type.toLowerCase())) {
         setupdateModelErrors((prev) => ({
           ...prev,
           imageUrl: "Only JPG and PNG files are allowed.",
         }));
-        setImageFile(null); 
+        setImageFile(null);
       } else {
-        setupdateModelErrors((prev) => ({ ...prev, imageUrl: "" })); 
+        setupdateModelErrors((prev) => ({ ...prev, imageUrl: "" }));
         setImageFile(file);
       }
     }
   };
-  
+
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setSelectedOpportunity((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-    if (updateModelerrors[name]) {
-      setupdateModelErrors((prev) => ({ ...prev, [name]: null })); // Clear error on change
+    if (e.target) {
+      const { name, value } = e.target;
+      setSelectedOpportunity((prevState) => ({
+        ...prevState,
+        [name]: value,
+      }));
+    } else {
+      setSelectedOpportunity((prevState) => ({
+        ...prevState,
+        brand: e?.value || "",
+      }));
+    }
+
+    // Clear validation errors on change
+    const fieldName = e.target ? e.target.name : "brand";
+    if (updateModelerrors[fieldName]) {
+      setupdateModelErrors((prev) => ({ ...prev, [fieldName]: null }));
     }
   };
 
@@ -897,22 +957,28 @@ const OpportunitiesPage = (props) => {
             )}
 
             <label htmlFor="brand">Company</label>
-            <select
-              name="brand"
-              value={OpportunityDetails.brand}
-              onChange={handleInputNewOpportunity}
-              className="mb-2 brand-dropdown"
+
+            <Select
+              options={brandOptions}
+              value={
+                brandOptions.find(
+                  (option) => option.value === OpportunityDetails.brand
+                )
+              }
+              onChange={handleDropdownNewOpportunity}
+              onMenuScrollToBottom={handleMenuScrollToBottom}
+              onMenuClose={handleMenuClose}
               onBlur={validateForm}
-            >
-              <option value="">Select a Company</option>
-              {brandData?.map((brand) =>
-                brand.companyName ? (
-                  <option key={brand.id} value={brand.companyName}>
-                    {brand.companyName}
-                  </option>
-                ) : null
-              )}
-            </select>
+              className="mb-2"
+              styles={{
+                menu: (provided) => ({
+                  ...provided,
+                  maxHeight: 300,
+                  overflowY: "auto",
+                }),
+              }}
+            />
+
             {errors.brand && <p className="text-danger">{errors.brand}</p>}
 
             <label htmlFor="endDate">End Date</label>
@@ -1059,29 +1125,48 @@ const OpportunitiesPage = (props) => {
             {updateModelerrors.location && (
               <p className="text-danger">{updateModelerrors.location}</p>
             )}
+
             <label htmlFor="brand">Company</label>
-            {/* <Input
-            type="text"
-            name="brand"
-            value={selectedOpportunity.brand}
-            onChange={handleInputChange}
-            placeholder="Enter brand"
-            className="mb-2"
-          /> */}
-            <select
-              name="brand"
-              value={selectedOpportunity.brand}
-              onChange={handleInputChange}
-              className="mb-2 brand-dropdown"
-            >
-              {brands?.map((brand) =>
-                brand.companyName ? (
-                  <option key={brand.id} value={brand.companyName}>
-                    {brand.companyName}
-                  </option>
-                ) : null
-              )}
-            </select>
+
+            <Select
+              options={
+                brandOptions.some(
+                  (option) => option.value === selectedOpportunity.brand
+                )
+                  ? brandOptions
+                  : [
+                      ...brandOptions,
+                      {
+                        value: selectedOpportunity.brand,
+                        label: selectedOpportunity.brand,
+                      },
+                    ] 
+              }
+              value={
+                brandOptions.find(
+                  (option) => option.value === selectedOpportunity.brand
+                ) || {
+                  value: selectedOpportunity.brand,
+                  label: selectedOpportunity.brand,
+                } 
+              }
+              onChange={(selectedOption) =>
+                handleInputChange({
+                  target: { name: "brand", value: selectedOption?.value || "" }, 
+                })
+              }
+              onMenuScrollToBottom={handleMenuScrollToBottom}
+              onMenuClose={handleMenuClose}
+              className="mb-2"
+              styles={{
+                menu: (provided) => ({
+                  ...provided,
+                  maxHeight: 300,
+                  overflowY: "auto",
+                }),
+              }}
+            />
+
             {updateModelerrors.brand && (
               <p className="text-danger">{updateModelerrors.brand}</p>
             )}
