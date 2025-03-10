@@ -25,6 +25,7 @@ const INIT_STATE = {
   notificationsDataCount: null,
   totalNotifications: null,
   loading: false,
+  updateLoading: false,
   error: {},
 };
 
@@ -74,25 +75,21 @@ const Notification = (state = INIT_STATE, action) => {
     case UPDATE_TICKET_NOTIFICATION:
       return {
         ...state,
-        loading: true,
+        updateLoading: true,
         error: null,
       };
     case UPDATE_TICKET_NOTIFICATION_SUCCESS:
-      const { _id: updatedNotificationId } = action.payload.notification;
       return {
         ...state,
-        notifications: state.notifications.map((ntf) =>
-          ntf._id === updatedNotificationId ? action.payload.notification : ntf
-        ),
-        loading: false,
-        error: null,
+        updateLoading: false,
       };
     case UPDATE_TICKET_NOTIFICATION_FAIL:
       return {
         ...state,
-        loading: false,
+        updateLoading: false,
         error: action.payload,
       };
+
     case FETCH_UNREAD_NOTIFICATIONS:
       return {
         ...state,

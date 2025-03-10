@@ -14,7 +14,8 @@ import {
   updateWalletSuccess,
   getWalletSuccess,
   getWalletFail,
-  updateWalletFail, getPaymentMethodSuccess,
+  updateWalletFail,
+  getPaymentMethodSuccess,
   getPaymentMethodFail,
   getPaymentDetailSuccess,
   getPaymentDetailFail,
@@ -27,7 +28,8 @@ import {
   deletePaymentDetailsFail,
   deletePaymentDetailsSuccess,
   fetchAllSecurePaymentDetailsFail,
-  fetchAllSecurePaymentDetailsSuccess
+  fetchAllSecurePaymentDetailsSuccess,
+  getTransaction,
 } from "./actions";
 import {
   GET_TRANSACTION_REQUEST,
@@ -36,13 +38,14 @@ import {
   REMOVE_TRANSACTION_REQUEST,
   UPDATE_TRANSACTION_REQUEST,
   GET_WALLET,
-  UPDATE_WALLET, GET_PAYMENT_METHOD,
+  UPDATE_WALLET,
+  GET_PAYMENT_METHOD,
   GET_PAYMENT_DETAIL,
   ADD_PAYMENT_DETAIL,
   UPDATE_PAYMENT_DETAIL,
   FETCH_ALL_PAYMENT_DETAILS,
   DELETE_PAYMENT_DETAILS,
-  FETCH_ALL_SECURE_PAYMENT_DETAILS
+  FETCH_ALL_SECURE_PAYMENT_DETAILS,
 } from "./actionTypes";
 import {
   getTransactionUrl,
@@ -51,13 +54,14 @@ import {
   removeTransactionUrl,
   updateTransactionUrl,
   getWalletUrl,
-  updateWalletByIdUrl, getPaymentMethodUrl,
+  updateWalletByIdUrl,
+  getPaymentMethodUrl,
   getPaymentDetailUrl,
   addPaymentDetailUrl,
   updatePaymentDetailUrl,
   fetchAllPaymentDetailsUrl,
   deletePaymentDetailsUrl,
-  fetchAllSecurePaymentDetailsUrl
+  fetchAllSecurePaymentDetailsUrl,
 } from "../../services/payment";
 import STATUS from "../../constants/status";
 
@@ -75,7 +79,7 @@ function* onGetTransaction(action) {
   } catch (error) {
     yield put(getTransactionError(error.message || 'Failed to fetch transaction data'));
     toast.update({
-      render: 'Failed to fetch transaction data',
+      render: "Failed to fetch transaction data",
       type: "error",
       isLoading: false,
       autoClose: true,
@@ -114,6 +118,12 @@ function* onCreateTransaction(action) {
 
     if (response?.status === STATUS.SUCCESS) {
       yield put(createTransactionSuccess(response?.result?.data));
+      yield put(
+        getTransaction({
+          limit: 10,
+          pageCount: 0,
+        })
+      );
       toast.update(toastId, {
         render: "Transaction created successfully",
         type: "success",
@@ -121,12 +131,16 @@ function* onCreateTransaction(action) {
         autoClose: true,
       });
     } else {
-      throw new Error(response?.result?.message || 'Failed to create transaction');
+      throw new Error(
+        response?.result?.message || "Failed to create transaction"
+      );
     }
   } catch (error) {
-    yield put(createTransactionError(error.message || 'Failed to create transaction'));
+    yield put(
+      createTransactionError(error.message || "Failed to create transaction")
+    );
     toast.update(toastId, {
-      render: error.message || 'Failed to create transaction',
+      render: error.message || "Failed to create transaction",
       type: "error",
       isLoading: false,
       autoClose: true,
@@ -142,6 +156,12 @@ function* onRemoveTransaction(action) {
 
     if (response?.status === STATUS.SUCCESS) {
       yield put(removeTransactionSuccess(action.payload));
+      yield put(
+        getTransaction({
+          limit: 10,
+          pageCount: 0,
+        })
+      );
       toast.update(toastId, {
         render: "Transaction removed successfully",
         type: "success",
@@ -149,12 +169,16 @@ function* onRemoveTransaction(action) {
         autoClose: true,
       });
     } else {
-      throw new Error(response?.result?.message || 'Failed to remove transaction');
+      throw new Error(
+        response?.result?.message || "Failed to remove transaction"
+      );
     }
   } catch (error) {
-    yield put(removeTransactionError(error.message || 'Failed to remove transaction'));
+    yield put(
+      removeTransactionError(error.message || "Failed to remove transaction")
+    );
     toast.update(toastId, {
-      render: error.message || 'Failed to remove transaction',
+      render: error.message || "Failed to remove transaction",
       type: "error",
       isLoading: false,
       autoClose: true,
@@ -170,6 +194,13 @@ function* onUpdateTransaction(action) {
 
     if (response?.status === STATUS.SUCCESS) {
       yield put(updateTransactionSuccess(response?.result?.data?.transaction));
+      yield put(
+        getTransaction({
+          limit: 10,
+          pageCount: 0,
+        })
+      );
+     
       toast.update(toastId, {
         render: "Transaction updated successfully",
         type: "success",
@@ -177,19 +208,22 @@ function* onUpdateTransaction(action) {
         autoClose: true,
       });
     } else {
-      throw new Error(response?.result?.message || 'Failed to update transaction');
+      throw new Error(
+        response?.result?.message || "Failed to update transaction"
+      );
     }
   } catch (error) {
-    yield put(updateTransactionError(error.message || 'Failed to update transaction'));
+    yield put(
+      updateTransactionError(error.message || "Failed to update transaction")
+    );
     toast.update(toastId, {
-      render: error.message || 'Failed to update transaction',
+      render: error.message || "Failed to update transaction",
       type: "error",
       isLoading: false,
       autoClose: true,
     });
   }
 }
-
 
 // Fetch All Wallet
 function* fetchWallet(action) {
@@ -257,11 +291,17 @@ function* onGetPaymentMethod() {
       yield put(getPaymentMethodSuccess(response?.result?.data?.paymentMethod));
     } else {
       throw new Error(
-        response?.data?.result?.error || "Failed to fetch payment method. Please try again later."
+        response?.data?.result?.error ||
+          "Failed to fetch payment method. Please try again later."
       );
     }
   } catch (error) {
-    yield put(getPaymentMethodFail(error.message || "Failed to fetch payment method. Please try again later."));
+    yield put(
+      getPaymentMethodFail(
+        error.message ||
+          "Failed to fetch payment method. Please try again later."
+      )
+    );
   }
 }
 
@@ -269,15 +309,20 @@ function* onGetPaymentDetail(action) {
   const fieldName = action.payload;
   try {
     const token = localStorage.getItem("authUser");
-    const response = yield call(getPaymentDetailUrl,token,fieldName);
+    const response = yield call(getPaymentDetailUrl, token, fieldName);
     if (response?.status === STATUS.SUCCESS) {
       const fieldValue = response?.result?.data[fieldName];
       yield put(getPaymentDetailSuccess(fieldName, fieldValue));
     } else {
-      throw new Error(response?.result?.error || "Failed to fetch payment detail. Please try again later.");
+      throw new Error(
+        response?.result?.error ||
+          "Failed to fetch payment detail. Please try again later."
+      );
     }
   } catch (error) {
-    yield put(getPaymentDetailFail(error.message || "Failed to fetch payment detail."));
+    yield put(
+      getPaymentDetailFail(error.message || "Failed to fetch payment detail.")
+    );
   }
 }
 
@@ -292,23 +337,29 @@ function* onAddPaymentDetail(action) {
 
     if (response?.status === STATUS.SUCCESS) {
       toast.update(id, {
-        render: response?.result?.message || "Payment details added successfully",
+        render:
+          response?.result?.message || "Payment details added successfully",
         type: "success",
         isLoading: false,
         autoClose: true,
       });
 
-      yield put(addPaymentDetailSuccess(response?.result?.message)); 
+      yield put(addPaymentDetailSuccess(response?.result?.message));
       const user = JSON.parse(localStorage.getItem("user"));
       if (user) {
-          user.isBankVerified = true;
-          localStorage.setItem("user", JSON.stringify(user));
+        user.isBankVerified = true;
+        localStorage.setItem("user", JSON.stringify(user));
       }
     } else {
-      throw new Error(response?.result?.error || "Failed to add payment details. Please try again later.");
+      throw new Error(
+        response?.result?.error ||
+          "Failed to add payment details. Please try again later."
+      );
     }
   } catch (error) {
-    yield put(addPaymentDetailFail(error.message || "Failed to add payment details."));
+    yield put(
+      addPaymentDetailFail(error.message || "Failed to add payment details.")
+    );
     toast.update(id, {
       render: "Failed to add payment details",
       type: "error",
@@ -329,7 +380,8 @@ function* onUpdatePaymentDetail(action) {
 
     if (response?.status === STATUS.SUCCESS) {
       toast.update(id, {
-        render: response?.result?.message || "Payment details updated successfully",
+        render:
+          response?.result?.message || "Payment details updated successfully",
         type: "success",
         isLoading: false,
         autoClose: true,
@@ -342,12 +394,18 @@ function* onUpdatePaymentDetail(action) {
         user.isBankVerified = true;
         localStorage.setItem("user", JSON.stringify(user));
       }
-
     } else {
-      throw new Error(response?.result?.error || "Failed to update payment details. Please try again.");
+      throw new Error(
+        response?.result?.error ||
+          "Failed to update payment details. Please try again."
+      );
     }
   } catch (error) {
-    yield put(updatePaymentDetailFail(error.message || "Failed to update payment details."));
+    yield put(
+      updatePaymentDetailFail(
+        error.message || "Failed to update payment details."
+      )
+    );
     toast.update(id, {
       render: "Failed to update payment details",
       type: "error",
@@ -357,7 +415,6 @@ function* onUpdatePaymentDetail(action) {
   }
 }
 
-
 function* onFetchAllPaymentDetails() {
   try {
     const token = localStorage.getItem("authUser");
@@ -365,10 +422,16 @@ function* onFetchAllPaymentDetails() {
     if (response?.status === STATUS.SUCCESS) {
       yield put(fetchAllPaymentDetailsSuccess(response?.result?.data));
     } else {
-      throw new Error(response?.data?.result?.error || "Failed to fetch payment details.");
+      throw new Error(
+        response?.data?.result?.error || "Failed to fetch payment details."
+      );
     }
   } catch (error) {
-    yield put(fetchAllPaymentDetailsFail(error.message || "Failed to fetch payment details."));
+    yield put(
+      fetchAllPaymentDetailsFail(
+        error.message || "Failed to fetch payment details."
+      )
+    );
   }
 }
 
@@ -387,7 +450,9 @@ function* onDeletePaymentDetails() {
         autoClose: true,
       });
 
-      yield put(deletePaymentDetailsSuccess("Payment details deleted successfully."));
+      yield put(
+        deletePaymentDetailsSuccess("Payment details deleted successfully.")
+      );
 
       // Update local user state
       const user = JSON.parse(localStorage.getItem("user"));
@@ -396,10 +461,16 @@ function* onDeletePaymentDetails() {
         localStorage.setItem("user", JSON.stringify(user));
       }
     } else {
-      throw new Error(response?.data?.result?.error || "Failed to delete payment details.");
+      throw new Error(
+        response?.data?.result?.error || "Failed to delete payment details."
+      );
     }
   } catch (error) {
-    yield put(deletePaymentDetailsFail(error.message || "Failed to delete payment details."));
+    yield put(
+      deletePaymentDetailsFail(
+        error.message || "Failed to delete payment details."
+      )
+    );
     toast.update(id, {
       render: "Failed to delete payment details.",
       type: "error",
@@ -413,18 +484,29 @@ function* onFetchAllSecurePaymentDetails(action) {
   try {
     const token = localStorage.getItem("authUser");
 
-    const response = yield call(fetchAllSecurePaymentDetailsUrl, action.payload, token);
-    
+    const response = yield call(
+      fetchAllSecurePaymentDetailsUrl,
+      action.payload,
+      token
+    );
+
     if (response?.status === STATUS.SUCCESS) {
       yield put(fetchAllSecurePaymentDetailsSuccess(response?.result?.data));
     } else {
-      yield put(fetchAllSecurePaymentDetailsFail(response?.data?.result?.error || "Failed to fetch payment details."));
+      yield put(
+        fetchAllSecurePaymentDetailsFail(
+          response?.data?.result?.error || "Failed to fetch payment details."
+        )
+      );
     }
   } catch (error) {
-    yield put(fetchAllSecurePaymentDetailsFail(error.message || "Failed to fetch payment details."));
+    yield put(
+      fetchAllSecurePaymentDetailsFail(
+        error.message || "Failed to fetch payment details."
+      )
+    );
   }
 }
-
 
 function* PaymentSaga() {
   yield takeEvery(GET_TRANSACTION_REQUEST, onGetTransaction);
@@ -440,8 +522,10 @@ function* PaymentSaga() {
   yield takeEvery(UPDATE_PAYMENT_DETAIL, onUpdatePaymentDetail);
   yield takeEvery(FETCH_ALL_PAYMENT_DETAILS, onFetchAllPaymentDetails);
   yield takeEvery(DELETE_PAYMENT_DETAILS, onDeletePaymentDetails);
-  yield takeEvery(FETCH_ALL_SECURE_PAYMENT_DETAILS, onFetchAllSecurePaymentDetails);
-
+  yield takeEvery(
+    FETCH_ALL_SECURE_PAYMENT_DETAILS,
+    onFetchAllSecurePaymentDetails
+  );
 }
 
 export default PaymentSaga;

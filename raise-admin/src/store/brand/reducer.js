@@ -50,7 +50,9 @@ const INIT_STATE = {
   influencerStatisticsByPlatformLoading: false,
   influencerStatisticsByCountry: null,
   influencerStatisticsByCountryLoading: false,
-  brandListLoading : false,
+  brandListLoading: false,
+  addBrandLoading: false,
+  updateBrandLoading: false,
   error: {},
 };
 
@@ -100,42 +102,37 @@ const Brand = (state = INIT_STATE, action) => {
     case ADD_BRAND:
       return {
         ...state,
-        loading: true,
+        addBrandLoading: true,
         error: null,
       };
     case ADD_BRAND_SUCCESS:
       return {
         ...state,
-        brands: [...state.brands, action.payload],
-        loading: false,
+        addBrandLoading: false,
       };
     case ADD_BRAND_FAIL:
       return {
         ...state,
+        addBrandLoading: false,
         error: action.payload,
-        loading: false,
       };
 
     case UPDATE_BRAND:
       return {
         ...state,
-        loading: true,
+        updateBrandLoading: true,
         error: null,
       };
     case UPDATE_BRAND_SUCCESS:
-      const { _id: updatedBrandId } = action.payload;
       return {
         ...state,
-        brands: state.brands.map((brand) =>
-          brand._id === updatedBrandId ? { ...action.payload } : brand
-        ),
-        loading: false,
+        updateBrandLoading: false,
       };
     case UPDATE_BRAND_FAIL:
       return {
         ...state,
+        updateBrandLoading: false,
         error: action.payload,
-        loading: false,
       };
     case GET_BRAND_STATISTICS:
       return {

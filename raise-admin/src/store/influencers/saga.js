@@ -28,6 +28,7 @@ import {
   getInfluencerProfileSuccess,
   getInfluencerPublicationDataFail,
   getInfluencerPublicationDataSuccess,
+  getInfluencers,
   getInfluencersFail,
   getInfluencersSuccess,
   updateInfluencerFail,
@@ -93,6 +94,20 @@ function* onAddNewInfluencer(action) {
         }
       );
       yield put(addInfluencerSuccess(response.result.data.influencer));
+      yield put(
+        getInfluencers({
+          roleName: "Influencer",
+          limit: 10,
+          pageCount: 0,
+          firstName: "",
+          lastName: "",
+          email: "",
+          status: "",
+          sortBy: "",
+          sortOrder: "",
+          allrecord: false,
+        })
+      );
     } else {
       if (
         response?.result?.details &&
@@ -158,6 +173,20 @@ function* onUpdateInfluencer(action) {
         autoClose: true,
       });
       yield put(updateInfluencerSuccess(response.result.data.influencer));
+      yield put(
+        getInfluencers({
+          roleName: "Influencer",
+          limit: 10,
+          pageCount: 0,
+          firstName: "",
+          lastName: "",
+          email: "",
+          status: "",
+          sortBy: "",
+          sortOrder: "",
+          allrecord: false,
+        })
+      );
     } else {
       throw new Error(
         response?.result?.error ||

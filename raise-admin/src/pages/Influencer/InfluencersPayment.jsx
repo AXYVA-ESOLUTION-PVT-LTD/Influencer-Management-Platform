@@ -27,6 +27,7 @@ import {
 } from "../../store/actions";
 import Chat from "../../components/Notification/Chat";
 import { useNavigate } from "react-router-dom";
+const USER_ID = import.meta.env.VITE_ADMIN_ID;
 
 const InfluencersPayment = () => {
   document.title = "Wallet | Brandraise";
@@ -91,11 +92,8 @@ const InfluencersPayment = () => {
       // Get user Details
       let data = JSON.parse(localStorage.getItem("user"));
 
-      // userId: "6719f9714d317f459da508d7", //server
-      // userId: "67334a52373c3328068f9157", //local
-
       const newNotification = {
-        userId: "6719f9714d317f459da508d7",
+        userId: USER_ID,
         title: `${data.firstName} applied for a withdrawal request`,
         message: `${data.firstName} has requested to withdraw an amount of ${withdrawAmount}.`,
       };
@@ -105,7 +103,7 @@ const InfluencersPayment = () => {
       toggleModal();
       
       // get transaction
-      dispatch(getTransaction({ limit, pageCount }));
+      // dispatch(getTransaction({ limit, pageCount }));
       // Get Wallet Amount
       dispatch(getWalletAmount(userId));
     }

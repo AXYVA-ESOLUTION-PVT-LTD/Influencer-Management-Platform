@@ -64,7 +64,6 @@ const CouponManagement = (props) => {
     if (selectedCoupon) {
       dispatch(deleteTicketRequest({ ticketId: selectedCoupon._id }));
       toggleDeleteModal();
-      dispatch(fetchTicketsRequest({ limit, pageCount, ...filterFields }));
     }
   };
 
@@ -98,13 +97,6 @@ const CouponManagement = (props) => {
     setErrorMessage("");
     setIsEditModalOpen(false);
     
-    dispatch(
-      fetchTicketsRequest({
-        limit,
-        pageCount,
-        ...filterFields,
-      })
-    );
   };
 
   document.title = "Coupon Management | Brandraise ";
