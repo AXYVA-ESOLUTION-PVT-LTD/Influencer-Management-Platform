@@ -12,7 +12,7 @@ const {
   encryptPassword,
 } = require("../config/common");
 const ROLES = require("../config/role");
-
+require("dotenv").config();
 const json = {};
 
 exports.addBrand = _addBrand;
@@ -259,7 +259,7 @@ async function _addBrand(req, res) {
     }
 
     let mailOptions = {
-      from: '"RAISE" <raise@raise.com>',
+      from: process.env.EMAIL_USER,
       to: email,
       subject: "Password for Brand login",
       text: `Your email is ${email} and password is ${password}`,

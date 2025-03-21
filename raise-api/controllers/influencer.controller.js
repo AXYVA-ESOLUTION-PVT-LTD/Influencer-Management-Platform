@@ -1,5 +1,6 @@
 const { validationResult } = require("express-validator");
 const CONSTANT = require("../config/constant");
+require("dotenv").config();
 const USER_COLLECTION = require("../module/user.module");
 const USER_DATA_COLLECTION = require("../module/userData.module");
 const MONTHLY_PERFORMANCE_COLLECTION = require("../module/monthlyPerformance.module");
@@ -132,7 +133,7 @@ async function _addInfluencer(req, res) {
     await wallet.save();
 
     let mailOptions = {
-      from: '"RAISE" <raise@raise.com>',
+      from: process.env.EMAIL_USER,
       to: email,
       subject: "Password for Influencer login",
       text: `Your email is ${email} and password is ${password}`,
