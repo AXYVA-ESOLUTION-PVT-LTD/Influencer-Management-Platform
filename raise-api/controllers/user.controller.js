@@ -476,7 +476,7 @@ async function _forgotPassword(req, res) {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     let mailOptions = {
-      from: '"RAISE" <raise@raise.com>',
+      from: process.env.EMAIL_USER,
       to: email,
       subject: "Password Reset OTP",
       text: `Your OTP for password reset is: ${otp}`,

@@ -55,8 +55,8 @@ function _isOtpValid(otpTime, time) {
 
 async function _sendEmail(mailOptions) {
   let transporter = nodemailer.createTransport({
-    host: "smtp.ethereal.email",
-    port: 587,
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
     // service: "gmail",
     auth: {
       user: process.env.EMAIL_USER,
