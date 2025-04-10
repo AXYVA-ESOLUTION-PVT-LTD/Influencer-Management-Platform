@@ -259,7 +259,7 @@ async function _addBrand(req, res) {
     }
 
     let mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: "info@brandraise.io",
       to: email,
       subject: "Password for Brand login",
       text: `Your email is ${email} and password is ${password}`,
@@ -367,12 +367,12 @@ async function _addBrand(req, res) {
       <div class="button-container">
         <a class="button" href="https://dash.brandraise.io/" target="_blank">Continue to Login</a>
       </div>
-      <p>If you have any questions, feel free to contact our support team at <a href="mailto:support@raise.com">support@raise.com</a>.</p>
+      <p>If you have any questions, feel free to contact our support team at <a href="mailto:info@brandraise.io">info@brandraise.io</a>.</p>
     </div>
     <div class="footer">
       <p>&copy; 2024 RAISE. All rights reserved.</p>
       <p>
-        <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a>
+        <a href="https://brandraise.io/privacy-policy/">Privacy Policy</a> | <a href="https://brandraise.io/terms-conditions/">Terms of Service</a>
       </p>
     </div>
   </div>

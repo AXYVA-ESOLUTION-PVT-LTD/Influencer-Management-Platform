@@ -476,7 +476,7 @@ async function _forgotPassword(req, res) {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     let mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: "info@brandraise.io",
       to: email,
       subject: "Password Reset OTP",
       text: `Your OTP for password reset is: ${otp}`,
@@ -562,12 +562,12 @@ async function _forgotPassword(req, res) {
             <p>${otp}</p>
           </div>
           <p><strong>Note:</strong> This OTP is valid for a limited time. Do not share it with anyone.</p>
-          <p>If you did not request a password reset, please contact our support team at <a href="mailto:support@raise.com">support@raise.com</a>.</p>
+          <p>If you did not request a password reset, please contact our support team at <a href="mailto:info@brandraise.io">info@brandraise.io</a>.</p>
         </div>
         <div class="footer">
           <p>&copy; 2024 RAISE. All rights reserved.</p>
           <p>
-            <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a>
+            <a href="https://brandraise.io/privacy-policy/">Privacy Policy</a> | <a href="https://brandraise.io/terms-conditions/">Terms of Service</a>
           </p>
         </div>
       </div>
